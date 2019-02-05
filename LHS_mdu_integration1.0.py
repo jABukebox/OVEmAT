@@ -1,38 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 30 16:22:16 2019
-
-@author: JahBuh
-"""
 
 # =============================================================================
 # LHS Loop with hard coded variables -- Umschreiben: Fct returns und parameterübergabe!
 # =============================================================================
 
-### imports
+
+
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
 import numpy as np
-#import matplotlib.pyplot as plt
 import pyDOE as pyDOE
 import pandas as pd
 import pyqtgraph as pg
-import random as rd
-#import pyqtgraph.opengl as gl
 import os, sys, csv
-
-
-
-
-
-
-#n=1000 # Number of repeats (test)
-#dimension = 4 # Dimension, bzw. Zahl der Variablen
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))      # Define Base Directory
-
-# Plot von p (LHS Ergebnis) letztlich völlig unwichtig!!!!!!! 
-#n = int(input('Set the Point number: '))
-
-
+# import pyqtgraph.opengl as gl
 
 
 # =============================================================================
@@ -43,15 +27,9 @@ def LatinHype(dimension, n):      # n = number of samples
     return points                       # output.type = array
 
 
+# a,b,c,d,e,f,g,h,i,j,k = 0,0,0,0,0,0,0,0,0,0,0
 
-#p = LatinHype(n)
-
-#print("LHS Values")
-#print(p)
-#print('\n')
-a,b,c,d,e,f,g,h,i,j,k = 0,0,0,0,0,0,0,0,0,0,0
-
-variablen = [a,b,c,d,e,f,g,h,i,j,k]
+# variablen = [a,b,c,d,e,f,g,h,i,j,k]
 
 # =============================================================================
 # Erstellung von Beispielvariablen - Werte müssen natürliche eingelesen werden
@@ -65,11 +43,9 @@ def getVariables():
     var_get = {'Bounderies':['min','max'],'var1':[10,60], 'var2':[5,15],'var3':[60,100],'var4':[1,4]} #'Dictionary' -> Values have to be set from user or default
     var_range_df = pd.DataFrame(data=var_get) # create dataframe from dictionary
     var_range_sort_df = var_range_df.set_index("Bounderies") #Sort after min, max
-    
     print(var_range_sort_df)
-    #print(var_range_sort_df.iloc[1][0]) # Zeile * Spalte
-    #print(p.item(0))
-    
+    # print(var_range_sort_df.iloc[1][0]) # Zeile * Spalte
+    # print(p.item(0))
     return var_range_sort_df
 
 
@@ -190,29 +166,29 @@ class LCE():
 # =============================================================================
 # Data Input & Print
 # =============================================================================
-#print("Please type in the fuel_cycle values: \n") 
+# print("Please type in the fuel_cycle values: \n")
 print('\n\n\n')              # toyota ... 
 
-#fuel_val = (0,0,13.814,0,0,0,28.06,489)
-#FCEV1 = fuel_cycle(fuel_val)
+# fuel_val = (0,0,13.814,0,0,0,28.06,489)
+# FCEV1 = fuel_cycle(fuel_val)
 
 FCEV1 = FuelCycle(0,0,13.814,0,0,0,28.06,489)
-#print(FCEV1)
+# print(FCEV1)
 FCEV2 = VehicleCycle(335.25, 1.124, 1.074, 2.41, 2.43, 1.25, 5.01, 6.22,0,0,0,5,56.48, 40.89,24.3,489,40,0,90,1850)
-#print(FCEV2)
+# print(FCEV2)
 FCEV3 = TCO(0, 20000, 10000, 15000, 0, 3000, 0, 0, 14, 20000, 1.5, 7.4, 66, 150, 0, 0, 0, 0)       # hier darf 13. eintrag nicht 0 sein!! fehler ABFANGEN!
-#print(FCEV3)
+# print(FCEV3)
 FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2), FuelCycle.calcFuelCycle(FCEV1), 15, 10000)
-#FCEV4 = LCE(self.E_vc, self.E_fc, 15, 10000)
-#print(FCEV4)
+# FCEV4 = LCE(self.E_vc, self.E_fc, 15, 10000)
+# print(FCEV4)
 
-#emp_2 = Employee('Test', 'User', '12315')
+# emp_2 = Employee('Test', 'User', '12315')
 
 # =============================================================================
-# Ausgabe
+# Ausgabe in Terminal
 # =============================================================================
 
-#emp_1.fullname()
+# emp_1.fullname()
 print("Fuel Cycle:\t\t" + str(FuelCycle.calcFuelCycle(FCEV1))+ ' ' + "gCO_2eq / km")
 print("\nVehicle Cycle:\t\t", str(VehicleCycle.calcVehicleCycle(FCEV2)) +' '+ "gCO_2eq")
 print("\nTotal Cost per km:\t" + str(TCO.calcTCO(FCEV3)) +' '+ " € / km")
@@ -225,25 +201,18 @@ print("\n\nGesamte LCE:\t\t" + str(LCE.calcLCE(FCEV4)) +' '+ "gCO_2 / km")
 # =============================================================================
 # Verrechnen der LHS Ergebnisse mit Eingangsvariablen -> var_final entstehen      LHS!
 # =============================================================================
-def varFinal():    
-    global var_array
-   # print(var_range_sort_df)
-    #k = 0
-    r=0
+def varFinal():
     lhs_items = 0
     var_array=[]
-    
-    #for r in np.arange(0,n,1):
+
     for r in range(n):
-        var_list=[]                     
-        #for k in np.arange(0,dimension,1):   
-        k=0
+        var_list=[]
         m = 1
         t = 0
         for k in range(dimension):
-            var_max = var_range_sort_df.iloc[m][t]
+            var_max = gV.iloc[m][t]
             m-=1
-            var_min = var_range_sort_df.iloc[m][t]
+            var_min = gV.iloc[m][t]
             m+=1
             var = (p.item(lhs_items)*(var_max - var_min))+var_min
             var_list.append(var)
@@ -252,7 +221,7 @@ def varFinal():
         
         var_array.append(var_list)                                  # Var_list gets appended to var_array
     var_array = np.around(var_array, decimals=4)                    # round numbers 
-    #print(var_array)   
+    # print(var_array)
     return var_array
 
 # =============================================================================
@@ -260,34 +229,34 @@ def varFinal():
 # =============================================================================
 def resultCalc():
     ### erstellen eines mit Nullen gefüllten arrays
-    global result
-    result = np.zeros(shape=(n,2))                                  #  m * n Matrix = zeile * Spalte     
-    #r = 0                                                          # laufvar. für schleife "LHS-Durchläufe"
+    # global result
+    result = np.zeros(shape=(n,2))                                  # m * n Matrix = zeile * Spalte
+    # r = 0                                                          # laufvar. für schleife "LHS-Durchläufe"
     m = 0
     
     
-    for r in range(n):        # 
+    for r in range(n):
         t=0
-        x1 = var_array[r][t]
+        x1 = var[r][t]
         t+=1
-        x2 = var_array[r][t]
+        x2 = var[r][t]
         x = np.around(x1 + x2, decimals=4)
         t+=1
-        y1 = var_array[r][t]
+        y1 = var[r][t]
         t+=1
-        y2 = var_array[r][t]
+        y2 = var[r][t]
         y = np.around(y1 + y2, decimals=4)
-        #print(r)
-        #print(x,y)
+        # print(r)
+        # print(x,y)
         m+=1
         result[r] = [x,y]
-        #print(result[r])
-        #r+=1
+        # print(result[r])
+        # r+=1
 
     result = np.around(result, decimals=4)
-    #print("Result Values")
-    #print(result)
-    return result                           # *
+    # print("Result Values")
+    # print(result)
+    return result
     
 
 # =============================================================================
@@ -300,17 +269,17 @@ class PlotClass():
         self.save_csv()
     
     def save_csv(self):                                         # create folder & file and write results
-        #global result                                                           # *
         if not os.path.exists('results/'):
-            os.makedirs('results/')        
+            os.makedirs('results/')
+
         with open("results/result.csv",'w') as fp:
             a = csv.writer(fp,delimiter = ";")
-            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), result))
+            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), res))
             self.plotting()
 
     def plotting(self):   
         self.i=0
-        #global n, result
+
         # create the view
         self.view = pg.PlotWidget()
         self.view.resize(800,600)
@@ -318,45 +287,37 @@ class PlotClass():
         self.view.setAspectLocked(True)
         self.view.showGrid(True, True, alpha=.5)
         self.view.show()
-        
-        
+
         # Create Scatter Plot and add it to view
         self.plot = pg.ScatterPlotItem(pen=pg.mkPen(width=5, color='r'), symbol = 'x', size=1)
-        #self.plot = pg.gl.GLSurfacePlotItem(pen=pg.mkPen(width=5, color='r'), symbol = 'x', size=1)
+        # self.plot = pg.gl.GLSurfacePlotItem(pen=pg.mkPen(width=5, color='r'), symbol = 'x', size=1)
         self.view.addItem(self.plot)
         
         # Convert data array into a list of dictionaries with the x,y-coordinates
-        self.pos = [{'pos':result[self.i,:]} for self.i in range(n)]
-        
+        self.pos = [{'pos':res[self.i,:]} for self.i in range(n)]
         self.now = pg.ptime.time()
         self.plot.setData(self.pos)
     
         print('plot time: {} sec'.format(pg.ptime.time() - self.now))
 
 
-#p = LatinHype(dimension, n)
-#getVariables()
-#a = varFinal()
-#print(a)
-#resultCalc()
+
 
 
 if __name__ == '__main__':
 
-    n = 1000  # Number of repeats (test)
-    dimension = 4  # Dimension, bzw. Zahl der Variablen
+    n = 1000                        # Number of repeats (test)
+    dimension = 4                   # Dimension, bzw. Zahl der Variablen
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     p = LatinHype(dimension, n)
+    gV = getVariables()
+    var = varFinal()
+    res = resultCalc()
 
-    getVariables()
-    a = varFinal()
 
-    print(a)
-    resultCalc()
     app = pg.mkQApp() # main application instance
     w = PlotClass()
-    #w.show()
     sys.exit(app.exec_())
     
     
