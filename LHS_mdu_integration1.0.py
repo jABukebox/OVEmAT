@@ -25,9 +25,9 @@ import os, sys, csv
 
 
 
-n=100 # Number of repeats (test)
-dimension = 4 # Dimension, bzw. Zahl der Variablen
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))      # Define Base Directory
+#n=1000 # Number of repeats (test)
+#dimension = 4 # Dimension, bzw. Zahl der Variablen
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))      # Define Base Directory
 
 # Plot von p (LHS Ergebnis) letztlich völlig unwichtig!!!!!!! 
 #n = int(input('Set the Point number: '))
@@ -223,7 +223,7 @@ print("\n\nGesamte LCE:\t\t" + str(LCE.calcLCE(FCEV4)) +' '+ "gCO_2 / km")
 
 
 # =============================================================================
-# Verrechnen der LHS Ergebnisse mit Eingangsvariablen -> var_final entstehen
+# Verrechnen der LHS Ergebnisse mit Eingangsvariablen -> var_final entstehen      LHS!
 # =============================================================================
 def varFinal():    
     global var_array
@@ -334,14 +334,26 @@ class PlotClass():
         print('plot time: {} sec'.format(pg.ptime.time() - self.now))
 
 
-p = LatinHype(dimension, n)
-
-getVariables()
-varFinal()
-resultCalc()
+#p = LatinHype(dimension, n)
+#getVariables()
+#a = varFinal()
+#print(a)
+#resultCalc()
 
 
 if __name__ == '__main__':
+
+    n = 1000  # Number of repeats (test)
+    dimension = 4  # Dimension, bzw. Zahl der Variablen
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    p = LatinHype(dimension, n)
+
+    getVariables()
+    a = varFinal()
+
+    print(a)
+    resultCalc()
     app = pg.mkQApp() # main application instance
     w = PlotClass()
     #w.show()
