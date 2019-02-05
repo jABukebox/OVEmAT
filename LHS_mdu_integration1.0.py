@@ -38,7 +38,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))      # De
 # =============================================================================
 # Latin Hypercube Calculation - check pyDOE "criterion and samples"!!
 # =============================================================================
-def LatinHype(dimension, n):      # n = number of samples
+def latinHype(dimension, n):      # n = number of samples
     points = pyDOE.lhs(dimension, samples=n)
     return points                       # output.type = array
 
@@ -49,15 +49,37 @@ def LatinHype(dimension, n):      # n = number of samples
 #print("LHS Values")
 #print(p)
 #print('\n')
-a,b,c,d,e,f,g,h,i,j,k = 0,0,0,0,0,0,0,0,0,0,0
+a,b,c,d,e,f,g,h,i,j = 0,0,0,0,0,0,0,0,0,0
 
-variablen = [a,b,c,d,e,f,g,h,i,j,k]
+### rausfinden wieviele variablen maximal und minimal und listen erstellen
+
+var_names = [a,b,c,d,e,f,g,h,i,j]
+
+propType = ['FCEV', 'BEV', 'ICEV','PHEV']
+
+
+def getVariables(val_min, val_max):
+    ### Create Dict
+    var_get = {'Bounderies': ['min', 'max']}
+
+    for i in range(len(var_names)):
+        key =
+        var_get.append()
+    var_get = {'Bounderies': ['min', 'max'],  # 'Dictionary' -> Values have to be set from user or default
+               'var1': [val_min, val_max],
+               'var2': [val_min, val_max],
+               'var3': [val_min, val_max],
+               'var4': [val_min, val_max],
+               'var5': [val_min, val_max],
+               }
+
+
 
 # =============================================================================
-# Erstellung von Beispielvariablen - Werte müssen natürliche eingelesen werden
+# Erstellung von Beispielvariablen - Werte müssen natürlich eingelesen werden
 # =============================================================================
-def getVariables():    
-    ### Dataframe - get values from User Input 
+def getVariables():
+    ### Dataframe - get values from User Input
     global var_range_sort_df
     var_get = {'Bounderies':['min','max']}
     # Schleife: for i in range(len("my_variablelist")):
@@ -65,11 +87,11 @@ def getVariables():
     var_get = {'Bounderies':['min','max'],'var1':[10,60], 'var2':[5,15],'var3':[60,100],'var4':[1,4]} #'Dictionary' -> Values have to be set from user or default
     var_range_df = pd.DataFrame(data=var_get) # create dataframe from dictionary
     var_range_sort_df = var_range_df.set_index("Bounderies") #Sort after min, max
-    
+
     print(var_range_sort_df)
     #print(var_range_sort_df.iloc[1][0]) # Zeile * Spalte
     #print(p.item(0))
-    
+
     return var_range_sort_df
 
 
@@ -334,7 +356,7 @@ class PlotClass():
         print('plot time: {} sec'.format(pg.ptime.time() - self.now))
 
 
-p = LatinHype(dimension, n)
+p = latinHype(dimension, n)
 
 getVariables()
 varFinal()
