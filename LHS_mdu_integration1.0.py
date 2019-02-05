@@ -54,9 +54,21 @@ a,b,c,d,e,f,g,h,i,j = 0,0,0,0,0,0,0,0,0,0
 ### rausfinden wieviele variablen maximal und minimal und listen erstellen
 
 var_names = [a,b,c,d,e,f,g,h,i,j]
+def vehClassSel():
+    #veh_class = ['compact', 'suv', 'ldv']          #
+    veh_class = input("1: Compact - 2: suv - 3: ldv \n")
 
-propType = ['FCEV', 'BEV', 'ICEV','PHEV']
+    if veh_class == 1:          #spezifische Werte für compact class (fix & var)
+        class_val = []          # compact here
 
+    elif veh_class == 2:        # suv
+        class_val = []
+
+    elif veh_class == 3:        # ldv
+        class_val = []
+    propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
+
+vehClassSel()
 
 def getVariables(val_min, val_max):
     ### Create Dict
@@ -81,7 +93,9 @@ def getVariables(val_min, val_max):
 def getVariables():
     ### Dataframe - get values from User Input
     global var_range_sort_df
+
     var_get = {'Bounderies':['min','max']}
+
     # Schleife: for i in range(len("my_variablelist")):
     #               var_get.append{'var'+i:[rd.randrange(0,11,1),rd.randrange(20,61,1)]}          # in [] getvalues von eingabe
     var_get = {'Bounderies':['min','max'],'var1':[10,60], 'var2':[5,15],'var3':[60,100],'var4':[1,4]} #'Dictionary' -> Values have to be set from user or default
