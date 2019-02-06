@@ -40,7 +40,7 @@ def getVariables():
     var_get = {'Bounderies':['min','max']}
     # Schleife: for i in range(len("my_variablelist")):
     #               var_get.append{'var'+i:[rd.randrange(0,11,1),rd.randrange(20,61,1)]}          # in [] getvalues von eingabe
-    var_get = {'Bounderies':['min','max'],'var1':[10,60], 'var2':[5,15],'var3':[60,100],'var4':[1,4]} #'Dictionary' -> Values have to be set from user or default
+    var_get = {'Bounderies':['min','max'],'var1':[10,60], 'var2':[1,1],'var3':[20,80],'var4':[1,1]} #'Dictionary' -> Values have to be set from user or default
     var_range_df = pd.DataFrame(data=var_get) # create dataframe from dictionary
     var_range_sort_df = var_range_df.set_index("Bounderies") #Sort after min, max
     print(var_range_sort_df)
@@ -229,7 +229,6 @@ def varFinal():
 # =============================================================================
 def resultCalc():
     ### erstellen eines mit Nullen gefüllten arrays
-    # global result
     result = np.zeros(shape=(n,2))                                  # m * n Matrix = zeile * Spalte
     # r = 0                                                          # laufvar. für schleife "LHS-Durchläufe"
     m = 0
@@ -301,12 +300,9 @@ class PlotClass():
         print('plot time: {} sec'.format(pg.ptime.time() - self.now))
 
 
-
-
-
 if __name__ == '__main__':
 
-    n = 1000                        # Number of repeats (test)
+    n = 10000                        # Number of repeats (test)
     dimension = 4                   # Dimension, bzw. Zahl der Variablen
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
