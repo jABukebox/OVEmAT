@@ -14,6 +14,7 @@ import numpy as np
 import pyDOE as pyDOE
 import pandas as pd
 import pyqtgraph as pg
+import getinput as gin
 import os
 import sys
 import csv
@@ -28,14 +29,11 @@ def LatinHype(dimension, n):  # n = number of samples
     return points  # output.type = array
 
 
-a, b, c, d, e, f, g, h, i, j = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-
-### rausfinden wieviele variablen maximal und minimal und listen erstellen
-var_names = [a, b, c, d, e, f, g, h, i, j]
-
-
-def vehClassSel():
-    # veh_class = ['compact', 'suv', 'ldv']          #
+# =============================================================================
+# Choose Vehicle Class
+# =============================================================================
+def vehClassSel():                                              # saved as veh_sel
+    # veh_class = ['compact', 'suv', 'ldv']
     veh_class = int(input("1: Compact - 2: suv - 3: ldv \n"))
     return veh_class
 
@@ -50,48 +48,70 @@ def vehClassSel():
     #     class_val = []
 
 
-def getVariables(val_min, val_max):
-    ### Create Dict
-    var_get = {'Bounderies': ['min', 'max']}
-
-    for i in range(len(var_names)):
-        key = ''
-        var_get.append(key)
-
-    # 'Dictionary' -> Values have to be set from user or default
-    var_get = {'Bounderies': ['min', 'max'],
-               'var1': [val_min, val_max],
-               'var2': [val_min, val_max],
-               'var3': [val_min, val_max],
-               'var4': [val_min, val_max],
-               'var5': [val_min, val_max],
-               }
-
-
 # =============================================================================
 # Erstellung von Beispielvariablen - Werte müssen natürliche eingelesen werden
 # =============================================================================
 def getVariables():
-    propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
-    if veh_sel==1: # compact car
+    #propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
+    if veh_sel==1:                                  # compact car #
 
-        for vehicle in propType:
-            if vehicle == 'BEV':
-                default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+        if vehicle == 'BEV':
+            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
 
-            elif vehicle == 'FCEV':
-                default_vals = pd.DataFrame({''})
+        elif vehicle == 'FCEV':
+            default_vals = pd.DataFrame({''})
 
-            elif vehicle == 'PHEV':
-                default_vals = pd.DataFrame({''})
+        elif vehicle == 'PHEV':
+            default_vals = pd.DataFrame({''})
 
-            elif vehicle == 'FCEV':
-                default_vals = pd.DataFrame({''})
+        elif vehicle == 'FCEV':
+            default_vals = pd.DataFrame({''})
 
-            else:
-                break
+        else:
+            break
 
-        dimension = ((default_vals.size)/2) # Length of Variable list
+    elif veh_sel == 2:                              # midsize SUV #
+
+        if vehicle == 'BEV':
+            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+
+        elif vehicle == 'FCEV':
+            default_vals = pd.DataFrame({''})
+
+        elif vehicle == 'PHEV':
+            default_vals = pd.DataFrame({''})
+
+        elif vehicle == 'FCEV':
+            default_vals = pd.DataFrame({''})
+
+        else:
+            break
+
+    elif veh_sel == 3:                              # Light Duty Vehicle #
+
+        if vehicle == 'BEV':
+            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+
+        elif vehicle == 'FCEV':
+            default_vals = pd.DataFrame({''})
+
+        elif vehicle == 'PHEV':
+            default_vals = pd.DataFrame({''})
+
+        elif vehicle == 'FCEV':
+            default_vals = pd.DataFrame({''})
+
+        else:
+            break
+
+        dimension = ((default_vals.size) / 2)  # Length of Variable list
+
+    else:
+        print('Wrong Input! \n')
+        vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
+
+    return default_vals
+
 
 
 
@@ -113,36 +133,13 @@ def getVariables():
     return var_range_sort_df
 
 
-def default_vals():
+def defaultVals():
     default_list = []
     propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
     for vehicle in range(len(propType)):
         if vehicle == 'BEV':
-            default_val = pd.DataFrame({'Boundaries':['min','max'],  # Hier alle Vals (Var + fix)
-                                        'C3_batt': [0, 1.1],
-                                        'FE_batt':[90, 95],
-                                        'C3_h2': [0, 1.923],
-                                        'FE_h2': [43, 48],
-                                        'C3_synth': [0, 2.273],
-                                        'FE_synth': [28, 33],
-                                        'E_elGER': [500, 650],
-                                        'C5':[1600, 2000],
-                                        'cd':[45,60],
-                                        'E_elCh':[700, 800],
-                                        'P_batt':[0, 0],
-                                        'E_batt':[30, 80],
-                                        'P_fc': [0, 0],
-                                        'L':[13, 20],
-                                        'D':[10000, 20000],
-                                        'C_fuelH2':[0, 0],
-                                        'C_fuelEl':[0, 0],
-                                        'C_fuelSynth':[0, 0],
-                                        'r':[0, 3],
-                                        'C_batt':[150, 200],
-                                        'C_fc':[0, 0],
-                                        'S_ren':[0, 0]
-                                        })
-            default_val = default_val.set_index('Bounderies')
+            default_val = gin.default_general()
+
 
         elif vehicle == 'FCEV':
             default_val = pd.DataFrame({''})
@@ -161,7 +158,7 @@ def default_vals():
 
 
 def fix_vals():
-    default_list = []
+    fix_list = []
     propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
     for vehicle in range(len(propType)):
         if vehicle == 'BEV':
@@ -182,9 +179,10 @@ def fix_vals():
         default_list[vehicle] = default_val
     return fix_list
 
-def lhs_dimension():                                            # Dynamic dimension of LHS - depending on no. of Vars
-    dim = ((default_vals.size) / 2)  # Length of Variable list
+def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension"
+    dim = ((len(defaultVals())) / 2)  # Length of Variable list
     return dim
+
 
 #################################################################################
 # ============================================================================= #
@@ -351,27 +349,32 @@ print("\nGesamte LCE:\t\t"    + str(LCE.calcLCE(FCEV4))                   + ' ' 
 # Verrechnen der LHS Ergebnisse mit Eingangsvariablen -> var_final entstehen      LHS!
 # =============================================================================
 def varFinal():
-    lhs_items = 0
-    var_array = []
+    propType = ['BEV','FCEV','PHEV','ICEV']
+    var_all = []
+    for vehicle in range(len(propType)):                                         # Durchlauf jedes propTypes
+        gV = getVariables(veh_sel, vehicle)                                      # holt die
+        lhs_items = 0
+        var_array = []
 
-    for r in range(n):      # Anzahl der Durchläufe
-        var_list = []
-        m = 1
-        t = 0
-        for k in range(dimension):      # alle Range-Werte mit reihe des LHS multiplizieren
-            var_max = gV.iloc[m][t]
-            m -= 1
-            var_min = gV.iloc[m][t]
-            m += 1
-            var = (p.item(lhs_items) * (var_max - var_min)) + var_min
-            var_list.append(var)
-            lhs_items += 1
-            t += 1
+        for r in range(n):                                                       # Anzahl der LHS Durchläufe
+            var_list = []                                                        # initiieren var_list: hier sollen pro 'n' alle verrechneten parameter in eine Liste gespeichert werden
+            m = 1
+            t = 0
+            for k in range(dimension):                                           # alle Range-Werte mit reihe des LHS multiplizieren
+                var_max = gV.iloc[m][t]
+                m -= 1
+                var_min = gV.iloc[m][t]
+                m += 1
+                var = (p.item(lhs_items) * (var_max - var_min)) + var_min        # Verrechnung der Variablen mit LHS Ergebnissen in var
+                var_list.append(var)                                             # Anhängen der Paramter an liste
+                lhs_items += 1
+                t += 1
 
-        var_array.append(var_list)  # Var_list gets appended to var_array
-    var_array = np.around(var_array, decimals=4)  # round numbers
-    print(var_array)        #
-    return var_array
+            var_array.append(var_list)                                           # Var_list gets appended to var_array
+        var_array = np.around(var_array, decimals=4)                             # round numbers
+    var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
+    print(var_all)                                                               # propType Variablen
+    return var_all
 
 
 # =============================================================================
