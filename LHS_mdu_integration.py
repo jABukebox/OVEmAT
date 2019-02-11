@@ -6,6 +6,10 @@
 # Umschreiben: Fct returns und Parameterübergabe!
 # =============================================================================
 
+# Aus Django:
+# vehicle = get_value(...) ['BEV' oder 'FCEV' oder 'PHEV' oder 'ICEV']
+#
+
 
 # =============================================================================
 # IMPORTS
@@ -22,17 +26,22 @@ import csv
 
 
 # =============================================================================
-# Latin Hypercube Calculation - check pyDOE "criterion and samples"!!
+# Latin Hypercube Calculation TODO: check pyDOE "criterion and samples"!!
 # =============================================================================
 def LatinHype(dimension, n):  # n = number of samples
     points = pyDOE.lhs(dimension, samples=n)
     return points  # output.type = array
 
 
+def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension" -> Muss so lang sein wie die anzahl der Range werte!!
+    dim = (len())  # Length of Variable list # TODO: len(range_variablen)
+    return dim
+
+
 # =============================================================================
 # Choose Vehicle Class
 # =============================================================================
-def vehClassSel():                                              # saved as veh_sel
+def vehClassSel():              # saved as "veh_sel"
     # veh_class = ['compact', 'suv', 'ldv']
     veh_class = int(input("1: Compact - 2: suv - 3: ldv \n"))
     return veh_class
@@ -48,140 +57,77 @@ def vehClassSel():                                              # saved as veh_s
     #     class_val = []
 
 
-# =============================================================================
-# Erstellung von Beispielvariablen - Werte müssen natürliche eingelesen werden
-# =============================================================================
-def getVariables():
-    #propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
-    if veh_sel==1:                                  # compact car #
-
-        if vehicle == 'BEV':
-            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
-
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'PHEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
-
-        else:
-            break
-
-    elif veh_sel == 2:                              # midsize SUV #
-
-        if vehicle == 'BEV':
-            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
-
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'PHEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
-
-        else:
-            break
-
-    elif veh_sel == 3:                              # Light Duty Vehicle #
-
-        if vehicle == 'BEV':
-            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
-
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'PHEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
-
-        else:
-            break
-
-        dimension = ((default_vals.size) / 2)  # Length of Variable list
-
-    else:
-        print('Wrong Input! \n')
-        vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
-
-    return default_vals
-
-
-
-
-    ### Dataframe - get values from User Input
-    var_get = {'Bounderies': ['min', 'max']}
-    # Schleife: for i in range(len("my_variablelist")):
-    #               var_get.append{'var'+i:[rd.randrange(0,11,1),rd.randrange(20,61,1)]}
-    # 'Dictionary' -> Values have to be set from user or default
-    var_get = {'Bounderies': ['min', 'max'],
-               'var1': [10, 60],
-               'var2': [1, 1],
-               'var3': [20, 80],
-               'var4': [1, 1]}
-    var_range_df = pd.DataFrame(data=var_get)  # create dataframe from dictionary
-    var_range_sort_df = var_range_df.set_index("Bounderies")  # Sort after min, max
-    print(var_range_sort_df)
-    # print(var_range_sort_df.iloc[1][0]) # Zeile * Spalte
-    # print(p.item(0))
-    return var_range_sort_df
+# # =============================================================================
+# # Einlesen der Variablen aus getinput.py
+# # =============================================================================
+# def getVariables():
+#     #propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
+#     if veh_sel==1:                                  # compact car #
+#
+#         if vehicle == 'BEV':                        # Hier alle Vals (Var + fix)
+#             var_vals = pd.DataFrame({''})
+#             fix_vals =
+#             default_vals = pd.DataFrame({''})
+#
+#
+#         elif vehicle == 'FCEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         elif vehicle == 'PHEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         elif vehicle == 'FCEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         else:
+#             pass
+#
+#     elif veh_sel == 2:                              # midsize SUV #
+#
+#         if vehicle == 'BEV':
+#             default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+#
+#         elif vehicle == 'FCEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         elif vehicle == 'PHEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         elif vehicle == 'FCEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         else:
+#             pass
+#
+#     elif veh_sel == 3:                              # Light Duty Vehicle #
+#
+#         if vehicle == 'BEV':
+#             default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+#
+#         elif vehicle == 'FCEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         elif vehicle == 'PHEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         elif vehicle == 'FCEV':
+#             default_vals = pd.DataFrame({''})
+#
+#         else:
+#             pass
+#
+#         dimension = ((default_vals.size) / 2)  # Length of Variable list
+#
+#     else:
+#         print('Wrong Input! \n')
+#         vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
+#
+#     return default_vals
 
 
-def defaultVals():
-    default_list = []
-    propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
-    for vehicle in range(len(propType)):
-        if vehicle == 'BEV':
-            default_val = gin.default_general()
-
-
-        elif vehicle == 'FCEV':
-            default_val = pd.DataFrame({''})
-
-        elif vehicle == 'PHEV':
-            default_val = pd.DataFrame({''})
-
-        elif vehicle == 'ICEV':
-            default_val = pd.DataFrame({''})
-
-        else:
-            pass
-
-        default_list[vehicle] = default_val
-    return default_list
-
-
-def fix_vals():
-    fix_list = []
-    propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
-    for vehicle in range(len(propType)):
-        if vehicle == 'BEV':
-            default_val = pd.DataFrame({''})  # Hier alle Vals (Var + fix)
-
-        elif vehicle == 'FCEV':
-            default_val = pd.DataFrame({''})
-
-        elif vehicle == 'PHEV':
-            default_val = pd.DataFrame({''})
-
-        elif vehicle == 'ICEV':
-            default_val = pd.DataFrame({''})
-
-        else:
-            pass
-
-        default_list[vehicle] = default_val
-    return fix_list
-
-def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension"
-    dim = ((len(defaultVals())) / 2)  # Length of Variable list
-    return dim
+    # # print(var_range_sort_df.iloc[1][0]) # Zeile * Spalte
+    # # print(p.item(0))
+    # return var_range_sort_df
 
 
 #################################################################################
@@ -191,31 +137,45 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
 #################################################################################
 
 class FuelCycle():
-    C1, C2, C3, C4, C5, C6, FE, E_elec = 0, 0, 0, 0, 0, 0, 0, 0
-    def __init__(self, C1, C2, C3, C4, C5, C6, FE, E_elec):
-        self.C1 = C1
-        self.C2 = C2
+    def __init__(self, C3, C5, FE, E_elGer, w, cd):
         self.C3 = C3
-        self.C4 = C4
         self.C5 = C5
         self.C6 = C6
         self.FE = FE
-        self.E_elec = E_elec
-        self.calcFuelCycle
+        self.E_elGer = E_elGer
+        self.w = w
+        self.cd = cd
+        #self.calcFuelCycle
 
     def calcFuelCycle(self):
-        try:
-            E_fc = self.C1 + self.C2 * 1 / (self.FE) + self.C3 * 1 / (self.FE) * self.E_elec + self.C4 + self.C5 * 1 / (
-                self.FE) + self.C6 * 1 / self.FE * self.E_elec
-            return E_fc
-        except:
-            print("An error has occured! Please try again!")
+        if vehicle == 'BEV' or vehicle == 'FCEV' or vehicle == 'ICEV':              # trennung von PHEV. Calculation andere
+            try:
+                E_fc = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE
+                return E_fc
+            except:
+                print("An error has occured! Please try again!")
+        elif vehicle == 'PHEV':
+            try:
+                if veh_sel == 1:
+                    C3 = # Hier müssen werte aus LHS verrechnung rein
+                    c_v = gin.default_compact()  # bv = bev_vals
 
+                elif veh_sel == 2:
+
+                elif veh_sel == 3:
+
+                cs = 100 - self.cd
+                E_fc_cs = C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
+                E_fc_cd = # Hier werte für BEV
+                E_fc = (E_fc_cs * cs + E_fc_cd * cd)/100
+                return E_fc
+            except:
+                print("An error has occured! Please try again!")
 
 class VehicleCycle():
     # FCEV2 = vehicle_cycle(35.25, 1.124, 1.074, 2.41, 2.43, 1.25, 5.01, 6.22, 0, 0, 0, 5, 56.48, 40.89(x14), 24.3, 489, 40, 0, 90, 1850)
-    def __init__(self, X1=0, X2=0, X3=0, X4=0, X5=0, X6=0, X7=0, X8=0, X9=0, X10=0, X11=0, X12=0, X13=0, X14=0,
-                 E_elec=0, m_scal=0, P_batt=0, C_batt=0, P_fc=0, m_curb=0):
+    def __init__(self, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14,
+                 E_elec, m_scal, P_batt, C_batt, P_fc, m_curb):
         self.X1 = X1
         self.X2 = X2
         self.X3 = X3
@@ -236,7 +196,7 @@ class VehicleCycle():
         self.C_batt = C_batt
         self.P_fc = P_fc
         self.m_curb = m_curb
-        self.calcVehicleCycle
+        #self.calcVehicleCycle
 
     def calcVehicleCycle(self):
         try:
@@ -250,8 +210,8 @@ class VehicleCycle():
 
 
 class TCO():  # FE may not be '0' - (ZeroDevisionError)
-    def __init__(self, C_msrp=0, C_aV=0, C_EM=0, C_Pbatt=0, C_Ebatt=0, C_FC=0, C_CM=0, C_TM=0, L=0, D=0, r=0, C_fuel=0,
-                 FE=0, C_maint=0, C_BEV=0, C_FCEV=0, C_ICEV=0, C_PHEV=0):
+    def __init__(self, C_msrp, C_aV, C_EM, C_Pbatt, C_Ebatt, C_FC, C_CM, C_TM, L, D, r, C_fuel,
+                 FE, C_maint, C_BEV, C_FCEV, C_ICEV, C_PHEV, S_ren):
         # Beispiel Values FCEV): 0,  20000,    10000,  15000,     0,         3000,    0,      0,   14, 20000, 1.5,   7.4,     66,     150,      0,      0,        0,        0
         self.C_msrp = C_msrp
         self.C_aV = C_aV
@@ -271,7 +231,8 @@ class TCO():  # FE may not be '0' - (ZeroDevisionError)
         self.C_FCEV = C_FCEV
         self.C_ICEV = C_ICEV
         self.C_PHEV = C_PHEV
-        self.calcTCO
+        self.S_ren = S_ren
+        #self.calcTCO
 
     def calcTCO(self):
         try:
@@ -283,10 +244,12 @@ class TCO():  # FE may not be '0' - (ZeroDevisionError)
                 Eq = ((self.C_fuel / self.FE) + (self.C_maint / self.D)) / (1 + self.r) ** (y - 1)
                 SUMME = SUMME + Eq
                 # y = +1
-
+            #if boolean Checkbox = 0:
             C_msrp = self.C_aV + self.C_BEV + self.C_FCEV + self.C_ICEV + self.C_PHEV
-            C_tot = C_msrp / (self.L * self.D) + SUMME
-            return C_tot
+            #else:
+                #C_msrp = self.C_aV + self.C_BEV + self.C_FCEV + self.C_ICEV + self.C_PHEV - self.S_ren
+            C_tco = C_msrp / (self.L * self.D) + SUMME
+            return C_tco
         except:
             print("An error has occured! Please try again!")
 
@@ -297,12 +260,12 @@ class LCE():
         self.E_fc = E_fc
         self.L = L
         self.D = D
-        self.calcLCE
+        #self.calcLCE
 
     def calcLCE(self):
         try:
-            E = (self.E_vc / (self.L * self.D) + self.E_fc)
-            return E
+            E_lce = (self.E_vc / (self.L * self.D) + self.E_fc)
+            return E_lce
         except:
             print("An error has occured! Please try again!")
 
@@ -331,10 +294,9 @@ FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2), FuelCycle.calcFuelCycle(FCEV1)
 # emp_2 = Employee('Test', 'User', '12315')
 
 # =============================================================================
-# Ausgabe in Terminal
+# Output in Terminal
 # =============================================================================
 
-# emp_1.fullname()
 print("Fuel Cycle:\t\t\t"         + str(FuelCycle.calcFuelCycle(FCEV1))       + ' ' + "gCO_2eq / km")
 print("\nVehicle Cycle:\t\t"    + str(VehicleCycle.calcVehicleCycle(FCEV2)) + ' ' + "gCO_2eq")
 print("\n\nTotal Cost per km:\t"  + str(TCO.calcTCO(FCEV3))                   + ' ' + "€ / km")
@@ -342,7 +304,6 @@ print("\nGesamte LCE:\t\t"    + str(LCE.calcLCE(FCEV4))                   + ' ' 
 
 
 #################################################################################
-
 
 
 # =============================================================================
@@ -358,8 +319,8 @@ def varFinal():
 
         for r in range(n):                                                       # Anzahl der LHS Durchläufe
             var_list = []                                                        # initiieren var_list: hier sollen pro 'n' alle verrechneten parameter in eine Liste gespeichert werden
-            m = 1
-            t = 0
+            m = 1               # Zeile
+            t = 0               # Spalte
             for k in range(dimension):                                           # alle Range-Werte mit reihe des LHS multiplizieren
                 var_max = gV.iloc[m][t]
                 m -= 1
@@ -388,7 +349,7 @@ def resultCalc():
 
     for r in range(n):
         t = 0
-        for z in range((default.size)/2)
+        for z in range(dimension)
             x = var[r][t]
             t += 1
 
@@ -455,21 +416,16 @@ class PlotClass():
 
 
 if __name__ == '__main__':
-
-
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     n = 1000  # Number of repeats (test it!)
     dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
     # Call Functions
     veh_sel = vehClassSel()
-
-
-
-
     p = LatinHype(dimension, n)
-    gV = getVariables()
+    gV = getVariables()             # TODO: Check gV in varFinal! doppelung?
     var = varFinal()
     res = resultCalc()
 
