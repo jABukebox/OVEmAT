@@ -33,9 +33,9 @@ booleanCheckbox = 1
 
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
-    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_fc'],  # Hier alle var Vals (Ranges)
-                                'min': [0.0, 0.0, 0.0, 400.0, 8000.0, 0.0, 45.0, 700.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0],
-                                'max': [1.1, 1.923, 2.273, 650, 9000, 0, 60, 800, 20, 20000, 0, 0, 0, 3, 200, 0]
+    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_fc'],  # Hier alle var Vals (Ranges)
+                                'min': [0.0, 0.0, 0.0, 400.0, 8000.0, 0.0, 45.0, 0.0, 700.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0],
+                                'max': [1.1, 1.923, 2.273, 650, 9000, 0, 60, 0.0, 800, 20, 20000, 0, 0, 0, 3, 200, 0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -116,6 +116,7 @@ def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
     default_val = default_val.set_index('vars')
     return default_val
 
+
 def changed_ldv():                              # TODO: hier müssen auch value changes rein!!
     changed_vals = default_ldv()
     # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
@@ -138,23 +139,24 @@ def constant_vals():                        # constanten wie Energiedichte TODO:
 # get default values for compact cars TODO: in get Variables einfügen
 # HIER: spezifische Werte für jeweils klasse und propType
 
-cc_bev =    changed_compact().reindex(['FE_batt', 'E_batt','S_renBig'], axis='rows') # add energy density w and all X...
-# xc_bev =    gin.x_vals().loc['compact(bev)']
-# range_bev = pd.concat([cc_bev, gin.default_general()])   # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
-#
-# cc_fcev =   gin.changed_compact().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-# cc_phev =   gin.changed_compact().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-# cc_icev =   gin.changed_compact().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
-#
-# cs_bev =    gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-# cs_fcev =   gin.changed_suv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-# cs_phev =   gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-# cs_icev =   gin.changed_suv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
-#
-# cl_bev =    gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-# cl_fcev =   gin.changed_ldv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-# cl_phev =   gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-# cl_icev =   gin.changed_ldv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+cc_bev =    changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty', 'S_renBig'], axis='rows') # must stay here for LHS-Dimension
+#xc_bev =    gin.x_vals().loc['compact(bev)']
+cg_bev = changed_general().reindex([])
+range_vals = pd.concat([cc_bev, gin.changed_general()])   # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
+
+cc_fcev = gin.changed_compact().reindex(['FE_h2', 'P_batt', 'S_renBig'], axis='rows')
+cc_phev = gin.changed_compact().reindex(['FE_batt', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+cc_icev = gin.changed_compact().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+
+cs_bev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
+cs_fcev = gin.changed_suv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
+cs_phev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+cs_icev = gin.changed_suv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+
+cl_bev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
+cl_fcev = gin.changed_ldv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
+cl_phev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+cl_icev = gin.changed_ldv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
 
 
 # C3 = default_compact().('c3_batt')

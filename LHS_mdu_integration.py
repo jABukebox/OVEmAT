@@ -2,14 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # =============================================================================
-# LHS Loop with hard coded variables
+# Latin Hypercube Sampling (LHS) Loop with hard coded variables
 # Umschreiben: Fct returns und Parameterübergabe!
 # =============================================================================
-
-# Aus Django:
-# vehicle = get_value(...) ['BEV' oder 'FCEV' oder 'PHEV' oder 'ICEV']
-#
-
 
 # =============================================================================
 # IMPORTS
@@ -41,7 +36,7 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
 # =============================================================================
 # Choose Vehicle Class
 # =============================================================================
-def vehClassSel():              # saved as "veh_sel"
+def vehClassSel():              # saved as "class_sel"
     # veh_class = ['compact', 'suv', 'ldv']
     veh_class = int(input("1: Compact - 2: suv - 3: ldv \n"))
     return veh_class
@@ -156,13 +151,13 @@ class FuelCycle():
                 print("An error has occured! Please try again!")
         elif vehicle == 'PHEV':
             try:
-                if veh_sel == 1:
+                if class_sel == 1:
                     C3 = # Hier müssen werte aus LHS verrechnung rein
                     c_v = gin.default_compact()  # bv = bev_vals
 
-                elif veh_sel == 2:
+                elif class_sel == 2:
 
-                elif veh_sel == 3:
+                elif class_sel == 3:
 
                 cs = 100 - self.cd
                 E_fc_cs = C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
@@ -313,24 +308,23 @@ def varFinal():
     propType = ['BEV','FCEV','PHEV','ICEV']
     var_all = []
     for vehicle in range(len(propType)):                                         # Durchlauf jedes propTypes
-        gV = getVariables(veh_sel, vehicle)                                      # holt die
+        gV = getVariables(class_sel, vehicle)                                      # holt die
         lhs_items = 0
         var_array = []
 
         for r in range(n):                                                       # Anzahl der LHS Durchläufe
             var_list = []                                                        # initiieren var_list: hier sollen pro 'n' alle verrechneten parameter in eine Liste gespeichert werden
-            m = 1               # Zeile
-            t = 0               # Spalte
+            m = 0               # row / zeile
+            t = 1               # column / spalte
             for k in range(dimension):                                           # alle Range-Werte mit reihe des LHS multiplizieren
-                var_max = gV.iloc[m][t]
-                m -= 1
-                var_min = gV.iloc[m][t]
-                m += 1
-                var = (p.item(lhs_items) * (var_max - var_min)) + var_min        # Verrechnung der Variablen mit LHS Ergebnissen in var
-                var_list.append(var)                                             # Anhängen der Paramter an liste
-                lhs_items += 1
+                var_max = gV.iloc[m][t]                                          # bestimmung des max Wertes der eingegebenen Range
+                t -= 1
+                var_min = gV.iloc[m][t]                                          # bestimmung des min Wertes der eingegebenen Range
                 t += 1
-
+                var = (p.item(lhs_items) * (var_max - var_min)) + var_min        # Verrechnung der Variablen mit LHS Ergebnissen in var
+                var_list.append(var)                                             # Anhängen der Parameter an liste
+                lhs_items += 1
+                m += 1
             var_array.append(var_list)                                           # Var_list gets appended to var_array
         var_array = np.around(var_array, decimals=4)                             # round numbers
     var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
@@ -342,6 +336,8 @@ def varFinal():
 # Berechnung des results mit varFinal variablen
 # =============================================================================
 def resultCalc():
+
+    # Put all values together
     X_vals = list(gin.x_vals().loc['compact(bev)']) # get X_vals Todo: schleife für compact, suv etc ->
 
     FuelVals = ...          # Todo: Hier alle Listen zusammenfügen. die jeweiligen werte aus LHS + X_vals + constant_vals + spec_vals
@@ -424,13 +420,17 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     n = 1000  # Number of repeats (test it!)
-    dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
+
 
 
     # Call Functions
-    veh_sel = vehClassSel()
+    gen_def = gin.default_general()  # Einlesen der general defaults
+    all_range = pd.concat([gin.cc_bev, gen_def]) #für dimension length
+    dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
+
+    class_sel = vehClassSel()
     p = LatinHype(dimension, n)
-    gV = getVariables()             # TODO: Check gV in varFinal! doppelung?
+    #gV = getVariables()             # TODO: Check gV in varFinal! doppelung?
     var = varFinal()
     res = resultCalc()
 

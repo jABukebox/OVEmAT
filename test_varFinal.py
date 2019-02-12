@@ -6,7 +6,7 @@ def varFinal():
     propType = ['BEV','FCEV','PHEV','ICEV']
     var_all = []
     for vehicle in range(len(propType)):                                         # Durchlauf jedes propTypes
-        gV = getVariables(veh_sel, vehicle)                                      # holt die
+        gV = getVariables(class_sel, vehicle)                                      # holt die
         lhs_items = 0
         var_array = []
 
@@ -23,8 +23,6 @@ def varFinal():
                 var_list.append(var)                                             # Anhängen der Parameter an liste
                 lhs_items += 1
                 m += 1
-            X_vals = list(gin.x_vals().loc['compact(bev)'])
-            var_list.extend(X_vals)  # TODO: append X_vals, spec_fals & constant_vals ABER sehr rechenaufwändig .. lieber bei auslesen hinzufügen
             var_array.append(var_list)                                           # Var_list gets appended to var_array
         var_array = np.around(var_array, decimals=4)                             # round numbers
     var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
@@ -32,67 +30,60 @@ def varFinal():
     return var_all
 
 
-def getVariables(veh_sel, vehicle):
-    #propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
-    if veh_sel==1:                                  # compact car #
-        if vehicle == 'BEV':
-            # max = gin.default_compact().reindex(index=['C3_batt', 'FE_batt', 'E_elGer', 'C5', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r','C_batt'], columns=['max'])
-            # min = gin.default_compact().reindex(
-            #     index=['C3_batt', 'FE_batt', 'E_elGER', 'C5', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r',
-            #            'C_batt'], columns=['min'])
-            # dc_bev = gin.default_compact().reindex(
-            #     ['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt',
-            #      'S_renBig'], axis='rows')  # add energy density w and all X...
+def getVariables(class_sel, vehicle):
+    if class_sel == 1:                                  # compact car #
+        if vehicle == 0:    # BEV
+            cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'S_renBig'], axis='rows')
+              # add energy density w and all X...
+            range_vals = pd.concat([cc_bev, gen_def])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS TODO: gin.default_general() vor varFinal
 
-            cc_bev = gin.changed_compact().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt',
-                 'S_renBig'], axis='rows')  # add energy density w and all X...
-            xc_bev = gin.x_vals().loc['compact(bev)']
-            range_bev = pd.concat([cc_bev, gin.default_general()])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
-            return range_bev
+        elif vehicle == 1: # FCEV
+            cc_fcev = gin.changed_compact().reindex(
+                ['FE_h2', 'P_batt', 'S_renBig'], axis='rows')
+            range_vals = pd.concat([cc_fcev, gin.changed_general()])
 
-        elif vehicle == 'FCEV':
-            default_vals = pd.DataFrame({''})
+        elif vehicle == 2:  # PHEV
+            cc_phev = gin.changed_compact().reindex(
+                ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh',
+                 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
 
-        elif vehicle == 'PHEV':
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 'FCEV':
+        elif vehicle == 3:  # ICEV
             default_vals = pd.DataFrame({''})
 
         else:
-            break
+            pass
 
-    elif veh_sel == 2:                              # midsize SUV #
-        if vehicle == 'BEV':
+    elif class_sel == 2:                              # midsize SUV #
+        if vehicle == 0:    # BEV
             default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
 
-        elif vehicle == 'FCEV':
+        elif vehicle == 1:  # FCEV
             default_vals = pd.DataFrame({''})
 
-        elif vehicle == 'PHEV':
+        elif vehicle == 2:  # PHEV
             default_vals = pd.DataFrame({''})
 
-        elif vehicle == 'FCEV':
+        elif vehicle == 3:  # ICEV
             default_vals = pd.DataFrame({''})
 
         else:
-            break
+            pass
 
-    elif veh_sel == 3:                              # Light Duty Vehicle #
-        if vehicle == 'BEV':
+    elif class_sel == 3:                              # Light Duty Vehicle #
+        if vehicle == 0:    # BEV
             default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
 
-        elif vehicle == 'FCEV':
+        elif vehicle == 1:  # FCEV
             default_vals = pd.DataFrame({''})
 
-        elif vehicle == 'PHEV':
+        elif vehicle == 2:  # PHEV
             default_vals = pd.DataFrame({''})
 
-        elif vehicle == 'FCEV':
+        elif vehicle == 3:  # ICEV
             default_vals = pd.DataFrame({''})
 
         else:
-            break
+            pass
 
         dimension = ((default_vals.size) / 2)  # Length of Variable list
 
@@ -100,7 +91,7 @@ def getVariables(veh_sel, vehicle):
         print('Wrong Input! \n')
         vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
 
-    return default_vals
+    return range_vals
 
 
 # import numpy as np
