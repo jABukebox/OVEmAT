@@ -213,7 +213,19 @@ def spec_vals():           # specific vehicle vals - alles fixwerte
     spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
                                           'm_curb':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
 
-                                          'C_msrp':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301]
+                                          'C_msrp':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301],
+
+                                          'P_battDef':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+                                          'E_battDef':[x, x, x, 0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0],
+
+                                          'P_fcDef':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+                                          'C_battDef':[x, x, x, x, x, x, x, x, x, 0.0, 0.0, 0.0],
+
+                                          'C_fcDef':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+                                          'CF_Pbatt':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
                                         })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default

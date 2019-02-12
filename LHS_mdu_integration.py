@@ -130,7 +130,8 @@ def vehClassSel():              # saved as "class_sel"
 # Definition of Classes (Calculations)                                          #
 # ============================================================================= #
 #################################################################################
-
+class vehicles():
+    def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh)
 class FuelCycle():
     def __init__(self, C3, C5, FE, E_elGer, w, cd):
         self.C3 = C3
