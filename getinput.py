@@ -27,7 +27,8 @@ import pandas as pd
 # TODO: * Check welche default_vals immer gleich -> doppelung rausnehmen
 #       * boolean Checkbox und vehicle bei test! kommt von django
 
-
+vehicle = 'BEV'
+booleanCheckbox = 1
 
 
 
@@ -84,9 +85,10 @@ def changed_compact():                              # TODO: hier müssen auch va
 
 # SUV
 def default_suv(): # muss noch angepasst werden TODO: Werte anpassen für suv
-    default_val = pd.DataFrame({'vars':['C3_batt','FE_batt','C3_h2','FE_h2','C3_synth','FE_synth','E_elGer','C5_icev','C5_empty','cd','E_elCh','P_batt','E_batt','P_fc','L','D','C_fuelH2','C_fuelEl','C_fuelSynth','r','C_batt','C_fc','S_renBig','S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[0.0, 90.0, 0.0, 43.0, 0.0, 28.0, 400.0, 8000.0, 0.0, 45.0, 700.0, 0.0, 30.0, 0.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[1.1, 95, 1.923, 48, 2.273, 33, 650, 9000, 0, 60, 800, 0, 80, 0, 20, 20000, 0, 0, 0, 3, 200, 0, 0, 0, 0.0]
+    default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
+                                         'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
+                                'min':[90.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[95.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -106,9 +108,10 @@ def changed_suv():                              # TODO: hier müssen auch value 
 
 # LDV
 def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
-    default_val = pd.DataFrame({'vars':['C3_batt','FE_batt','C3_h2','FE_h2','C3_synth','FE_synth','E_elGer','C5_icev','C5_empty','cd','E_elCh','P_batt','E_batt','P_fc','L','D','C_fuelH2','C_fuelEl','C_fuelSynth','r','C_batt','C_fc','S_renBig','S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[0.0, 90.0, 0.0, 43.0, 0.0, 28.0, 400.0, 8000.0, 0.0, 45.0, 700.0, 0.0, 30.0, 0.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[1.1, 95, 1.923, 48, 2.273, 33, 650, 9000, 0, 60, 800, 0, 80, 0, 20, 20000, 0, 0, 0, 3, 200, 0, 0, 0, 0.0]
+    default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
+                                         'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
+                                'min':[90.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[95.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -127,7 +130,7 @@ def changed_ldv():                              # TODO: hier müssen auch value 
 
 
 def constant_vals():                        # constanten wie Energiedichte TODO: alle Konstanten eintragen
-    constants = pd.DataFrame({'energy_densH2':33.33, 'energy_densSynth':})
+    constants = pd.DataFrame({'energy_densH2':33.33, 'energy_densSynth':12})
     constants = constants.set_index('vars')
     return constants
 
@@ -135,45 +138,34 @@ def constant_vals():                        # constanten wie Energiedichte TODO:
 # get default values for compact cars TODO: in get Variables einfügen
 # HIER: spezifische Werte für jeweils klasse und propType
 
-dc_bev =    gin.changed_compact().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt',  'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-xc_bev =    gin.
+cc_bev =    changed_compact().reindex(['FE_batt', 'E_batt','S_renBig'], axis='rows') # add energy density w and all X...
+# xc_bev =    gin.x_vals().loc['compact(bev)']
+# range_bev = pd.concat([cc_bev, gin.default_general()])   # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
+#
+# cc_fcev =   gin.changed_compact().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
+# cc_phev =   gin.changed_compact().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+# cc_icev =   gin.changed_compact().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+#
+# cs_bev =    gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
+# cs_fcev =   gin.changed_suv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
+# cs_phev =   gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+# cs_icev =   gin.changed_suv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+#
+# cl_bev =    gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
+# cl_fcev =   gin.changed_ldv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
+# cl_phev =   gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+# cl_icev =   gin.changed_ldv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
 
-dc_fcev =   gin.changed_compact().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-dc_phev =   gin.changed_compact().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-dc_icev =   gin.changed_compact().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
-
-ds_bev =    gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-ds_fcev =   gin.changed_suv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-ds_phev =   gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-ds_icev =   gin.changed_suv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
-
-dl_bev =    gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-dl_fcev =   gin.changed_ldv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-dl_phev =   gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-dl_icev =   gin.changed_ldv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
-
-var_list = []                                                        # initiieren var_list: hier sollen pro 'n' alle verrechneten parameter in eine Liste gespeichert werden
-m = 0
-t = 1
-dimension = 10
-for k in range(dimension):                                           # alle Range-Werte mit reihe des LHS multiplizieren
-    var_max = dc_bev.iloc[m][t]
-    t -= 1
-    var_min = dc_bev.iloc[m][t]
-    t += 1
-    m += 1
-    print(var_min, var_max)
-    print('\n')
 
 # C3 = default_compact().('c3_batt')
 
 
 
-def c_vals():           # fuel cycle -
-    fuel_cycle_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
-                                       'C3':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
-                                       '':[]
-                                       })
+# def c_vals():           # fuel cycle -
+#     fuel_cycle_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
+#                                        'C3':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
+#                                        '':[]
+#                                        })
 
 
 # ############################################ #
@@ -209,7 +201,17 @@ def x_vals():           # vehicle cycle - alles fixwerte
 
                                           'X14':[0, 0, 0, 40.89, 40.89, 40.89, 0, 0, 0, 0, 0, 0],
 
-                                          'cost_main':[571, 648.5, 648.5, 570.8, 648.5, 648.5, 680.5, 771, 771, 790, 893.5, 893.5],
+                                          'cost_main':[571, 648.5, 648.5, 570.8, 648.5, 648.5, 680.5, 771, 771, 790, 893.5, 893.5]
                                         })
     vehicle_cycle_default = vehicle_cycle_default.set_index('Class')
     return vehicle_cycle_default
+
+
+def spec_vals():           # specific vehicle vals - alles fixwerte
+    spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
+                                          'm_curb':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
+
+                                          'C_msrp':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301]
+                                        })
+    spec_vals_default = spec_vals_default.set_index('Class')
+    return spec_vals_default

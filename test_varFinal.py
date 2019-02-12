@@ -1,5 +1,6 @@
 import numpy as np
 import getinput as gin
+import pandas as pd
 
 def varFinal():
     propType = ['BEV','FCEV','PHEV','ICEV']
@@ -22,7 +23,8 @@ def varFinal():
                 var_list.append(var)                                             # Anhängen der Parameter an liste
                 lhs_items += 1
                 m += 1
-
+            X_vals = list(gin.x_vals().loc['compact(bev)'])
+            var_list.extend(X_vals)  # TODO: append X_vals, spec_fals & constant_vals ABER sehr rechenaufwändig .. lieber bei auslesen hinzufügen
             var_array.append(var_list)                                           # Var_list gets appended to var_array
         var_array = np.around(var_array, decimals=4)                             # round numbers
     var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
@@ -34,15 +36,19 @@ def getVariables(veh_sel, vehicle):
     #propType = ['FCEV', 'BEV', 'ICEV', 'PHEV']
     if veh_sel==1:                                  # compact car #
         if vehicle == 'BEV':
-            max = gin.default_compact().reindex(index=['C3_batt', 'FE_batt', 'E_elGer', 'C5', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r','C_batt'], columns=['max'])
-            min = gin.default_compact().reindex(
-                index=['C3_batt', 'FE_batt', 'E_elGER', 'C5', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r',
-                       'C_batt'], columns=['min'])
-            dc_bev = gin.default_compact().reindex(
-                ['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt',
-                 'S_renBig'], axis='rows')  # add energy density w and all X...
+            # max = gin.default_compact().reindex(index=['C3_batt', 'FE_batt', 'E_elGer', 'C5', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r','C_batt'], columns=['max'])
+            # min = gin.default_compact().reindex(
+            #     index=['C3_batt', 'FE_batt', 'E_elGER', 'C5', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r',
+            #            'C_batt'], columns=['min'])
+            # dc_bev = gin.default_compact().reindex(
+            #     ['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt',
+            #      'S_renBig'], axis='rows')  # add energy density w and all X...
 
-            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+            cc_bev = gin.changed_compact().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt',
+                 'S_renBig'], axis='rows')  # add energy density w and all X...
+            xc_bev = gin.x_vals().loc['compact(bev)']
+            range_bev = pd.concat([cc_bev, gin.default_general()])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
+            return range_bev
 
         elif vehicle == 'FCEV':
             default_vals = pd.DataFrame({''})

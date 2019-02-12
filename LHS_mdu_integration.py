@@ -342,6 +342,11 @@ def varFinal():
 # Berechnung des results mit varFinal variablen
 # =============================================================================
 def resultCalc():
+    X_vals = list(gin.x_vals().loc['compact(bev)']) # get X_vals Todo: schleife für compact, suv etc ->
+
+    FuelVals = ...          # Todo: Hier alle Listen zusammenfügen. die jeweiligen werte aus LHS + X_vals + constant_vals + spec_vals
+    E_fc = FuelCycle(FuelVals)                    # Hier wird
+
     ### erstellen eines mit Nullen gefüllten arrays
     result = np.zeros(shape=(n, 2))  # m * n Matrix = zeile * Spalte
     # r = 0                                                          # laufvar. für schleife "LHS-Durchläufe"
