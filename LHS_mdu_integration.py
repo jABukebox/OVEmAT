@@ -207,7 +207,7 @@ class VehicleCycle():
 class TCO():  # FE may not be '0' - (ZeroDevisionError)
     def __init__(self, C_msrp, C_aV, C_EM, C_Pbatt, C_Ebatt, C_FC, C_CM, C_TM, L, D, r, C_fuel,
                  FE, C_maint, C_BEV, C_FCEV, C_ICEV, C_PHEV, S_ren):
-        # Beispiel Values FCEV): 0,  20000,    10000,  15000,     0,         3000,    0,      0,   14, 20000, 1.5,   7.4,     66,     150,      0,      0,        0,        0
+        # Beispiel Values FCEV): 0, 20000, 10000, 15000, 0, 3000, 0, 0, 14, 20000, 1.5, 7.4, 66, 150, 0, 0, 0, 0
         self.C_msrp = C_msrp
         self.C_aV = C_aV
         self.C_EM = C_EM
