@@ -34,7 +34,7 @@ booleanCheckbox = 1
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
     default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_fc'],  # Hier alle var Vals (Ranges)
-                                'min': [0.0, 0.0, 0.0, 400.0, 8000.0, 0.0, 45.0, 0.0, 700.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0],
+                                'min': [1.0, 1.0, 1.0, 400.0, 8000.0, 0.0, 45.0, 0.0, 700.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0],
                                 'max': [1.1, 1.923, 2.273, 650, 9000, 0, 60, 0.0, 800, 20, 20000, 0, 0, 0, 3, 200, 0]
                                 })
     default_val = default_val.set_index('vars')
@@ -131,7 +131,7 @@ def changed_ldv():                              # TODO: hier müssen auch value 
 
 
 def constant_vals():                        # constanten wie Energiedichte TODO: alle Konstanten eintragen
-    constants = pd.DataFrame({'energy_densH2':33.33, 'energy_densSynth':12})
+    constants = pd.DataFrame({'energy_densH2':33.33, 'energy_densSynth':12})  # kWh/l!! Druck benötigt??
     constants = constants.set_index('vars')
     return constants
 
@@ -203,7 +203,7 @@ def x_vals():           # vehicle cycle - alles fixwerte
 
                                           'X14':[0, 0, 0, 40.89, 40.89, 40.89, 0, 0, 0, 0, 0, 0],
 
-                                          'cost_main':[571, 648.5, 648.5, 570.8, 648.5, 648.5, 680.5, 771, 771, 790, 893.5, 893.5]
+                                          'C_main':[571, 648.5, 648.5, 570.8, 648.5, 648.5, 680.5, 771, 771, 790, 893.5, 893.5]
                                         })
     vehicle_cycle_default = vehicle_cycle_default.set_index('Class')
     return vehicle_cycle_default
@@ -211,19 +211,19 @@ def x_vals():           # vehicle cycle - alles fixwerte
 
 def spec_vals():           # specific vehicle vals - alles fixwerte
     spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
-                                          'm_curb':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
+                                          'm_curb':[1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5], # gemittelte gewichte (recherchiert)
 
                                           'C_msrp':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301],
 
-                                          'P_battDef':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_battSet':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'E_battDef':[x, x, x, 0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0],
+                                          'E_battSet':[x, x, x, 0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0],
 
-                                          'P_fcDef':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_fcSet':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'C_battDef':[x, x, x, x, x, x, x, x, x, 0.0, 0.0, 0.0],
+                                          'C_battSet':[x, x, x, x, x, x, x, x, x, 0.0, 0.0, 0.0],
 
-                                          'C_fcDef':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'C_fcSet':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
                                           'CF_Pbatt':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
                                         })

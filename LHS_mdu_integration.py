@@ -131,7 +131,48 @@ def vehClassSel():              # saved as "class_sel"
 # ============================================================================= #
 #################################################################################
 class vehicles():
-    def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh)
+    def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r, C_fuel, C_main, S_ren)
+        self.C3 = C3
+        self.C5 = C5
+        self.FE = FE
+        self.E_elGer = E_elGer
+        self.w = w
+        self.cd = cd
+        self.X1 = X1
+        self.X2 = X2
+        self.X3 = X3
+        self.X4 = X4
+        self.X5 = X5
+        self.X6 = X6
+        self.X7 = X7
+        self.X8 = X8
+        self.X9 = X9
+        self.X10 = X10
+        self.X11 = X11
+        self.X12 = X12
+        self.X13 = X13
+        self.X14 = X14
+        self.E_elGer = E_elGer
+        self.E_elCh = E_elCh
+        self.P_batt = P_batt
+        self.C_batt = C_batt
+        self.E_batt = E_batt
+        self.P_fc = P_fc
+        self.m_curb = m_curb
+        self.C_msrp = C_msrp
+        self.CF = CF
+        self.C_fc = C_fc
+        self.P_fcSet = P_fcSet
+        self.P_battSet = P_battSet
+        self.E_battSet=E_battSet
+        self.L = L
+        self.D = D
+        self.r = r
+        self.C_fuel = C_fuel
+        self.C_main = C_main
+        self.S_ren = S_ren
+
+
 class FuelCycle():
     def __init__(self, C3, C5, FE, E_elGer, w, cd):
         self.C3 = C3
