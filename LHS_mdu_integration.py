@@ -190,13 +190,13 @@ def getVariables(class_sel, vehicle):
 # Definition of Classes (Calculations)                                          #
 # ============================================================================= #
 #################################################################################
-class Vehicles():
+class Vehicles:
     # @classmethod
     # def generalVals(cls,):
     #     static = get_valsfrom_df
     #     return static
 
-    def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r, C_fuel, C_main, S_ren)
+    def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r, C_fuel, C_main, S_ren):
         self.C3 = C3
         self.C5 = C5
         self.FE = FE
@@ -350,9 +350,12 @@ def resultCalc():
     propType = ['BEV','FCEV','PHEV','ICEV']
     for vehicle in range(len(propType)):
         pass
-    # Put all values together
-    X_vals = list(gin.x_vals().loc['compact(bev)']) # get X_vals Todo: schleife für compact, suv etc ->
 
+    # Put all values together
+    for countVehType in range(len(gin.x_vals())):           # len(gin.x_vals()) = 12 compact_bev ....
+        x_vals = list(gin.x_vals().iloc[]) # get X_vals als liste Todo: schleife für compact, suv etc ->
+        spec_vals = list(gin.spec_vals().iloc[])
+        x_vals.extend(spec_vals)                            # all fix vals
 
     FuelVals = ...          # Todo: Hier alle Listen zusammenfügen. die jeweiligen werte aus LHS + X_vals + constant_vals + spec_vals
     E_fc = FuelCycle(FuelVals)                    # Hier wird
@@ -447,6 +450,7 @@ if __name__ == '__main__':
     p = LatinHype(dimension, n)
     #gV = getVariables()             # TODO: Check gV in varFinal! doppelung?
     var = varFinal()
+    print(var)
     res = resultCalc()
 
     # Make App

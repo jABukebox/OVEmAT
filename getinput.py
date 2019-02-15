@@ -122,61 +122,58 @@ def changed_ldv():                              # TODO: hier müssen auch value 
         pass
     return changed_vals
 
-def constant_vals():                        # constanten wie Energiedichte TODO: alle Konstanten eintragen
-    constants = pd.DataFrame({'energy_densH2':33.33, 'energy_densSynth':12})  # kWh/l!! Druck benötigt??
-    constants = constants.set_index('vars')
-    return constants
 
 # get default values for compact cars TODO: in get Variables einfügen
 # HIER: spezifische Werte für jeweils klasse und propType -> DURCH LHS
 
 # compact
-cc_bev =    changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows') # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
+cc_bev = changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows') # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
 #xc_bev =    gin.x_vals().loc['compact(bev)']
 cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
 range_vals = pd.concat([cc_bev, cg_bev])   # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
 #range_vals = pd.concat([cc_bev, cg_bev])
 
-cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-range_vals = pd.concat([cc_fcev, cg_fcev])
 
-# cc_phev = gin.changed_compact().reindex(['FE_batt', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-# cg_phev =
-
-cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
-range_vals = pd.concat([cc_icev, cg_icev])
-
-#SUV
-cs_bev = gin.changed_suv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-cg_bev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
-range_vals = pd.concat([cs_bev, cg_bev])
-
-cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-range_vals = pd.concat([cs_fcev, cg_fcev])
-
-#cs_phev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-
-cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
-range_vals = pd.concat([cs_icev, cg_icev])
-
-#ldv
-cl_bev = gin.changed_ldv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
-range_vals = pd.concat([cl_bev, cg_bev])
-
-cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-range_vals = pd.concat([cl_fcev, cg_fcev])
-
-#cl_phev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-
-cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
-range_vals = pd.concat([cl_icev, cg_icev])
+# cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+# cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
+# range_vals = pd.concat([cc_fcev, cg_fcev])
+#
+# # cc_phev = gin.changed_compact().reindex(['FE_batt', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+# # cg_phev =
+#
+# cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+# cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
+# range_vals = pd.concat([cc_icev, cg_icev])
+#
+# #SUV
+# cs_bev = gin.changed_suv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+# cg_bev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
+# range_vals = pd.concat([cs_bev, cg_bev])
+#
+# cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+# cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
+# range_vals = pd.concat([cs_fcev, cg_fcev])
+#
+# #cs_phev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+#
+# cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+# cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
+# range_vals = pd.concat([cs_icev, cg_icev])
+#
+# #ldv
+# cl_bev = gin.changed_ldv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+# cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
+# range_vals = pd.concat([cl_bev, cg_bev])
+#
+# cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+# cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
+# range_vals = pd.concat([cl_fcev, cg_fcev])
+#
+# #cl_phev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+#
+# cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+# cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
+# range_vals = pd.concat([cl_icev, cg_icev])
 
 
 # C3 = default_compact().('c3_batt')
@@ -231,21 +228,25 @@ def x_vals():           # vehicle cycle - alles fixwerte
 
 def spec_vals():           # specific vehicle vals - alles fixwerte
     spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
-                                          'm_curb':[1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5], # gemittelte gewichte (recherchiert)
+                                          'm_curb':     [1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5], # gemittelte gewichte (recherchiert)
 
-                                          'C_msrp':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301],
+                                          'C_msrp':     [1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301],
 
-                                          'P_battSet':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_battSet':  [0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'E_battSet':[x, x, x, 0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0],
+                                          'E_battSet':  [x, x, x, 0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0],
 
-                                          'P_fcSet':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_fcSet':    [0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'C_battSet':[x, x, x, x, x, x, x, x, x, 0.0, 0.0, 0.0],
+                                          'C_battSet':  [x, x, x, x, x, x, x, x, x, 0.0, 0.0, 0.0],
 
-                                          'C_fcSet':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'C_fcSet':    [0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'CF_Pbatt':[0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                                          'CF_Pbatt':   [0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+                                          'w_h2':       [0.0, 0.0, 0.0, x, x, x, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+
+                                          'w_synth':    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, x, x, x]
                                         })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
