@@ -130,33 +130,53 @@ def constant_vals():                        # constanten wie Energiedichte TODO:
 # get default values for compact cars TODO: in get Variables einfügen
 # HIER: spezifische Werte für jeweils klasse und propType -> DURCH LHS
 
+# compact
 cc_bev =    changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows') # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
 #xc_bev =    gin.x_vals().loc['compact(bev)']
 cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
 range_vals = pd.concat([cc_bev, cg_bev])   # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
 #range_vals = pd.concat([cc_bev, cg_bev])
 
-
 cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-cg_fcev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-range_vals = range_vals = pd.concat([cc_bev, cg_bev])
+cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
+range_vals = pd.concat([cc_fcev, cg_fcev])
 
+# cc_phev = gin.changed_compact().reindex(['FE_batt', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+# cg_phev =
 
+cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
+range_vals = pd.concat([cc_icev, cg_icev])
 
-cc_phev = gin.changed_compact().reindex(['FE_batt', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-cg_phev =
+#SUV
+cs_bev = gin.changed_suv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+cg_bev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
+range_vals = pd.concat([cs_bev, cg_bev])
 
-cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
+range_vals = pd.concat([cs_fcev, cg_fcev])
 
-cs_bev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-cs_fcev = gin.changed_suv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-cs_phev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-cs_icev = gin.changed_suv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+#cs_phev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
 
-cl_bev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'E_elGer', 'C5_empty', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt','S_renBig'], axis='rows') # add energy density w and all X...
-cl_fcev = gin.changed_ldv().reindex(['C3_h2', 'FE_h2', 'E_elGer', 'C5_empty', 'E_elCh', 'P_batt', 'L', 'D', 'C_fuelH2', 'r', 'C_batt','S_renBig'], axis='rows')
-cl_phev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-cl_icev = gin.changed_ldv().reindex(['C3_synth','FE_synth', 'E_elGer', 'C5_icev','E_elCh', 'L', 'D', 'C_fuelSynth', 'r', 'S_renEmpty'])
+cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
+range_vals = pd.concat([cs_icev, cg_icev])
+
+#ldv
+cl_bev = gin.changed_ldv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
+range_vals = pd.concat([cl_bev, cg_bev])
+
+cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
+range_vals = pd.concat([cl_fcev, cg_fcev])
+
+#cl_phev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+
+cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
+range_vals = pd.concat([cl_icev, cg_icev])
 
 
 # C3 = default_compact().('c3_batt')

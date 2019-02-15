@@ -110,53 +110,73 @@ def getVariables(class_sel, vehicle):
             cg_fcev = gin.changed_general().reindex(
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
-            range_vals = range_vals = pd.concat([cc_fcev, cg_fcev])
+            range_vals = pd.concat([cc_fcev, cg_fcev])
 
-        elif vehicle == 2:  # PHEV
-            cc_phev = gin.changed_compact().reindex(
-                ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh',
-                 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
+        # elif vehicle == 2:  # PHEV                                    #vehicle in getVariable never gets 2!! (see var Final dual loop)
+        #     cc_phev = gin.changed_compact().reindex(
+        #         ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh',
+        #          'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
 
         elif vehicle == 3:  # ICEV
-
-
+            cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'],
+                                                    axis='rows')
+            cg_icev = gin.changed_general().reindex(
+                ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
+                 'C_fcEmpty'], axis='rows')
+            range_vals = pd.concat([cc_icev, cg_icev])
 
         else:
             pass
 
     elif class_sel == 2:                              # midsize SUV #       cs = changed suv
         if vehicle == 0:    # BEV
-            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+            cs_bev = gin.changed_suv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+            cg_bev = gin.changed_general().reindex(
+                ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
+                 'C_fcEmpty'], axis='rows')
+            range_vals = pd.concat([cs_bev, cg_bev])
 
         elif vehicle == 1:  # FCEV
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 2:  # PHEV
-            default_vals = pd.DataFrame({''})
+            cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+            cg_fcev = gin.changed_general().reindex(
+                ['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
+                axis='rows')
+            range_vals = pd.concat([cs_fcev, cg_fcev])
 
         elif vehicle == 3:  # ICEV
-            default_vals = pd.DataFrame({''})
+            cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+            cg_icev = gin.changed_general().reindex(
+                ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
+                 'C_fcEmpty'], axis='rows')
+            range_vals = pd.concat([cs_icev, cg_icev])
 
         else:
             pass
 
     elif class_sel == 3:                              # Light Duty Vehicle #       cl = changed ldv
         if vehicle == 0:    # BEV
-            default_vals = pd.DataFrame({''})   # Hier alle Vals (Var + fix)
+            cl_bev = gin.changed_ldv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+            cg_bev = gin.changed_general().reindex(
+                ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
+                 'C_fcEmpty'], axis='rows')
+            range_vals = pd.concat([cl_bev, cg_bev])
 
         elif vehicle == 1:  # FCEV
-            default_vals = pd.DataFrame({''})
-
-        elif vehicle == 2:  # PHEV
-            default_vals = pd.DataFrame({''})
+            cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
+            cg_fcev = gin.changed_general().reindex(
+                ['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
+                axis='rows')
+            range_vals = pd.concat([cl_fcev, cg_fcev])
 
         elif vehicle == 3:  # ICEV
-            default_vals = pd.DataFrame({''})
+            cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+            cg_icev = gin.changed_general().reindex(
+                ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
+                 'C_fcEmpty'], axis='rows')
+            range_vals = pd.concat([cl_icev, cg_icev])
 
         else:
             pass
-
-        dimension = ((default_vals.size) / 2)  # Length of Variable list
 
     else:
         print('Wrong Input! \n')
@@ -270,14 +290,14 @@ class TCO(Vehicles):
         try:
             #L = self.L
             #y = 1
-            SUMME = 0
+            sum_tco = 0
             for y in range(1, self.L+1):  # Bildung der Summe                   TODO: Schleife testen! L+1  ???
                 Eq = ((self.C_fuel * self.FE) + (self.C_main / self.D)) / (1 + self.r) ** (y - 1)
-                SUMME += Eq
+                sum_tco += Eq
 
             C_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
 
-            C_tco = (C_veh / (self.L * self.D)) + SUMME
+            C_tco = (C_veh / (self.L * self.D)) + sum_tco
             return C_tco
         except:
             print("An error has occured! Please try again!")
