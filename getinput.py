@@ -33,7 +33,7 @@ booleanCheckbox = 1
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
     default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
                                 'min': [1.0, 1.0, 1.0, 400.0, 8000.0, 0.0, 45.0, 0.0, 700.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0, 0.0, 0.0],
-                                'max': [1.1, 1.923, 2.273, 650, 9000, 0, 60, 0.0, 800, 20, 20000, 0, 0, 0, 3, 200, 0.0, 0.0, 0.0]
+                                'max': [1.1, 1.923, 2.273, 650, 9000, 0.0, 60, 0.0, 800, 20, 20000, 0, 0, 0, 3, 200, 0.0, 0.0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -43,17 +43,9 @@ def changed_general():              # Aus Changed wird ausgelesen!
 
     # TODO: Hier update durch user Input
 
-    changed_vals = changed_vals.set_index('vars')
+    #changed_vals = changed_vals.set_index('vars')          # switch on when changed
     return changed_vals
 
-# def emptys():
-#     empty_vals = pd.DataFrame({'vars': ['C5_empty', 'cd_empty', 'P_battEmpty', 'E_battEmpty', 'P_fcEmpty', 'S_renEmpty'],
-#                                 # Hier alle var Vals (Ranges)
-#                                 'min': [],
-#                                 'max': []
-#                                 })
-#     empty_vals = empty_vals.set_index('vars')
-#     return empty_vals
 
 # COMPACT
 def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS verrechnet zu werden -> cd und alle einfachwert values in extra df!? TODO: min - max werte festlegen,
@@ -121,70 +113,6 @@ def changed_ldv():                              # TODO: hier müssen auch value 
     else:
         pass
     return changed_vals
-
-
-# get default values for compact cars TODO: in get Variables einfügen
-# HIER: spezifische Werte für jeweils klasse und propType -> DURCH LHS
-
-# compact
-cc_bev = changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows') # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
-#xc_bev =    gin.x_vals().loc['compact(bev)']
-cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
-range_vals = pd.concat([cc_bev, cg_bev])   # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
-#range_vals = pd.concat([cc_bev, cg_bev])
-
-
-# cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-# cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-# range_vals = pd.concat([cc_fcev, cg_fcev])
-#
-# # cc_phev = gin.changed_compact().reindex(['FE_batt', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-# # cg_phev =
-#
-# cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-# cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
-# range_vals = pd.concat([cc_icev, cg_icev])
-#
-# #SUV
-# cs_bev = gin.changed_suv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-# cg_bev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
-# range_vals = pd.concat([cs_bev, cg_bev])
-#
-# cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-# cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-# range_vals = pd.concat([cs_fcev, cg_fcev])
-#
-# #cs_phev = gin.changed_suv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-#
-# cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-# cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
-# range_vals = pd.concat([cs_icev, cg_icev])
-#
-# #ldv
-# cl_bev = gin.changed_ldv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-# cg_bev = changed_general().reindex(['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
-# range_vals = pd.concat([cl_bev, cg_bev])
-#
-# cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
-# cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelH2', 'C_batt', 'C_fc'], axis='rows')
-# range_vals = pd.concat([cl_fcev, cg_fcev])
-#
-# #cl_phev = gin.changed_ldv().reindex(['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh', 'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
-#
-# cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
-# cg_icev = gin.changed_general().reindex(['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D','r', 'C_fuelSynth', 'C_battEmpty', 'C_fcEmpty'], axis='rows')
-# range_vals = pd.concat([cl_icev, cg_icev])
-
-
-# C3 = default_compact().('c3_batt')
-
-
-
-# def c_vals():           # fuel cycle -
-#     fuel_cycle_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
-#                                        'C3':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
-#                                        '':[]
-#                                        })
 
 
 # ############################################ #

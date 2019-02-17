@@ -24,7 +24,13 @@ import csv
 # Latin Hypercube Calculation TODO: check pyDOE "criterion and samples"!!
 # =============================================================================
 def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension" -> Muss so lang sein wie die anzahl der Range werte!!
-    dim = (len(all_range))  # Length of Variable list # TODO: len(range_variablen)
+    cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
+                                       axis='rows')  # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
+    cg_bev = gin.changed_general().reindex(
+        ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'],
+        axis='rows')
+    range_length = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
+    dim = (len(range_length))  # Length of Variable list # TODO: len(range_variablen)
     return dim
 
 def LatinHype(dimension, n):  # n = number of samples
@@ -90,11 +96,12 @@ def varFinal():
                 var_array.append(var_list)                                           # Var_list gets appended to var_array
             var_array = np.around(var_array, decimals=4)                             # round numbers
         var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
-        print(var_all)                                                               # propType Variablen
+        #print(var_all)                                                               # propType Variablen
     return var_all
 
 
 def getVariables(class_sel, vehicle):
+    global lhs_vals
     if class_sel == 1:                                  # compact car #   cc = changed compact
         if vehicle == 0:    # BEV
             cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
@@ -102,7 +109,7 @@ def getVariables(class_sel, vehicle):
             cg_bev = gin.changed_general().reindex(
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
-            range_vals = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS TODO: gin.default_general() vor varFinal
+            lhs_vals = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS TODO: gin.default_general() vor varFinal
 
 
         elif vehicle == 1: # FCEV
@@ -110,7 +117,7 @@ def getVariables(class_sel, vehicle):
             cg_fcev = gin.changed_general().reindex(
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
-            range_vals = pd.concat([cc_fcev, cg_fcev])
+            lhs_vals = pd.concat([cc_fcev, cg_fcev])
 
         # elif vehicle == 2:  # PHEV                                    #vehicle in getVariable never gets 2!! (see var Final dual loop)
         #     cc_phev = gin.changed_compact().reindex(
@@ -123,10 +130,10 @@ def getVariables(class_sel, vehicle):
             cg_icev = gin.changed_general().reindex(
                 ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
-            range_vals = pd.concat([cc_icev, cg_icev])
+            lhs_vals = pd.concat([cc_icev, cg_icev])
 
-        else:
-            pass
+        #else:
+        #    pass
 
     elif class_sel == 2:                              # midsize SUV #       cs = changed suv
         if vehicle == 0:    # BEV
@@ -134,24 +141,24 @@ def getVariables(class_sel, vehicle):
             cg_bev = gin.changed_general().reindex(
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
-            range_vals = pd.concat([cs_bev, cg_bev])
+            lhs_vals = pd.concat([cs_bev, cg_bev])
 
         elif vehicle == 1:  # FCEV
             cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
             cg_fcev = gin.changed_general().reindex(
                 ['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
-            range_vals = pd.concat([cs_fcev, cg_fcev])
+            lhs_vals = pd.concat([cs_fcev, cg_fcev])
 
         elif vehicle == 3:  # ICEV
             cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_icev = gin.changed_general().reindex(
                 ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
-            range_vals = pd.concat([cs_icev, cg_icev])
+            lhs_vals = pd.concat([cs_icev, cg_icev])
 
-        else:
-            pass
+        #else:
+        #    pass
 
     elif class_sel == 3:                              # Light Duty Vehicle #       cl = changed ldv
         if vehicle == 0:    # BEV
@@ -159,30 +166,30 @@ def getVariables(class_sel, vehicle):
             cg_bev = gin.changed_general().reindex(
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
-            range_vals = pd.concat([cl_bev, cg_bev])
+            lhs_vals = pd.concat([cl_bev, cg_bev])
 
         elif vehicle == 1:  # FCEV
             cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
             cg_fcev = gin.changed_general().reindex(
                 ['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
-            range_vals = pd.concat([cl_fcev, cg_fcev])
+            lhs_vals = pd.concat([cl_fcev, cg_fcev])
 
         elif vehicle == 3:  # ICEV
             cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_icev = gin.changed_general().reindex(
                 ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
-            range_vals = pd.concat([cl_icev, cg_icev])
+            lhs_vals = pd.concat([cl_icev, cg_icev])
 
-        else:
-            pass
+        #else:
+        #    pass
 
     else:
         print('Wrong Input! \n')
         vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
 
-    return range_vals
+    return lhs_vals
 
 
 #################################################################################
@@ -242,45 +249,46 @@ class LCE(Vehicles):
     def calcFuelCycle(self):
         if vehicle == 0 or vehicle == 1 or vehicle == 3:              # trennung von PHEV. Calculation andere
             try:
-                E_fc = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE
-                return E_fc
+                e_fc = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE
+                return e_fc
             except:
                 print("An error has occured! Please try again!")
         elif vehicle == 2:                                          # PHEV
-            try:
-                if class_sel == 1:              # Compact
-                    C3 = # Hier müssen werte aus LHS verrechnung rein
-                    c_v = gin.default_compact()  # bv = bev_vals
-
-                elif class_sel == 2:            # SUV
-
-
-                elif class_sel == 3:            # LDV
-                    C3 =
-                cs = 1 - self.cd/100
-                E_fc_cs = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
-                E_fc_cd = ... # Hier werte für BEV
-                E_fc = (E_fc_cs * cs + E_fc_cd * self.cd)/100
-                return E_fc
-            except:
-                print("An error has occured! Please try again!")
+            pass # test!! pass danach entfernen
+            # try:
+            #     if class_sel == 1:              # Compact
+            #         C3 = # Hier müssen werte aus LHS verrechnung rein
+            #         c_v = gin.default_compact()  # bv = bev_vals
+            #
+            #     elif class_sel == 2:            # SUV
+            #
+            #
+            #     elif class_sel == 3:            # LDV
+            #         C3 =
+            #     cs = 1 - self.cd/100
+            #     e_fc_cs = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
+            #     e_fc_cd = ... # Hier werte für BEV
+            #     e_fc = (e_fc_cs * cs + e_fc_cd * self.cd)/100
+            #     return e_fc
+            # except:
+            #     print("An error has occured! Please try again!")
 
 
     def calcVehicleCycle(self):
         try:
             m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
-            E_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
+            e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
                         self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
                                self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
-            return E_vc
+            return e_vc
         except:
             print("An error has occured! Please try again!")
 
 
     def calcLCE(self):
         try:
-            E_lce = (self.E_vc / (self.L * self.D) + self.E_fc)
-            return E_lce
+            e_lce = (self.e_vc / (self.L * self.D) + self.e_fc)
+            return e_lce
         except:
             print("An error has occured! Please try again!")
 
@@ -295,99 +303,61 @@ class TCO(Vehicles):
                 Eq = ((self.C_fuel * self.FE) + (self.C_main / self.D)) / (1 + self.r) ** (y - 1)
                 sum_tco += Eq
 
-            C_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
+            c_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
 
-            C_tco = (C_veh / (self.L * self.D)) + sum_tco
-            return C_tco
+            c_tco = (c_veh / (self.L * self.D)) + sum_tco
+            return c_tco
         except:
             print("An error has occured! Please try again!")
-
-
-
-# # =============================================================================
-# # Data Input & Print
-# # =============================================================================
-# # print("Please type in the fuel_cycle values: \n")
-# print('\n\n\n')  # toyota ...
-#
-# # fuel_val = (0,0,13.814,0,0,0,28.06,489)
-# # FCEV1 = fuel_cycle(fuel_val)
-#
-#
-#
-# FCEV1 = FuelCycle(0, 0, 13.814, 0, 0, 0, 28.06, 489)
-# # print(FCEV1)
-# FCEV2 = VehicleCycle(335.25, 1.124, 1.074, 2.41, 2.43, 1.25, 5.01, 6.22, 0, 0, 0, 5, 56.48, 40.89, 24.3, 489, 40, 0, 90,
-#                      1850)
-# # print(FCEV2)
-# FCEV3 = TCO(0, 20000, 10000, 15000, 0, 3000, 0, 0, 14, 20000, 1.5, 7.4, 66, 150, 0, 0, 0,
-#             0)  # hier darf 13. eintrag nicht 0 sein!! fehler ABFANGEN!
-# # print(FCEV3)
-# FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2), FuelCycle.calcFuelCycle(FCEV1), 15, 10000)
-# # FCEV4 = LCE(self.E_vc, self.E_fc, 15, 10000)
-# # print(FCEV4)
-#
-# # emp_2 = Employee('Test', 'User', '12315')
-#
-# # =============================================================================
-# # Output in Terminal
-# # =============================================================================
-#
-# print("Fuel Cycle:\t\t\t"         + str(FuelCycle.calcFuelCycle(FCEV1))       + ' ' + "gCO_2eq / km")
-# print("\nVehicle Cycle:\t\t"    + str(VehicleCycle.calcVehicleCycle(FCEV2)) + ' ' + "gCO_2eq")
-# print("\n\nTotal Cost per km:\t"  + str(TCO.calcTCO(FCEV3))                   + ' ' + "€ / km")
-# print("\nGesamte LCE:\t\t"    + str(LCE.calcLCE(FCEV4))                   + ' ' + "gCO_2 / km")
-#
-#
-# #################################################################################
 
 
 
 # =============================================================================
 # Berechnung des results mit varFinal variablen
 # =============================================================================
+
 def resultCalc():
     propType = ['BEV','FCEV','PHEV','ICEV']
-    for vehicle in range(len(propType)):
-        pass
+    global vehicle
+    #for vehicle in range(len(propType)): # get LHS vals
+        #lhs_lists = var[vehicle]                        # hier sind die berechneten lhs-listen je propType
+    result = np.zeros(shape=(n*4, 2))
+    single_res = np.zeros(shape=(n,2))
+    vehicle = 0
+    if class_sel == 1:            # Compact
+        countType = 0
 
-    # Put all values together
-    for countVehType in range(len(gin.x_vals())):           # len(gin.x_vals()) = 12 compact_bev ....
-        x_vals = list(gin.x_vals().iloc[]) # get X_vals als liste Todo: schleife für compact, suv etc ->
-        spec_vals = list(gin.spec_vals().iloc[])
-        x_vals.extend(spec_vals)                            # all fix vals
+    elif class_sel ==2:           # SUV
+        countType = 1
 
-    FuelVals = ...          # Todo: Hier alle Listen zusammenfügen. die jeweiligen werte aus LHS + X_vals + constant_vals + spec_vals
-    E_fc = FuelCycle(FuelVals)                    # Hier wird
+    elif class_sel == 3:          # LDV
+        countType = 2
 
-    ### erstellen eines mit Nullen gefüllten arrays
-    result = np.zeros(shape=(n, 2))  # m * n Matrix = zeile * Spalte
-    # r = 0                                                          # laufvar. für schleife "LHS-Durchläufe"
-    m = 0
+    while countType < len(gin.x_vals()):            # zähler durch fix vals (bev, fcev, phev, icev)
+        lhs_lists = var[vehicle]
+        x_vals = list(gin.x_vals().iloc[countType])
+        spec_vals = list(gin.spec_vals().iloc[countType])
+        all_fix = x_vals.extend(spec_vals)          # hier sind alle fix vals
+        r=0
+        t=0
 
-    for r in range(n):
-        t = 0
-        for z in range(dimension):
-            x = var[r][t]
-            t += 1
-
-        x2 = var[r][t]
-        x = np.around(x1 + x2, decimals=4)
-        t += 1
-        y1 = var[r][t]
-        t += 1
-        y2 = var[r][t]
-        y = np.around(y1 + y2, decimals=4)
-        # print(r)
-        # print(x,y)
-        m += 1
-        result[r] = [x, y]
-        # print(result[r])
-        # r+=1
-
+        for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
+            lhs_vals = lhs_lists[list_num]  # should be one single list of lhs_variable_results
+            lhs_vals.extend(all_fix)        # ALL NEEDED VARS ARE HERE NOW
+            e_fc = LCE(list(lhs_vals))     #??
+            c_tco = TCO(list(lhs_vals))
+            # result[r][t] = e_fc
+            # t+=1
+            # result[r][t] = c_tco
+            # t-=1
+            # r+=1
+            single_res[list_num] = [e_fc, c_tco]     # Hier alle ergebnisse von BEV bzw. FCEV etc
+        result[vehicle] = single_res                # Hier gesamtergebnis (Muss bei Print gesplittet werden mit n/4 !??)
+        # append to a longer list
+        countType+=3            # Sprung von compact_bev auf compact_fcev auf compact_phev ...
+        vehicle +=1                                 # erhöhung -> lhs_lists bev -> fcev
     result = np.around(result, decimals=4)
-    # print("Result Values")
-    # print(result)
+    print(result)
     return result
 
 
@@ -443,14 +413,13 @@ if __name__ == '__main__':
     # Call Functions
     gen_def = gin.changed_general()  # Einlesen der general defaults
 
-    all_range = pd.concat([gin.cc_bev, gin.cg_bev]) #für dimension length
     dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
 
     class_sel = vehClassSel()
     p = LatinHype(dimension, n)
     #gV = getVariables()             # TODO: Check gV in varFinal! doppelung?
     var = varFinal()
-    print(var)
+    #print(var)
     res = resultCalc()
 
     # Make App
