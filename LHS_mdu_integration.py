@@ -372,8 +372,9 @@ def resultCalc():
 
             print('lhs_values:{}'.format(lhs_values))
             lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
-            e_fc = LCE(lhs_values)     #??
-            c_tco = TCO(list(lhs_values))
+            print('lhs_values:{}'.format(lhs_values))
+            e_fc = Vehicles(lhs_values).LCE()     #??
+            c_tco = Vehicles(lhs_values).TCO()
             # result[r][t] = e_fc
             # t+=1
             # result[r][t] = c_tco
