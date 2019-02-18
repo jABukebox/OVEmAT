@@ -31,10 +31,11 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
         axis='rows')
     range_length = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
     dim = (len(range_length))  # Length of Variable list # TODO: len(range_variablen)
+    print(dim)
     return dim
 
 def LatinHype(dimension, n):  # n = number of samples
-    points = pyDOE.lhs(dimension, samples=n)
+    points = pyDOE.lhs(dimension*4, samples=n)
     return points  # output.type = array
 
 
@@ -57,29 +58,40 @@ def varFinal():
         gV = getVariables(class_sel, vehicle)                                      # holt die Values aus getVariables
         lhs_items = 0                                                            # TODO: muss bei PHEV evtl verändert werden
         var_array = []
-        if vehicle ==2:                 # PHEV #
+        print('\n VEHICLE Top {}'.format(vehicle))
+        #print('gV: {}'.format(gV))
+
+        if vehicle == 2:                 # PHEV #
             for r in range(n):
                 var_list = []
-                m = 0
-                t = 1
+                #m = 0
+                #t = 1
                 dual = 0                                  # Changes getVariable from BEV to ICEV
-                while dual < 4:                           # 0 ^= BEV
-                    gV = getVariables(class_sel, dual)
+                while dual <= 3:                           # 0 ^= BEV
+                    print('LHS: {}'.format(lhs_items))
+                    gV_alt = getVariables(class_sel, dual)
+                    print(gV_alt)
+                    m = 0
+                    t = 1
                     for k in range(dimension):  # alle Range-Werte mit reihe des LHS multiplizieren
-                        var_max = gV.iloc[m][t]  # bestimmung des max Wertes der eingegebenen Range
+                        var_max = gV_alt.iloc[m][t]  # bestimmung des max Wertes der eingegebenen Range
+                        print(var_max)
                         t -= 1
-                        var_min = gV.iloc[m][t]  # bestimmung des min Wertes der eingegebenen Range
+                        print(m)
+                        var_min = gV_alt.iloc[m][t]  # bestimmung des min Wertes der eingegebenen Range
                         t += 1
                         var = (p.item(lhs_items) * (
                                     var_max - var_min)) + var_min  # Verrechnung der Variablen mit LHS Ergebnissen in var
                         var_list.append(var)  # Anhängen der Parameter an liste
                         lhs_items += 1
                         m += 1
+                        #print(var)
                     dual += 3           # Erhöhung um 3 (3 ^= ICEV)
                 var_array.append(var_list)
+                print(var_array)
             var_array = np.around(var_array, decimals = 4)
 
-        else:
+        else:                           # BEV, FCEV, ICEV #
             for r in range(n):                                                       # Anzahl der LHS Durchläufe
                 var_list = []                                                        # initiieren var_list: hier sollen pro 'n' alle verrechneten parameter in eine Liste gespeichert werden
                 m = 0               # row / zeile
@@ -96,7 +108,8 @@ def varFinal():
                 var_array.append(var_list)                                           # Var_list gets appended to var_array
             var_array = np.around(var_array, decimals=4)                             # round numbers
         var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
-        #print(var_all)                                                               # propType Variablen
+        print('\n VEHICLE bottom {}'.format(vehicle))
+    print(var_all)                                                               # propType Variablen
     return var_all
 
 
@@ -118,6 +131,9 @@ def getVariables(class_sel, vehicle):
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
             lhs_vals = pd.concat([cc_fcev, cg_fcev])
+
+        elif vehicle == 2:
+            pass
 
         # elif vehicle == 2:  # PHEV                                    #vehicle in getVariable never gets 2!! (see var Final dual loop)
         #     cc_phev = gin.changed_compact().reindex(
@@ -150,6 +166,9 @@ def getVariables(class_sel, vehicle):
                 axis='rows')
             lhs_vals = pd.concat([cs_fcev, cg_fcev])
 
+        elif vehicle == 2:
+            pass
+
         elif vehicle == 3:  # ICEV
             cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_icev = gin.changed_general().reindex(
@@ -175,6 +194,9 @@ def getVariables(class_sel, vehicle):
                 axis='rows')
             lhs_vals = pd.concat([cl_fcev, cg_fcev])
 
+        elif vehicle == 2:
+            pass
+
         elif vehicle == 3:  # ICEV
             cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_icev = gin.changed_general().reindex(
@@ -188,7 +210,7 @@ def getVariables(class_sel, vehicle):
     else:
         print('Wrong Input! \n')
         vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
-
+    #print(lhs_vals)
     return lhs_vals
 
 
@@ -318,7 +340,7 @@ class TCO(Vehicles):
 
 def resultCalc():
     propType = ['BEV','FCEV','PHEV','ICEV']
-    global vehicle
+
     #for vehicle in range(len(propType)): # get LHS vals
         #lhs_lists = var[vehicle]                        # hier sind die berechneten lhs-listen je propType
     result = np.zeros(shape=(n*4, 2))
@@ -334,18 +356,24 @@ def resultCalc():
         countType = 2
 
     while countType < len(gin.x_vals()):            # zähler durch fix vals (bev, fcev, phev, icev)
-        lhs_lists = var[vehicle]
+        lhs_lists = var[vehicle]                    # alle ergebnis listen von einem propType
         x_vals = list(gin.x_vals().iloc[countType])
+        print(x_vals)
         spec_vals = list(gin.spec_vals().iloc[countType])
-        all_fix = x_vals.extend(spec_vals)          # hier sind alle fix vals
+        print(spec_vals)
+        x_vals.extend(spec_vals)          # hier sind alle fix vals
+        # all_fix = x_vals.extend(spec_vals)          # hier sind alle fix vals
+        print('all fix:{}\n'.format(x_vals))
         r=0
         t=0
 
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
-            lhs_vals = lhs_lists[list_num]  # should be one single list of lhs_variable_results
-            lhs_vals.extend(all_fix)        # ALL NEEDED VARS ARE HERE NOW
-            e_fc = LCE(list(lhs_vals))     #??
-            c_tco = TCO(list(lhs_vals))
+            lhs_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
+
+            print('lhs_values:{}'.format(lhs_values))
+            lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
+            e_fc = LCE(lhs_values)     #??
+            c_tco = TCO(list(lhs_values))
             # result[r][t] = e_fc
             # t+=1
             # result[r][t] = c_tco
@@ -406,16 +434,15 @@ class PlotClass():
 if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    n = 10  # Number of repeats (test it!)
+    n = 4  # Number of repeats (test it!)
 
 
 
     # Call Functions
-    gen_def = gin.changed_general()  # Einlesen der general defaults
-
-    dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
+    #gen_def = gin.changed_general()  # Einlesen der general defaults
 
     class_sel = vehClassSel()
+    dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
     p = LatinHype(dimension, n)
     #gV = getVariables()             # TODO: Check gV in varFinal! doppelung?
     var = varFinal()
