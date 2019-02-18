@@ -219,33 +219,77 @@ def getVariables(class_sel, vehicle):
 # Definition of Classes (Calculations)                                          #
 # ============================================================================= #
 #################################################################################
-class Vehicles:
+# class Vehicles:
     # @classmethod
     # def generalVals(cls,):
     #     static = get_valsfrom_df
     #     return static
 
-    def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r, C_fuel, C_main, S_ren):
+    # def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r, C_fuel, C_main, S_ren):
+    #     self.C3 = C3
+    #     self.C5 = C5
+    #     self.FE = FE
+    #     self.E_elGer = E_elGer
+    #     self.__w = w
+    #     self.cd = cd
+    #     self.__X1 = X1
+    #     self.__X2 = X2
+    #     self.__X3 = X3
+    #     self.__X4 = X4
+    #     self.__X5 = X5
+    #     self.__X6 = X6
+    #     self.__X7 = X7
+    #     self.__X8 = X8
+    #     self.__X9 = X9
+    #     self.__X10 = X10
+    #     self.__X11 = X11
+    #     self.__X12 = X12
+    #     self.__X13 = X13
+    #     self.__X14 = X14
+    #     self.E_elGer = E_elGer
+    #     self.E_elCh = E_elCh
+    #     self.P_batt = P_batt
+    #     self.C_batt = C_batt
+    #     self.E_batt = E_batt
+    #     self.P_fc = P_fc
+    #     self.m_curb = m_curb
+    #     self.C_msrp = C_msrp
+    #     self.__CF = CF
+    #     self.C_fc = C_fc
+    #     self.__P_fcSet = P_fcSet
+    #     self.__P_battSet = P_battSet
+    #     self.__E_battSet=E_battSet
+    #     self.L = L
+    #     self.D = D
+    #     self.r = r
+    #     self.C_fuel = C_fuel
+    #     self.C_main = C_main
+    #     self.S_ren = S_ren
+
+class LCE():
+    def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
+                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r,
+                 C_fuel, C_main, S_ren):
         self.C3 = C3
         self.C5 = C5
         self.FE = FE
         self.E_elGer = E_elGer
-        self.__w = w
+        self.w = w
         self.cd = cd
-        self.__X1 = X1
-        self.__X2 = X2
-        self.__X3 = X3
-        self.__X4 = X4
-        self.__X5 = X5
-        self.__X6 = X6
-        self.__X7 = X7
-        self.__X8 = X8
-        self.__X9 = X9
-        self.__X10 = X10
-        self.__X11 = X11
-        self.__X12 = X12
-        self.__X13 = X13
-        self.__X14 = X14
+        self.X1 = X1
+        self.X2 = X2
+        self.X3 = X3
+        self.X4 = X4
+        self.X5 = X5
+        self.X6 = X6
+        self.X7 = X7
+        self.X8 = X8
+        self.X9 = X9
+        self.X10 = X10
+        self.X11 = X11
+        self.X12 = X12
+        self.X13 = X13
+        self.X14 = X14
         self.E_elGer = E_elGer
         self.E_elCh = E_elCh
         self.P_batt = P_batt
@@ -254,20 +298,17 @@ class Vehicles:
         self.P_fc = P_fc
         self.m_curb = m_curb
         self.C_msrp = C_msrp
-        self.__CF = CF
+        self.CF = CF
         self.C_fc = C_fc
-        self.__P_fcSet = P_fcSet
-        self.__P_battSet = P_battSet
-        self.__E_battSet=E_battSet
+        self.P_fcSet = P_fcSet
+        self.P_battSet = P_battSet
+        self.E_battSet = E_battSet
         self.L = L
         self.D = D
         self.r = r
         self.C_fuel = C_fuel
         self.C_main = C_main
         self.S_ren = S_ren
-
-class LCE(Vehicles):
-    #def __init__(self,):
     def calcFuelCycle(self):
         if vehicle == 0 or vehicle == 1 or vehicle == 3:              # trennung von PHEV. Calculation andere
             try:
@@ -310,12 +351,55 @@ class LCE(Vehicles):
     def calcLCE(self):
         try:
             e_lce = (self.e_vc / (self.L * self.D) + self.e_fc)
+            print (e_lce)
             return e_lce
         except:
             print("An error has occured! Please try again!")
 
 
-class TCO(Vehicles):
+class TCO():
+    def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
+                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r,
+                 C_fuel, C_main, S_ren):
+        self.C3 = C3
+        self.C5 = C5
+        self.FE = FE
+        self.E_elGer = E_elGer
+        self.w = w
+        self.cd = cd
+        self.X1 = X1
+        self.X2 = X2
+        self.X3 = X3
+        self.X4 = X4
+        self.X5 = X5
+        self.X6 = X6
+        self.X7 = X7
+        self.X8 = X8
+        self.X9 = X9
+        self.X10 = X10
+        self.X11 = X11
+        self.X12 = X12
+        self.X13 = X13
+        self.X14 = X14
+        self.E_elGer = E_elGer
+        self.E_elCh = E_elCh
+        self.P_batt = P_batt
+        self.C_batt = C_batt
+        self.E_batt = E_batt
+        self.P_fc = P_fc
+        self.m_curb = m_curb
+        self.C_msrp = C_msrp
+        self.CF = CF
+        self.C_fc = C_fc
+        self.P_fcSet = P_fcSet
+        self.P_battSet = P_battSet
+        self.E_battSet = E_battSet
+        self.L = L
+        self.D = D
+        self.r = r
+        self.C_fuel = C_fuel
+        self.C_main = C_main
+        self.S_ren = S_ren
     def calcTCO(self):
         try:
             #L = self.L
@@ -369,12 +453,12 @@ def resultCalc():
 
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
             lhs_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
-
+            #FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2)
             print('lhs_values:{}'.format(lhs_values))
             lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
             print('lhs_values:{}'.format(lhs_values))
-            e_fc = Vehicles(lhs_values).LCE()     #??
-            c_tco = Vehicles(lhs_values).TCO()
+            e_fc = LCE.calcLCE(lhs_values)     #??
+            c_tco = TCO.calcTCO(lhs_values)
             # result[r][t] = e_fc
             # t+=1
             # result[r][t] = c_tco
