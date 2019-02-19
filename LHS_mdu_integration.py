@@ -54,6 +54,7 @@ def vehClassSel():              # saved as "class_sel"
 def varFinal():
     propType = ['BEV','FCEV','PHEV','ICEV']
     var_all = []
+    global vehicle
     for vehicle in range(len(propType)):                                         # Durchlauf jedes propTypes
         gV = getVariables(class_sel, vehicle)                                      # holt die Values aus getVariables
         lhs_items = 0                                                            # TODO: muss bei PHEV evtl verändert werden
@@ -68,16 +69,16 @@ def varFinal():
                 #t = 1
                 dual = 0                                  # Changes getVariable from BEV to ICEV
                 while dual <= 3:                           # 0 ^= BEV
-                    print('LHS: {}'.format(lhs_items))
+                    #print('LHS: {}'.format(lhs_items))
                     gV_alt = getVariables(class_sel, dual)
-                    print(gV_alt)
+                    #print(gV_alt)
                     m = 0
                     t = 1
                     for k in range(dimension):  # alle Range-Werte mit reihe des LHS multiplizieren
                         var_max = gV_alt.iloc[m][t]  # bestimmung des max Wertes der eingegebenen Range
-                        print(var_max)
+                        #print(var_max)
                         t -= 1
-                        print(m)
+                        #print(m)
                         var_min = gV_alt.iloc[m][t]  # bestimmung des min Wertes der eingegebenen Range
                         t += 1
                         var = (p.item(lhs_items) * (
@@ -88,7 +89,7 @@ def varFinal():
                         #print(var)
                     dual += 3           # Erhöhung um 3 (3 ^= ICEV)
                 var_array.append(var_list)
-                print(var_array)
+                #print(var_array)
             var_array = np.around(var_array, decimals = 4)
 
         else:                           # BEV, FCEV, ICEV #
@@ -108,7 +109,7 @@ def varFinal():
                 var_array.append(var_list)                                           # Var_list gets appended to var_array
             var_array = np.around(var_array, decimals=4)                             # round numbers
         var_all.append(var_array)                                                    # Abspeicherung aller verrechneten
-        print('\n VEHICLE bottom {}'.format(vehicle))
+        #print('\n VEHICLE bottom {}'.format(vehicle))
     print(var_all)                                                               # propType Variablen
     return var_all
 
@@ -268,8 +269,8 @@ def getVariables(class_sel, vehicle):
 
 class LCE():
     def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
-                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r,
-                 C_fuel, C_main, S_ren):
+                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, C_battSet,
+                 C_fcSet, L, D, r, C_fuel, C_main, S_ren):
         self.C3 = C3
         self.C5 = C5
         self.FE = FE
@@ -303,64 +304,76 @@ class LCE():
         self.P_fcSet = P_fcSet
         self.P_battSet = P_battSet
         self.E_battSet = E_battSet
+        self.C_battSet = C_battSet
+        self.C_fcSet = C_fcSet
         self.L = L
         self.D = D
         self.r = r
         self.C_fuel = C_fuel
         self.C_main = C_main
         self.S_ren = S_ren
-    def calcFuelCycle(self):
-        if vehicle == 0 or vehicle == 1 or vehicle == 3:              # trennung von PHEV. Calculation andere
-            try:
-                e_fc = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE
-                return e_fc
-            except:
-                print("An error has occured! Please try again!")
-        elif vehicle == 2:                                          # PHEV
-            pass # test!! pass danach entfernen
-            # try:
-            #     if class_sel == 1:              # Compact
-            #         C3 = # Hier müssen werte aus LHS verrechnung rein
-            #         c_v = gin.default_compact()  # bv = bev_vals
-            #
-            #     elif class_sel == 2:            # SUV
-            #
-            #
-            #     elif class_sel == 3:            # LDV
-            #         C3 =
-            #     cs = 1 - self.cd/100
-            #     e_fc_cs = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
-            #     e_fc_cd = ... # Hier werte für BEV
-            #     e_fc = (e_fc_cs * cs + e_fc_cd * self.cd)/100
-            #     return e_fc
-            # except:
-            #     print("An error has occured! Please try again!")
+    # def calcFuelCycle(self):
+    #     global e_fc         # Todo: auch löschen
+    #     #vehicle = 0 # TODO: UNBEDINGT LÖSCHEN.. MUSS SELBST LAUFEN
+    #     if vehicle == 0 or vehicle == 1 or vehicle == 3:              # trennung von PHEV. Calculation andere
+    #         e_fc = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE
+    #         print(e_fc)
+    #         #return e_fc
+    #
+    #     elif vehicle == 2:                                          # PHEV
+    #         pass # test!! pass danach entfernen
+    #         # try:
+    #         #     if class_sel == 1:              # Compact
+    #         #         C3 = # Hier müssen werte aus LHS verrechnung rein
+    #         #         c_v = gin.default_compact()  # bv = bev_vals
+    #         #
+    #         #     elif class_sel == 2:            # SUV
+    #         #
+    #         #
+    #         #     elif class_sel == 3:            # LDV
+    #         #         C3 =
+    #         #     cs = 1 - self.cd/100
+    #         #     e_fc_cs = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
+    #         #     e_fc_cd = ... # Hier werte für BEV
+    #         #     e_fc = (e_fc_cs * cs + e_fc_cd * self.cd)/100
+    #         #     return e_fc
+    #         # except:
+    #         #     print("An error has occured! Please try again!")
 
 
-    def calcVehicleCycle(self):
-        try:
-            m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
-            e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
-                        self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
-                               self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
-            return e_vc
-        except:
-            print("An error has occured! Please try again!")
+    # def calcVehicleCycle(self):
+    #     #try:
+    #     global e_vc # todo: auch löschen.. an calcLCE übergeben
+    #     # m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
+    #     # e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
+    #     #             self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
+    #     #                    self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
+    #     #return e_vc
+    #     #except:
+    #     #    print("Calc Vehicle: An error has occured! Please try again!")
 
 
     def calcLCE(self):
-        try:
-            e_lce = (self.e_vc / (self.L * self.D) + self.e_fc)
-            print (e_lce)
-            return e_lce
-        except:
-            print("An error has occured! Please try again!")
+        print()
+        e_fc = self.C3 * self.FE * self.E_elGer + self.C5 * self.FE
+        print(e_fc)
+
+        m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
+        e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
+                self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
+                       self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
+
+        e_lce = (e_vc / (self.L * self.D) + e_fc)
+        print (e_lce)
+        return e_lce
+        #except:
+        #    print("Calc LCE: An error has occured! Please try again!")
 
 
 class TCO():
     def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
-                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r,
-                 C_fuel, C_main, S_ren):
+                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, C_battSet,
+                 C_fcSet, L, D, r, C_fuel, C_main, S_ren):
         self.C3 = C3
         self.C5 = C5
         self.FE = FE
@@ -394,12 +407,15 @@ class TCO():
         self.P_fcSet = P_fcSet
         self.P_battSet = P_battSet
         self.E_battSet = E_battSet
+        self.C_battSet = C_battSet
+        self.C_fcSet = C_fcSet
         self.L = L
         self.D = D
         self.r = r
         self.C_fuel = C_fuel
         self.C_main = C_main
         self.S_ren = S_ren
+
     def calcTCO(self):
         try:
             #L = self.L
@@ -414,7 +430,7 @@ class TCO():
             c_tco = (c_veh / (self.L * self.D)) + sum_tco
             return c_tco
         except:
-            print("An error has occured! Please try again!")
+            print("Calc TCO: An error has occured! Please try again!")
 
 
 
@@ -439,32 +455,32 @@ def resultCalc():
     elif class_sel == 3:          # LDV
         countType = 2
 
-    while countType < len(gin.x_vals()):            # zähler durch fix vals (bev, fcev, phev, icev)
+    while countType < len(gin.x_vals()):            # zähler durch fix vals of class (bev, fcev, phev, icev)
         lhs_lists = var[vehicle]                    # alle ergebnis listen von einem propType
         x_vals = list(gin.x_vals().iloc[countType])
-        print(x_vals)
         spec_vals = list(gin.spec_vals().iloc[countType])
-        print(spec_vals)
         x_vals.extend(spec_vals)          # hier sind alle fix vals
         # all_fix = x_vals.extend(spec_vals)          # hier sind alle fix vals
-        print('all fix:{}\n'.format(x_vals))
+        #print('all fix:{}\n'.format(x_vals))
         r=0
         t=0
 
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
+            print(list_num)
             lhs_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
             #FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2)
-            print('lhs_values:{}'.format(lhs_values))
             lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
             print('lhs_values:{}'.format(lhs_values))
-            e_fc = LCE.calcLCE(lhs_values)     #??
-            c_tco = TCO.calcTCO(lhs_values)
+            e_fc_res = LCE.calcLCE(lhs_values)     #??
+            print(e_fc_res)
+            c_tco_res = TCO.calcTCO(lhs_values)
             # result[r][t] = e_fc
             # t+=1
             # result[r][t] = c_tco
             # t-=1
             # r+=1
-            single_res[list_num] = [e_fc, c_tco]     # Hier alle ergebnisse von BEV bzw. FCEV etc
+            single_res[list_num] = [e_fc_res, c_tco_res]     # Hier alle ergebnisse von BEV bzw. FCEV etc
+            print(single_res)
         result[vehicle] = single_res                # Hier gesamtergebnis (Muss bei Print gesplittet werden mit n/4 !??)
         # append to a longer list
         countType+=3            # Sprung von compact_bev auf compact_fcev auf compact_phev ...
@@ -472,6 +488,42 @@ def resultCalc():
     result = np.around(result, decimals=4)
     print(result)
     return result
+
+    # # Put all values together
+    # X_vals = list(gin.x_vals().loc['compact(bev)']) # get X_vals Todo: schleife für compact, suv etc ->
+    #
+    # FuelVals = ...          # Todo: Hier alle Listen zusammenfügen. die jeweiligen werte aus LHS + X_vals + constant_vals + spec_vals
+    # E_fc = FuelCycle(FuelVals)                    # Hier wird
+    #
+    # ### erstellen eines mit Nullen gefüllten arrays
+    # result = np.zeros(shape=(n, 2))  # m * n Matrix = zeile * Spalte
+    # # r = 0                                                          # laufvar. für schleife "LHS-Durchläufe"
+    # m = 0
+    #
+    # for r in range(n):
+    #     t = 0
+    #     for z in range(dimension)
+    #         x = var[r][t]
+    #         t += 1
+    #
+    #     x2 = var[r][t]
+    #     x = np.around(x1 + x2, decimals=4)
+    #     t += 1
+    #     y1 = var[r][t]
+    #     t += 1
+    #     y2 = var[r][t]
+    #     y = np.around(y1 + y2, decimals=4)
+    #     # print(r)
+    #     # print(x,y)
+    #     m += 1
+    #     result[r] = [x, y]
+    #     # print(result[r])
+    #     # r+=1
+    #
+    # result = np.around(result, decimals=4)
+    # # print("Result Values")
+    # # print(result)
+    # return result
 
 
 # =============================================================================
