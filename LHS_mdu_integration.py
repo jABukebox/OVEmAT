@@ -267,7 +267,7 @@ def getVariables(class_sel, vehicle):
     #     self.C_main = C_main
     #     self.S_ren = S_ren
 
-class LCE():
+class LCE:
     def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
                  X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, C_battSet,
                  C_fcSet, L, D, r, C_fuel, C_main, S_ren):
@@ -370,7 +370,7 @@ class LCE():
         #    print("Calc LCE: An error has occured! Please try again!")
 
 
-class TCO():
+class TCO:
     def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
                  X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, C_battSet,
                  C_fcSet, L, D, r, C_fuel, C_main, S_ren):
@@ -471,9 +471,11 @@ def resultCalc():
             #FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2)
             lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
             print('lhs_values:{}'.format(lhs_values))
-            e_fc_res = LCE.calcLCE(lhs_values)     #??
+            lce_inst = LCE(lhs_values)
+            tco_inst = TCO(lhs_values)
+            e_fc_res = LCE.calcLCE(lce_inst)     #??
             print(e_fc_res)
-            c_tco_res = TCO.calcTCO(lhs_values)
+            c_tco_res = TCO.calcTCO(tco_inst)
             # result[r][t] = e_fc
             # t+=1
             # result[r][t] = c_tco
