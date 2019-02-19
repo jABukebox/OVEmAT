@@ -19,11 +19,14 @@ import sys
 import csv
 # import pyqtgraph.opengl as gl
 
+# Todo: boolean muss durch checkbox ersetzt werden
+global booleanCheckbox
+booleanCheckbox = 1
 
 # =============================================================================
 # Latin Hypercube Calculation TODO: check pyDOE "criterion and samples"!!
 # =============================================================================
-def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension" -> Muss so lang sein wie die anzahl der Range werte!!
+def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension"
     cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
                                        axis='rows')  # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
     cg_bev = gin.changed_general().reindex(
@@ -35,7 +38,7 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
     return dim
 
 def LatinHype(dimension, n):  # n = number of samples
-    points = pyDOE.lhs(dimension*4, samples=n)
+    points = pyDOE.lhs(dimension, samples=n*4)
     return points  # output.type = array
 
 
@@ -55,9 +58,9 @@ def varFinal():
     propType = ['BEV','FCEV','PHEV','ICEV']
     var_all = []
     global vehicle
-    for vehicle in range(len(propType)):                                         # Durchlauf jedes propTypes
-        gV = getVariables(class_sel, vehicle)                                      # holt die Values aus getVariables
-        lhs_items = 0                                                            # TODO: muss bei PHEV evtl verändert werden
+    for vehicle in range(len(propType)):                                   # Durchlauf jedes propTypes
+        gV = getVariables(class_sel, vehicle)                              # holt die Values aus getVariables
+        lhs_items = 0                                                      # TODO: muss bei PHEV evtl verändert werden
         var_array = []
         print('\n VEHICLE Top {}'.format(vehicle))
         #print('gV: {}'.format(gV))
@@ -123,7 +126,7 @@ def getVariables(class_sel, vehicle):
             cg_bev = gin.changed_general().reindex(
                 ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
-            lhs_vals = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS TODO: gin.default_general() vor varFinal
+            lhs_vals = pd.concat([cc_bev, cg_bev])
 
 
         elif vehicle == 1: # FCEV
@@ -133,7 +136,7 @@ def getVariables(class_sel, vehicle):
                 axis='rows')
             lhs_vals = pd.concat([cc_fcev, cg_fcev])
 
-        elif vehicle == 2:
+        elif vehicle == 2:              # Todo: PHEV mit S_renSmall etc!
             pass
 
         # elif vehicle == 2:  # PHEV                                    #vehicle in getVariable never gets 2!! (see var Final dual loop)
@@ -171,7 +174,8 @@ def getVariables(class_sel, vehicle):
             pass
 
         elif vehicle == 3:  # ICEV
-            cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
+            cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'],
+                                                axis='rows')
             cg_icev = gin.changed_general().reindex(
                 ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
@@ -226,92 +230,11 @@ def getVariables(class_sel, vehicle):
     #     static = get_valsfrom_df
     #     return static
 
-    # def __init__ (self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, L, D, r, C_fuel, C_main, S_ren):
-    #     self.C3 = C3
-    #     self.C5 = C5
-    #     self.FE = FE
-    #     self.E_elGer = E_elGer
-    #     self.__w = w
-    #     self.cd = cd
-    #     self.__X1 = X1
-    #     self.__X2 = X2
-    #     self.__X3 = X3
-    #     self.__X4 = X4
-    #     self.__X5 = X5
-    #     self.__X6 = X6
-    #     self.__X7 = X7
-    #     self.__X8 = X8
-    #     self.__X9 = X9
-    #     self.__X10 = X10
-    #     self.__X11 = X11
-    #     self.__X12 = X12
-    #     self.__X13 = X13
-    #     self.__X14 = X14
-    #     self.E_elGer = E_elGer
-    #     self.E_elCh = E_elCh
-    #     self.P_batt = P_batt
-    #     self.C_batt = C_batt
-    #     self.E_batt = E_batt
-    #     self.P_fc = P_fc
-    #     self.m_curb = m_curb
-    #     self.C_msrp = C_msrp
-    #     self.__CF = CF
-    #     self.C_fc = C_fc
-    #     self.__P_fcSet = P_fcSet
-    #     self.__P_battSet = P_battSet
-    #     self.__E_battSet=E_battSet
-    #     self.L = L
-    #     self.D = D
-    #     self.r = r
-    #     self.C_fuel = C_fuel
-    #     self.C_main = C_main
-    #     self.S_ren = S_ren
 
 class LCE:
-    def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
-                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, C_battSet,
-                 C_fcSet, L, D, r, C_fuel, C_main, S_ren):
-        self.C3 = C3
-        self.C5 = C5
-        self.FE = FE
-        self.E_elGer = E_elGer
-        self.w = w
-        self.cd = cd
-        self.X1 = X1
-        self.X2 = X2
-        self.X3 = X3
-        self.X4 = X4
-        self.X5 = X5
-        self.X6 = X6
-        self.X7 = X7
-        self.X8 = X8
-        self.X9 = X9
-        self.X10 = X10
-        self.X11 = X11
-        self.X12 = X12
-        self.X13 = X13
-        self.X14 = X14
-        self.E_elGer = E_elGer
-        self.E_elCh = E_elCh
-        self.P_batt = P_batt
-        self.C_batt = C_batt
-        self.E_batt = E_batt
-        self.P_fc = P_fc
-        self.m_curb = m_curb
-        self.C_msrp = C_msrp
-        self.CF = CF
-        self.C_fc = C_fc
-        self.P_fcSet = P_fcSet
-        self.P_battSet = P_battSet
-        self.E_battSet = E_battSet
-        self.C_battSet = C_battSet
-        self.C_fcSet = C_fcSet
-        self.L = L
-        self.D = D
-        self.r = r
-        self.C_fuel = C_fuel
-        self.C_main = C_main
-        self.S_ren = S_ren
+    def __init__(self, **kwargs):
+        for attribute, value in kwargs.items():
+            setattr(self, attribute, value)
     # def calcFuelCycle(self):
     #     global e_fc         # Todo: auch löschen
     #     #vehicle = 0 # TODO: UNBEDINGT LÖSCHEN.. MUSS SELBST LAUFEN
@@ -354,83 +277,36 @@ class LCE:
 
 
     def calcLCE(self):
-        print()
         e_fc = self.C3 * self.FE * self.E_elGer + self.C5 * self.FE
-        print(e_fc)
-
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
         e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
                 self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
                        self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
 
         e_lce = (e_vc / (self.L * self.D) + e_fc)
-        print (e_lce)
         return e_lce
         #except:
         #    print("Calc LCE: An error has occured! Please try again!")
 
 
 class TCO:
-    def __init__(self, C3, C5, FE, E_elGer, w, cd, E_elCh, P_batt, E_batt, P_fc, X1, X2, X3, X4, X5, X6, X7, X8, X9,
-                 X10, X11, X12, X13, X14, m_curb, C_msrp, CF, C_batt, C_fc, P_fcSet, P_battSet, E_battSet, C_battSet,
-                 C_fcSet, L, D, r, C_fuel, C_main, S_ren):
-        self.C3 = C3
-        self.C5 = C5
-        self.FE = FE
-        self.E_elGer = E_elGer
-        self.w = w
-        self.cd = cd
-        self.X1 = X1
-        self.X2 = X2
-        self.X3 = X3
-        self.X4 = X4
-        self.X5 = X5
-        self.X6 = X6
-        self.X7 = X7
-        self.X8 = X8
-        self.X9 = X9
-        self.X10 = X10
-        self.X11 = X11
-        self.X12 = X12
-        self.X13 = X13
-        self.X14 = X14
-        self.E_elGer = E_elGer
-        self.E_elCh = E_elCh
-        self.P_batt = P_batt
-        self.C_batt = C_batt
-        self.E_batt = E_batt
-        self.P_fc = P_fc
-        self.m_curb = m_curb
-        self.C_msrp = C_msrp
-        self.CF = CF
-        self.C_fc = C_fc
-        self.P_fcSet = P_fcSet
-        self.P_battSet = P_battSet
-        self.E_battSet = E_battSet
-        self.C_battSet = C_battSet
-        self.C_fcSet = C_fcSet
-        self.L = L
-        self.D = D
-        self.r = r
-        self.C_fuel = C_fuel
-        self.C_main = C_main
-        self.S_ren = S_ren
+    def __init__(self, **kwargs):
+        for attribute, value in kwargs.items():
+            setattr(self, attribute, value)
 
     def calcTCO(self):
-        try:
-            #L = self.L
-            #y = 1
-            sum_tco = 0
-            for y in range(1, self.L+1):  # Bildung der Summe                   TODO: Schleife testen! L+1  ???
-                Eq = ((self.C_fuel * self.FE) + (self.C_main / self.D)) / (1 + self.r) ** (y - 1)
-                sum_tco += Eq
+        #L = self.L
+        #y = 1
+        sum_tco = 0
+        for y in range(1, int(round(self.L+1))):  # Bildung der Summe                   TODO: Schleife testen! L+1  ???
+            Eq = ((self.C_fuel * self.FE) + (self.C_main / self.D)) / (1 + self.r) ** (y - 1)
+            sum_tco += Eq
 
-            c_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
+        c_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
 
-            c_tco = (c_veh / (self.L * self.D)) + sum_tco
-            return c_tco
-        except:
-            print("Calc TCO: An error has occured! Please try again!")
+        c_tco = (c_veh / (self.L * self.D)) + sum_tco
+        return c_tco
+
 
 
 
@@ -440,12 +316,20 @@ class TCO:
 
 def resultCalc():
     propType = ['BEV','FCEV','PHEV','ICEV']
+    all_para_keys = ['FE', 'E_batt', 'P_batt','P_fc','C3','C5','E_elGer','cd','E_elCh', 'L', 'D', 'r', 'C_fuel',
+                    'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10','X11', 'X12',
+                    'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_battSet',
+                    'C_fcSet', 'CF', 'w_h2', 'w_synth','S_ren']
 
     #for vehicle in range(len(propType)): # get LHS vals
         #lhs_lists = var[vehicle]                        # hier sind die berechneten lhs-listen je propType
-    result = np.zeros(shape=(n*4, 2))
-    single_res = np.zeros(shape=(n,2))
+    #result = np.zeros(shape=(n*4, 2))
+    result = np.zeros(shape=(1, 2))
+    print(result)
+    #single_res = np.zeros(shape=(n,2))
+    single_res = np.zeros(shape=(n, 2))
     vehicle = 0
+    res_row = 0
     if class_sel == 1:            # Compact
         countType = 0
 
@@ -467,23 +351,35 @@ def resultCalc():
 
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
             print(list_num)
+            S_ren = 0
             lhs_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
-            #FCEV4 = LCE(VehicleCycle.calcVehicleCycle(FCEV2)
             lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
-            print('lhs_values:{}'.format(lhs_values))
-            lce_inst = LCE(lhs_values)
-            tco_inst = TCO(lhs_values)
-            e_fc_res = LCE.calcLCE(lce_inst)     #??
-            print(e_fc_res)
-            c_tco_res = TCO.calcTCO(tco_inst)
+            if booleanCheckbox == 1 and (vehicle == 0 or vehicle == 1):             # Check if theres a Subsituization
+                S_ren = 4000
+            elif booleanCheckbox == 1 and (vehicle == 2):
+                S_ren = 3000
+            else:
+                S_ren = 0.0
+
+            lhs_values.append(S_ren)
+            lhs_dict = dict(zip(all_para_keys, lhs_values))
+            print('lhs_values:{}'.format(lhs_dict))
+            lce_inst = LCE(**lhs_dict)
+            tco_inst = TCO(**lhs_dict)
+            e_fc_res = lce_inst.calcLCE()     #??
+            #print('E_fc:{}'.format(e_fc_res))
+            c_tco_res = tco_inst.calcTCO()
             # result[r][t] = e_fc
             # t+=1
             # result[r][t] = c_tco
             # t-=1
             # r+=1
-            single_res[list_num] = [e_fc_res, c_tco_res]     # Hier alle ergebnisse von BEV bzw. FCEV etc
-            print(single_res)
-        result[vehicle] = single_res                # Hier gesamtergebnis (Muss bei Print gesplittet werden mit n/4 !??)
+            single_res[list_num] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]     # Hier alle ergebnisse von BEV bzw. FCEV etc
+            print('Single res:{}\n'.format(single_res))
+            result[res_row] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]
+            res_row += 1
+        #result = np.append(result, single_res[list_num], axis=0)                # Hier gesamtergebnis (Muss bei Print gesplittet werden mit n/4 !??)
+        print(result + '\n')
         # append to a longer list
         countType+=3            # Sprung von compact_bev auf compact_fcev auf compact_phev ...
         vehicle +=1                                 # erhöhung -> lhs_lists bev -> fcev
