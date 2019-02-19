@@ -74,8 +74,8 @@ def changed_compact():                              # TODO: hier müssen auch va
 def default_suv(): # muss noch angepasst werden TODO: Werte anpassen für suv
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[90.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[95.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
+                                'min':[60.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[80.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -96,8 +96,8 @@ def changed_suv():                              # TODO: hier müssen auch value 
 def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[90.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[95.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
+                                'min':[30.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[40.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -119,12 +119,17 @@ def changed_ldv():                              # TODO: hier müssen auch value 
 # Following Values stay unchanged - fix values #
 # ############################################ #
 def x_vals():           # vehicle cycle - alles fixwerte
-    vehicle_cycle_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
-                                          'X1':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76, 80.51, 80.51],
+    vehicle_cycle_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)',
+                                                   'ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)',
+                                                   'suv(icev)','ldv(icev)'],
+                                          'X1':[35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76,
+                                                80.51, 80.51],
 
-                                          'X2':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301],
+                                          'X2':[1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716,
+                                                2.301, 2.301],
 
-                                          'X3':[1.141, 1.246, 1.246, 1.074, 1.179, 1.179, 1.174, 1.294, 1.294, 1.120, 1.244, 1.244],
+                                          'X3':[1.141, 1.246, 1.246, 1.074, 1.179, 1.179, 1.174, 1.294, 1.294, 1.120,
+                                                1.244, 1.244],
 
                                           'X4':[2.40, 2.38, 2.37, 2.41, 2.39, 2.38, 2.41, 2.40, 2.40, 2.40, 2.36, 2.38],
 
@@ -148,33 +153,38 @@ def x_vals():           # vehicle cycle - alles fixwerte
 
                                           'X14':[0, 0, 0, 40.89, 40.89, 40.89, 0, 0, 0, 0, 0, 0],
 
-                                          'C_main':[571, 648.5, 648.5, 570.8, 648.5, 648.5, 680.5, 771, 771, 790, 893.5, 893.5]
+                                          'C_main':[571, 648.5, 648.5, 570.8, 648.5, 648.5, 680.5, 771, 771, 790,
+                                                    893.5, 893.5]
                                         })
     vehicle_cycle_default = vehicle_cycle_default.set_index('Class')
     return vehicle_cycle_default
 
 
-def spec_vals():           # specific vehicle vals - alles fixwerte
-    spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)','ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)','suv(icev)','ldv(icev)'],
-                                          'm_curb':     [1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5], # gemittelte gewichte (recherchiert)
+def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERTE ERSETZEN
+    spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)',
+                                               'ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)',
+                                               'suv(icev)','ldv(icev)'],
+                                          'm_curb':     [1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5,
+                                                         1395, 1943, 2100.5], # gemittelte gewichte (recherchiert)
 
-                                          'C_msrp':     [1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716, 2.301, 2.301],
+                                          'C_msrp':     [1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219,
+                                                         1.716, 2.301, 2.301],
 
-                                          'P_battSet':  [0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_battSet':  [0.0, 0.0, 0.0, 20, 30, 40, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'E_battSet':  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'E_battSet':  [40, 50, 60, 0.0, 0.0, 0.0, 10, 20, 30, 0.0, 0.0, 0.0],
 
-                                          'P_fcSet':    [0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_fcSet':    [0.0, 0.0, 0.0,40, 50, 60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'C_battSet':  [0.0, 0.0, 0.0,0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'C_battSet':  [150, 150, 150, 180, 180, 180, 150, 150, 150, 0.0, 0.0, 0.0],
 
-                                          'C_fcSet':    [0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'C_fcSet':    [0.0, 0.0, 0.0, 40, 40, 40, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'CF_Pbatt':   [0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'CF_Pbatt':   [0.0, 0.0, 0.0, 12, 12, 12, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'w_h2':       [0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'w_h2':       [0.0, 0.0, 0.0, 33.3, 33.3, 33.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'w_synth':    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0,]
+                                          'w_synth':    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12, 12, 12]
                                         })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
