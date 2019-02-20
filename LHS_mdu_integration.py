@@ -439,13 +439,21 @@ class PlotClass():
         #point_size = 2
         color = QtGui.QColor("#0000FF")
         # Create Scatter Plot and add it to view
-        plot = pg.ScatterPlotItem(x[:n], y[:n], size=8, pen=pg.mkPen(None), symbol = 'd', brush='cd5c5c')              # BEV
+        # BEV
+        plot = pg.ScatterPlotItem(x[:n], y[:n], size=8, pen=pg.mkPen(None),
+                                  symbol = 'd', brush='cd5c5c')                                 # red
         w1.addItem(plot)
-        plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=8, pen=pg.mkPen(None), symbol = 'd', brush='87cefa')    # FCEV
+        # FCEV
+        plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=8, pen=pg.mkPen(None),
+                                  symbol = 'd', brush='87cefa')                                 # blue
         w1.addItem(plot)
-        plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=8, pen=pg.mkPen(None), symbol = 'd', brush='cd853f') # PHEV
+        # PHEV
+        plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=8, pen=pg.mkPen(None),
+                                  symbol = 'd', brush='cd853f')                                 # orange
         w1.addItem(plot)
-        plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=8, pen=pg.mkPen(None), symbol = 'd', brush='bdb76b') # ICEV
+        # ICEV
+        plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=8, pen=pg.mkPen(None),
+                                  symbol = 'd', brush='bdb76b')                                 # green
         w1.addItem(plot)
 
         mw.show()
