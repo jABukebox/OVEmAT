@@ -37,7 +37,7 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
         axis='rows')
     range_length = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
     dim = (len(range_length))  # Length of Variable list # TODO: len(range_variablen)
-    print(dim)
+    #print(dim)
     return dim
 
 def LatinHype(dimension, n):  # n = number of samples
@@ -65,7 +65,7 @@ def varFinal():
         gV = getVariables(class_sel, vehicle)                          # holt die Values aus getVariables
         lhs_items = 0                                                  # TODO: muss bei PHEV evtl verändert werden
         var_array = []
-        print('\n VEHICLE Top {}'.format(vehicle))
+        #print('\n VEHICLE Top {}'.format(vehicle))
         #print('gV: {}'.format(gV))
 
         if vehicle == 2:                 # PHEV #
@@ -116,7 +116,7 @@ def varFinal():
             var_array = np.around(var_array, decimals=4)                       # round numbers
         var_all.append(var_array)                                              # Abspeicherung aller verrechneten
         #print('\n VEHICLE bottom {}'.format(vehicle))
-    print(var_all)                                                             # propType Variablen
+    #print(var_all)                                                             # propType Variablen
     return var_all
 
 
@@ -328,7 +328,7 @@ def resultCalc():
         #lhs_lists = var[vehicle]                        # hier sind die berechneten lhs-listen je propType
     #result = np.zeros(shape=(n*4, 2))
     result = np.zeros(shape=(0, 2))
-    print(result)
+    #print(result)
     #single_res = np.zeros(shape=(n,2))
     #single_res = np.zeros(shape=(n, 2))
     vehicle = 0
@@ -352,7 +352,7 @@ def resultCalc():
         t=0
         single_res = np.zeros(shape=(n, 2))
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
-            print(list_num)
+            #print(list_num)
             S_ren = 0
             lhs_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
             lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
@@ -365,7 +365,7 @@ def resultCalc():
 
             lhs_values.append(S_ren)
             lhs_dict = dict(zip(all_para_keys, lhs_values))
-            print('lhs_values:{}'.format(lhs_dict))
+            #print('lhs_values:{}'.format(lhs_dict))
             lce_inst = LCE(**lhs_dict)
             tco_inst = TCO(**lhs_dict)
             e_fc_res = lce_inst.calcLCE()     #??
@@ -377,17 +377,17 @@ def resultCalc():
             # t-=1
             # r+=1
             single_res[list_num] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]     # Hier alle ergebnisse von BEV bzw. FCEV etc
-            print('Single res:\n{}\n'.format(single_res))
+            #print('Single res:\n{}\n'.format(single_res))
             #result[res_row] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]
             #res_row += 1
         result = np.append(result, single_res, axis=0)    # Hier gesamtergebnis
-        print('The result is: \n{}'.format(result))
-        print('\n')
+        #print('The result is: \n{}'.format(result))
+        #print('\n')
         # append to a longer list
         countType+=3            # Sprung von compact_bev auf compact_fcev auf compact_phev ...
         vehicle +=1                                 # erhöhung -> lhs_lists bev -> fcev
     result = np.around(result, decimals=4)
-    print(result)
+    #print(result)
 
     return result
 
@@ -439,13 +439,13 @@ class PlotClass():
         #point_size = 2
         color = QtGui.QColor("#0000FF")
         # Create Scatter Plot and add it to view
-        plot = pg.ScatterPlotItem(x[:n], y[:n], size=5, pen=pg.mkPen(None), brush='r')              # BEV
+        plot = pg.ScatterPlotItem(x[:n], y[:n], size=8, pen=pg.mkPen(None), symbol = 'd', brush='cd5c5c')              # BEV
         w1.addItem(plot)
-        plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=5, pen=pg.mkPen(None), brush='b')    # FCEV
+        plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=8, pen=pg.mkPen(None), symbol = 'd', brush='87cefa')    # FCEV
         w1.addItem(plot)
-        plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=5, pen=pg.mkPen(None), brush='m') # PHEV
+        plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=8, pen=pg.mkPen(None), symbol = 'd', brush='cd853f') # PHEV
         w1.addItem(plot)
-        plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=5, pen=pg.mkPen(None), brush='g') # ICEV
+        plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=8, pen=pg.mkPen(None), symbol = 'd', brush='bdb76b') # ICEV
         w1.addItem(plot)
 
         mw.show()
@@ -499,7 +499,7 @@ class PlotClass():
 if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    n = 4  # Number of repeats (test it!)
+    n = 100  # Number of repeats (test it!)
 
     # Call Functions
     class_sel = vehClassSel()
@@ -513,4 +513,4 @@ if __name__ == '__main__':
     #app = QApplication(sys.argv)
     w = PlotClass()
     #w.show()
-    sys.exit(app.exec_())
+    #sys.exit(app.exec_())
