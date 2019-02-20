@@ -24,7 +24,7 @@ import csv
 
 # Todo: boolean muss durch checkbox ersetzt werden
 global booleanCheckbox
-booleanCheckbox = 1
+booleanCheckbox = 0
 
 # =============================================================================
 # Latin Hypercube Calculation TODO: check pyDOE "criterion and samples"!!
@@ -100,7 +100,9 @@ def varFinal():
 
         else:                           # BEV, FCEV, ICEV #
             for r in range(n):                                      # Anzahl der LHS Durchläufe
-                var_list = []                                       # initiieren var_list: hier sollen pro 'n' alle verrechneten parameter in eine Liste gespeichert werden
+                var_list = []                                       # initiieren var_list:
+                                                                    # hier sollen pro 'n' alle verrechneten parameter
+                                                                    # in eine Liste gespeichert werden
                 m = 0               # row / zeile
                 t = 1               # column / spalte
                 for k in range(dimension):                          # alle Range-Werte mit reihe des LHS multiplizieren
@@ -108,14 +110,14 @@ def varFinal():
                     t -= 1
                     var_min = gV.iloc[m][t]                         # bestimmung des min Wertes der eingegebenen Range
                     t += 1
-                    var = (p.item(lhs_items) * (var_max - var_min)) + var_min  # Verrechnung der Variablen mit LHS Ergebnissen in var
-                    var_list.append(var)                                       # Anhängen der Parameter an liste
+                    var = (p.item(lhs_items) * (var_max - var_min)) + var_min   # Verrechnung der Variablen
+                                                                                # mit LHS Ergebnissen in var
+                    var_list.append(var)                                        # Anhängen der Parameter an liste
                     lhs_items += 1
                     m += 1
-                var_array.append(var_list)                                     # Var_list gets appended to var_array
-            var_array = np.around(var_array, decimals=4)                       # round numbers
-        var_all.append(var_array)                                              # Abspeicherung aller verrechneten
-        #print('\n VEHICLE bottom {}'.format(vehicle))
+                var_array.append(var_list)                                      # Var_list gets appended to var_array
+            var_array = np.around(var_array, decimals=4)                        # round numbers
+        var_all.append(var_array)                                               # Abspeicherung aller verrechneten
     #print(var_all)                                                             # propType Variablen
     return var_all
 
@@ -280,7 +282,10 @@ class LCE:
 
 
     def calcLCE(self):
-        e_fc = self.C3 * self.FE * self.E_elGer + self.C5 * self.FE
+        # FuelCycle Emissions
+        e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
+
+        # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
         e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
                 self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
@@ -306,7 +311,8 @@ class TCO:
         c_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + \
                 (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + \
                 (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
-
+        print('c_veh: {} €'.format(c_veh))
+        print('sum_tco: {} €\n'.format(sum_tco))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco
 
@@ -354,8 +360,8 @@ def resultCalc():
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
             #print(list_num)
             S_ren = 0
-            lhs_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
-            lhs_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
+            all_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
+            all_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
             if booleanCheckbox == 1 and (vehicle == 0 or vehicle == 1):             # Check if theres a Subsituization
                 S_ren = 4000
             elif booleanCheckbox == 1 and (vehicle == 2):
@@ -363,12 +369,12 @@ def resultCalc():
             else:
                 S_ren = 0.0
 
-            lhs_values.append(S_ren)
-            lhs_dict = dict(zip(all_para_keys, lhs_values))
+            all_values.append(S_ren)
+            lhs_dict = dict(zip(all_para_keys, all_values))
             #print('lhs_values:{}'.format(lhs_dict))
             lce_inst = LCE(**lhs_dict)
             tco_inst = TCO(**lhs_dict)
-            e_fc_res = lce_inst.calcLCE()     #??
+            e_lce_res = lce_inst.calcLCE()     #??
             #print('E_fc:{}'.format(e_fc_res))
             c_tco_res = tco_inst.calcTCO()
             # result[r][t] = e_fc
@@ -376,7 +382,7 @@ def resultCalc():
             # result[r][t] = c_tco
             # t-=1
             # r+=1
-            single_res[list_num] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]     # Hier alle ergebnisse von BEV bzw. FCEV etc
+            single_res[list_num] = [np.around(c_tco_res, decimals = 4), np.around(e_lce_res, decimals = 4)]     # Hier alle ergebnisse von BEV bzw. FCEV etc
             #print('Single res:\n{}\n'.format(single_res))
             #result[res_row] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]
             #res_row += 1
@@ -412,23 +418,35 @@ class PlotClass():
     def plotting(self):
         # create the view
         # view = pg.PlotWidget()
+
         app = QtGui.QApplication(sys.argv)
         mw = QtGui.QMainWindow()
         mw.resize(1000, 800)
         view = pg.GraphicsLayoutWidget()
         mw.setCentralWidget(view)
         mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
-        # mw.setAspectLocked(True)
-        # mw.showGrid(True, True, alpha=.5)
-        w1 = view.addPlot()
-        # self.view.show()
+        #aim_2020 = addLine(x=None, y=95, z=None) # Ziel 2020: 95 gGHG/km
 
+
+        # mw.setAspectLocked(True)
+        #mw.showGrid(True, True, alpha=.5)
+
+        # X Axis Settings
+        #mw.xlabel.setTitleText('Total Cost of Ownership (€ / km)')
+
+        # Y Axis Settings
+        #mw.ylabel.setTitleText('Lifecycle Emissions (gGHG / km)')
+
+        w1 = view.addPlot()
+
+        w1.addLine(x=None, y=300, z=None)  # Ziel 2020: 95 gGHG/km
+        w1.addLine(x=None, y=200, z=None)  # Aim 2030: 60 gGHG/km
         # Convert data array into a list of dictionaries with the x,y-coordinates
-        bev_points = [{'pos': res[i:n, :]} for i in range(n)]
+
         x = res[:,0]
-        #print(x)
+        print(x)
         y = res[:,1]
-        #print(y)
+        print(y)
         fcev_points = [{'pos': res[(i+n):n*2, :]} for i in range(n)]
         phev_points = [{'pos': res[(i+2*n):n*3, :]} for i in range(n)]
         icev_points = [{'pos': res[(i+3*n):n*4, :]} for i in range(n)]
@@ -456,52 +474,10 @@ class PlotClass():
                                   symbol = 'd', brush='bdb76b')                                 # green
         w1.addItem(plot)
 
+        print('plot time: {} sec'.format(pg.ptime.time() - now))
+
         mw.show()
         sys.exit(app.exec_())
-
-        # self.plot_bev.setData(self.bev_points)
-
-        # plot_fcev = pg.ScatterPlotItem(x[n:n*2], y[n:n*2], point_size, pen=pg.mkPen(None), brush ='b')
-        # w1.addItem(plot_fcev)
-        # # self.plot_bev.setData(self.fcev_points)
-        #
-        # plot_phev = pg.ScatterPlotItem(x[n*2:n*3], y[n*2:n*3], point_size, pen=pg.mkPen(None),brush = 'm')
-        # w1.addItem(plot_phev)
-
-        # point_size = 2
-        # color = QtGui.QColor("#0000FF")
-        # # Create Scatter Plot and add it to view
-        # plot_bev = pg.ScatterPlotItem(x[:n],y[:n], point_size, pen=pg.mkPen(None), brush = 'r')
-        # w1.addItem(plot_bev)
-        # # self.plot_bev.setData(self.bev_points)
-        #
-        # plot_fcev = pg.ScatterPlotItem(x[n:n*2], y[n:n*2], point_size, pen=pg.mkPen(None), brush ='b')
-        # w1.addItem(plot_fcev)
-        # # self.plot_bev.setData(self.fcev_points)
-        #
-        # plot_phev = pg.ScatterPlotItem(x[n*2:n*3], y[n*2:n*3], point_size, pen=pg.mkPen(None),brush = 'm')
-        # w1.addItem(plot_phev)
-        # # self.plot_bev.setData(self.phev_points)
-        #
-        #
-        # plot_icev = pg.ScatterPlotItem(x[n*3:n*4], y[n*3:n*4], point_size, pen=pg.mkPen(None), brush = 'g')
-        # w1.addItem(plot_icev)
-        # # self.plot_bev.setData(self.icev_points)
-
-
-        # sys.exit(QtGui.QApplication.exec_())
-        # self.plot = pg.gl.GLSurfacePlotItem(pen=pg.mkPen(width=5, color='r'), symbol = 'x', size=1)
-
-        # xy = 0
-        # while xy < 4:
-        #     color = ['r', 'b', 'm', 'g']
-        #     propPoints=['self.bev_points', self.fcev_points, self.phev_points, self.icev_points]
-        #     self.plot = pg.ScatterPlotItem(pen=pg.mkPen(width=5, color=color[xy]), symbol='x', size=1)
-        #     self.plot.setData(propPoints[xy])
-        #     self.view.addItem(self.plot)
-        #     xy += 1
-
-        #print('plot time: {} sec'.format(pg.ptime.time() - self.now))
 
 
 if __name__ == '__main__':

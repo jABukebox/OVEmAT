@@ -32,8 +32,8 @@ booleanCheckbox = 1
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
     default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
-                                'min': [1.0, 1.0, 1.0, 400.0, 8000.0, 0.0, 45.0, 0.0, 700.0, 13.0, 10000.0, 0.0, 0.0, 0.0, 0.0, 150.0, 0.0, 0.0, 0.0],
-                                'max': [1.1, 1.923, 2.273, 650, 9000, 0.0, 60, 0.0, 800, 20, 20000, 0, 0, 0, 3, 200, 0.0, 0.0, 0.0]
+                                'min': [1.05, 1.5, 3.0, 400.0, 2000.0, 0.0, 45.0, 0.0, 700.0, 10.0, 10000.0, 1.5, 0.50, 1.3, 1.5, 150.0, 0.0, 30.0, 0.0],
+                                'max': [1.15, 2.2, 4.0, 550, 2500, 0.0, 60, 0.0, 800, 15, 20000, 1.8, 0.8, 2.3, 3, 200, 0.0, 60.0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -51,14 +51,14 @@ def changed_general():              # Aus Changed wird ausgelesen!
 def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS verrechnet zu werden -> cd und alle einfachwert values in extra df!? TODO: min - max werte festlegen,
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[90.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[95.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
+                                'min':[0.1, 0.007, 0.03, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[0.15, 0.012, 0.06, 50.0, 0.0, 80.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     # füge default_general und default_compact(class) zusammen
     return default_val
 
-def changed_compact():                              # TODO: hier müssen auch value changes rein!!
+def changed_compact():
     changed_vals = default_compact()
     # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
     if booleanCheckbox == 1 and (
@@ -174,7 +174,7 @@ def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERT
 
                                           'E_battSet':  [40, 50, 60, 0.0, 0.0, 0.0, 10, 20, 30, 0.0, 0.0, 0.0],
 
-                                          'P_fcSet':    [0.0, 0.0, 0.0,40, 50, 60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_fcSet':    [0.0, 0.0, 0.0, 40, 50, 60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
                                           'C_battSet':  [150, 150, 150, 180, 180, 180, 150, 150, 150, 0.0, 0.0, 0.0],
 
@@ -182,9 +182,9 @@ def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERT
 
                                           'CF_Pbatt':   [0.0, 0.0, 0.0, 12, 12, 12, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'w_h2':       [0.0, 0.0, 0.0, 33.3, 33.3, 33.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
-                                          'w_synth':    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12, 12, 12]
+                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 12, 12, 12]
                                         })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
