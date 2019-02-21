@@ -32,8 +32,8 @@ booleanCheckbox = 1
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
     default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
-                                'min': [1.05, 1.5, 2.5, 400.0, 2000.0, 0.0, 45.0, 0.0, 700.0, 10.0, 12000.0, 1.5, 0.50, 1.3, 1.5, 150.0, 0.0, 30.0, 0.0],
-                                'max': [1.15, 2.2, 3.2, 550, 2500, 0.0, 60, 0.0, 800, 15, 15000, 1.8, 0.8, 2.3, 3, 200, 0.0, 60.0, 0.0]
+                                'min': [1.05, 1.5, 2.0, 400.0, 2000.0, 0.0, 45.0, 0.0, 850.0, 20.0, 20000.0, 1.5, 0.50, 1.4, 1.5, 150.0, 0.0, 30.0, 0.0],
+                                'max': [1.15, 2.2, 2.6, 550, 2500, 0.0, 60, 0.0, 900, 30, 30000, 1.8, 0.8, 2.3, 3, 200, 0.0, 60.0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -52,7 +52,7 @@ def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS ve
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
                                 'min':[0.1, 0.007, 0.03, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[0.15, 0.012, 0.06, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
+                                'max':[0.15, 0.012, 0.08, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     # füge default_general und default_compact(class) zusammen
@@ -61,21 +61,21 @@ def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS ve
 def changed_compact():
     changed_vals = default_compact()
     # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
-    if booleanCheckbox == 1 and (
-            vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
-        changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
-    elif booleanCheckbox == 1 and (vehicle == "PHEV"):
-        changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
-    else:
-        pass
+    # if booleanCheckbox == 1 and (
+    #         vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
+    #     changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
+    # elif booleanCheckbox == 1 and (vehicle == "PHEV"):
+    #     changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
+    # else:
+    #     pass
     return changed_vals
 
 # SUV
 def default_suv(): # muss noch angepasst werden TODO: Werte anpassen für suv
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[60.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[80.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
+                                'min':[0.15, 0.01, 0.06, 40.0, 0.0, 60.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[0.2, 0.02, 0.15, 60.0, 0.0, 90.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -83,21 +83,21 @@ def default_suv(): # muss noch angepasst werden TODO: Werte anpassen für suv
 def changed_suv():                              # TODO: hier müssen auch value changes rein!!
     changed_vals = default_suv()
     # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
-    if booleanCheckbox == 1 and (
-            vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
-        changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
-    elif booleanCheckbox == 1 and (vehicle == "PHEV"):
-        changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
-    else:
-        pass
+    # if booleanCheckbox == 1 and (
+    #         vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
+    #     changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
+    # elif booleanCheckbox == 1 and (vehicle == "PHEV"):
+    #     changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
+    # else:
+    #     pass
     return changed_vals
 
 # LDV
 def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[30.0, 43.0, 28.0, 0.0, 0.0, 30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[40.0, 48.0, 33.0, 0.0, 0.0, 80.0, 0.0, 0.0, 0.0, 0, 0, 0.0]
+                                'min':[0.2, 0.015, 0.08, 50.0, 0.0, 70.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[0.25, 0.025, 0.18, 70.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -105,13 +105,13 @@ def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
 def changed_ldv():                              # TODO: hier müssen auch value changes rein!!
     changed_vals = default_ldv()
     # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
-    if booleanCheckbox == 1 and (
-            vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
-        changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
-    elif booleanCheckbox == 1 and (vehicle == "PHEV"):
-        changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
-    else:
-        pass
+    # if booleanCheckbox == 1 and (
+    #         vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
+    #     changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
+    # elif booleanCheckbox == 1 and (vehicle == "PHEV"):
+    #     changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
+    # else:
+    #     pass
     return changed_vals
 
 
@@ -184,7 +184,7 @@ def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERT
 
                                           'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
-                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 12, 12, 12]
+                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6]
                                         })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
