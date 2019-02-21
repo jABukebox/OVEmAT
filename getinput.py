@@ -32,8 +32,8 @@ booleanCheckbox = 1
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
     default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
-                                'min': [1.05, 1.5, 3.0, 400.0, 2000.0, 0.0, 45.0, 0.0, 700.0, 10.0, 10000.0, 1.5, 0.50, 1.3, 1.5, 150.0, 0.0, 30.0, 0.0],
-                                'max': [1.15, 2.2, 4.0, 550, 2500, 0.0, 60, 0.0, 800, 15, 20000, 1.8, 0.8, 2.3, 3, 200, 0.0, 60.0, 0.0]
+                                'min': [1.05, 1.5, 2.5, 400.0, 2000.0, 0.0, 45.0, 0.0, 700.0, 10.0, 12000.0, 1.5, 0.50, 1.3, 1.5, 150.0, 0.0, 30.0, 0.0],
+                                'max': [1.15, 2.2, 3.2, 550, 2500, 0.0, 60, 0.0, 800, 15, 15000, 1.8, 0.8, 2.3, 3, 200, 0.0, 60.0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -52,7 +52,7 @@ def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS ve
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
                                 'min':[0.1, 0.007, 0.03, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[0.15, 0.012, 0.06, 50.0, 0.0, 80.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
+                                'max':[0.15, 0.012, 0.06, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     # füge default_general und default_compact(class) zusammen
@@ -160,15 +160,15 @@ def x_vals():           # vehicle cycle - alles fixwerte
     return vehicle_cycle_default
 
 
-def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERTE ERSETZEN
+def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERTE ERSETZEN / fcev: cf = 1!?
     spec_vals_default = pd.DataFrame({'Class':['compact(bev)','suv(bev)','ldv(bev)','compact(fcev)','suv(fcev)',
                                                'ldv(fcev)','compact(phev)','suv(phev)','ldv(phev)','compact(icev)',
                                                'suv(icev)','ldv(icev)'],
                                           'm_curb':     [1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5,
                                                          1395, 1943, 2100.5], # gemittelte gewichte (recherchiert)
 
-                                          'C_msrp':     [1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219,
-                                                         1.716, 2.301, 2.301],
+                                          'C_msrp':     [33465, 73096, 48446, 79000, 69000, 65000, 30366, 36395, 35000,
+                                                         24302, 39037, 21564],
 
                                           'P_battSet':  [0.0, 0.0, 0.0, 20, 30, 40, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
@@ -178,9 +178,9 @@ def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERT
 
                                           'C_battSet':  [150, 150, 150, 180, 180, 180, 150, 150, 150, 0.0, 0.0, 0.0],
 
-                                          'C_fcSet':    [0.0, 0.0, 0.0, 40, 40, 40, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'C_fcSet':    [0.0, 0.0, 0.0, 45, 45, 45, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
-                                          'CF_Pbatt':   [0.0, 0.0, 0.0, 12, 12, 12, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'CF_Pbatt':   [1.0, 1.0, 1.0, 25, 25, 25, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
                                           'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 

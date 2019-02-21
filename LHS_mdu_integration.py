@@ -149,6 +149,7 @@ def getVariables(class_sel, vehicle):
         #         ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh',
         #          'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
 
+
         elif vehicle == 3:  # ICEV
             cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'],
                                                     axis='rows')
@@ -220,7 +221,7 @@ def getVariables(class_sel, vehicle):
     else:
         print('Wrong Input! \n')
         vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
-    #print(lhs_vals)
+    print(lhs_vals)
     return lhs_vals
 
 
@@ -283,7 +284,28 @@ class LCE:
 
     def calcLCE(self):
         # FuelCycle Emissions
-        e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
+        if vehicle == 0 or vehicle == 1 or vehicle == 3:  # trennung von PHEV. Calculation andere
+            e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
+        elif vehicle == 2:  # PHEV
+            cd = 60
+            C3_icev = 2.5
+            FE_icev = 0.03
+            C5_icev = 2000
+            C3_bev = 1.1
+            FE_bev = 0.12
+            C5_bev = 0
+
+            # if class_sel == 1:  # Compact
+            #     cd =
+            #
+            # elif class_sel == 2:  # SUV
+            #     ..
+            # elif class_sel == 3:  # LDV
+
+            cs = 100 - self.cd
+            e_fc_cs = C3_icev * FE_icev * self.E_elGer + C5_icev * FE_icev  # Hier werte für ICEV
+            e_fc_cd = C3_bev * FE_bev * self.E_elGer + C5_bev * FE_bev  # Hier werte für BEV
+            e_fc = ((e_fc_cs * cs) + (e_fc_cd * self.cd))/100
 
         # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
@@ -292,6 +314,7 @@ class LCE:
                        self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
 
         e_lce = (e_vc / (self.L * self.D) + e_fc)
+        print('e_lce: {} g/km'.format(e_lce))
         return e_lce
         #except:
         #    print("Calc LCE: An error has occured! Please try again!")
@@ -304,15 +327,15 @@ class TCO:
 
     def calcTCO(self):
         sum_tco = 0
-        for years in range(1, int(round(self.L+1))):  # Bildung der Summe                   TODO: Schleife testen! L+1  ???
+        for years in range(1, int(round(self.L+1))):  # Bildung der Summe               TODO: Schleife testen! L+1  ???
             Eq = ((self.C_fuel * self.FE) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             sum_tco += Eq
-
-        c_veh = self.C_msrp + (self.C_batt * self.P_batt - self.C_battSet * self.P_battSet) * self.CF + \
-                (self.C_batt * self.E_batt - self.C_battSet * self.E_battSet) + \
-                (self.C_fc * self.P_fc - self.C_fcSet * self.P_fcSet)-self.S_ren
+        print(self.CF)
+        c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
+                ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
+                ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet))-self.S_ren
         print('c_veh: {} €'.format(c_veh))
-        print('sum_tco: {} €\n'.format(sum_tco))
+        print('sum_tco: {} €/km\n'.format(sum_tco))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco
 
@@ -351,26 +374,64 @@ def resultCalc():
     #for r in range(n):
     while countType < len(gin.x_vals()):            # zähler durch fix vals of class (bev, fcev, phev, icev)
         lhs_lists = var[vehicle]                    # alle ergebnis listen von einem propType
+        #print('lhs_LISTS: {}'.format(lhs_lists))
         x_vals = list(gin.x_vals().iloc[countType])
+        #print('x_vals: {}'.format(x_vals))
         spec_vals = list(gin.spec_vals().iloc[countType])
+        #print('Spec_vals: {} '.format(spec_vals))
         x_vals.extend(spec_vals)          # hier sind alle fix vals
+        #print('x_vals_extended: {}'.format(x_vals))
         r=0
         t=0
         single_res = np.zeros(shape=(n, 2))
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
             #print(list_num)
-            S_ren = 0
-            all_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
-            all_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
-            if booleanCheckbox == 1 and (vehicle == 0 or vehicle == 1):             # Check if theres a Subsituization
-                S_ren = 4000
-            elif booleanCheckbox == 1 and (vehicle == 2):
-                S_ren = 3000
-            else:
-                S_ren = 0.0
+            #S_ren = 0
+            if vehicle == 2:
+                all_phev_lhs = list(lhs_lists[list_num])
+                if booleanCheckbox == 1 and (vehicle == 0 or vehicle == 1):  # Check if theres a Subsituization
+                    S_ren = 4000
+                elif booleanCheckbox == 1 and (vehicle == 2):
+                    S_ren = 3000
+                else:
+                    S_ren = 0.0
+                all_cd = all_phev_lhs[:dimension]
+                all_cs = all_phev_lhs[dimension:(dimension*2)]
 
-            all_values.append(S_ren)
-            lhs_dict = dict(zip(all_para_keys, all_values))
+                all_cd.extend(x_vals)
+                all_cs.extend(x_vals)
+
+                all_cd.append(S_ren)
+                all_cs.append(S_ren)
+
+                lhs_dict_cd = dict(zip(all_para_keys, all_cd))  # Hier liegen Dicts von lhs_vals
+                lhs_dict_cs = dict(zip(all_para_keys, all_cs))
+
+                lce_inst_cd = LCE(**lhs_dict_cd)
+                lce_inst_cs = LCE(**lhs_dict_cs)
+
+
+
+                tco_inst_cd = TCO(**lhs_dict_cd)
+                tco_inst_cs = TCO(**lhs_dict_cs)
+
+
+            elif vehicle == 0 or vehicle == 1 or vehicle == 3:
+
+                print('Lhs_list[list_nums:\n {}'.format(lhs_lists[list_num]))
+                all_values = list(lhs_lists[list_num])  # should be one single list of lhs_variable_results
+                print('lhs_vals:{}'.format(all_values))
+                all_values.extend(x_vals)        # ALL NEEDED VARS ARE HERE NOW
+                if booleanCheckbox == 1 and (vehicle == 0 or vehicle == 1):             # Check if theres a Subsituization
+                    S_ren = 4000
+                elif booleanCheckbox == 1 and (vehicle == 2):
+                    S_ren = 3000
+                else:
+                    S_ren = 0.0
+
+                all_values.append(S_ren)
+                #print('all_vals: {}'.format(all_values))
+                lhs_dict = dict(zip(all_para_keys, all_values))
             #print('lhs_values:{}'.format(lhs_dict))
             lce_inst = LCE(**lhs_dict)
             tco_inst = TCO(**lhs_dict)
@@ -387,13 +448,13 @@ def resultCalc():
             #result[res_row] = [np.around(e_fc_res, decimals = 4), np.around(c_tco_res, decimals = 4)]
             #res_row += 1
         result = np.append(result, single_res, axis=0)    # Hier gesamtergebnis
-        #print('The result is: \n{}'.format(result))
+        print('The result is: \n{}'.format(result))
         #print('\n')
         # append to a longer list
         countType+=3            # Sprung von compact_bev auf compact_fcev auf compact_phev ...
         vehicle +=1                                 # erhöhung -> lhs_lists bev -> fcev
     result = np.around(result, decimals=4)
-    #print(result)
+    #print('Result:\n {}\n'.format(result))
 
     return result
 
@@ -461,14 +522,17 @@ class PlotClass():
         plot = pg.ScatterPlotItem(x[:n], y[:n], size=8, pen=pg.mkPen(None),
                                   symbol = 'd', brush='cd5c5c')                                 # red
         w1.addItem(plot)
+
         # FCEV
         plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=8, pen=pg.mkPen(None),
                                   symbol = 'd', brush='87cefa')                                 # blue
         w1.addItem(plot)
+
         # PHEV
         plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=8, pen=pg.mkPen(None),
                                   symbol = 'd', brush='cd853f')                                 # orange
         w1.addItem(plot)
+
         # ICEV
         plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=8, pen=pg.mkPen(None),
                                   symbol = 'd', brush='bdb76b')                                 # green
@@ -483,7 +547,7 @@ class PlotClass():
 if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    n = 100  # Number of repeats (test it!)
+    n = 5  # Number of repeats (test it!)
 
     # Call Functions
     class_sel = vehClassSel()
