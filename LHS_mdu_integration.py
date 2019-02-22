@@ -14,10 +14,13 @@ import pyDOE as pyDOE
 import pandas as pd
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
+from pyqtgraph import InfiniteLine as il
+from pyqtgraph import SignalProxy as sp
 import getinput as gin
 import os
 import sys
 import csv
+from PyQt5 import QtCore
 # import pyqtgraph.opengl as gl
 # from PyQt5.QtCore import Qt
 # from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
@@ -38,6 +41,7 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
     dim = (len(range_length))  # Length of Variable list # TODO: len(range_variablen)
     return dim
 
+
 def LatinHype(dimension, n):  # n = number of samples
     points = pyDOE.lhs(dimension, samples=n*4)
     return points  # output.type = array
@@ -47,7 +51,8 @@ def LatinHype(dimension, n):  # n = number of samples
 # Choose Vehicle Class
 # =============================================================================
 def vehClassSel():              # saved as "class_sel"
-    veh_class = int(input("1: Compact - 2: suv - 3: ldv \n"))
+    veh_class = int(input("Select Vehicle Class:\n"
+                          "1: Compact Cars - 2: SUVs - 3: LDVs (Light Duty Vehicles) \n"))
     return veh_class
 
 
@@ -311,8 +316,6 @@ def resultCalc():
         x_vals = list(gin.x_vals().iloc[countType])
         spec_vals = list(gin.spec_vals().iloc[countType])
         x_vals.extend(spec_vals)          # hier sind alle fix vals
-        r=0
-        t=0
         single_res = np.zeros(shape=(n, 2))
         for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
             if vehicle == 2:
@@ -369,7 +372,6 @@ def resultCalc():
         countType+=3            # Sprung von compact_bev auf compact_fcev auf compact_phev ...
         vehicle +=1                                 # erhöhung -> lhs_lists bev -> fcev
     result = np.around(result, decimals=4)
-    print(type(result))
     return result
 
 
@@ -380,17 +382,21 @@ class SaveResults:
     def __init__(self, parent=None):
         self.save_csv()
 
-    def save_csv(self):  # create folder & file and write results
+    def save_csv(self):
+        # SAVE all results to results/result.csv
         if not os.path.exists('results/'):
             os.makedirs('results/')
-        with open("results/result.csv", 'w') as fp:
+        with open("results/result.csv", 'w+') as fp:
             a = csv.writer(fp, delimiter=";")
             a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), res))
+
+        # SAVE propType Results to base-temp folder
+        if not os.path.exists('temp/'):
+            os.makedirs('temp/')
         bev_points = res[:n]
         with open("temp/bev_result_temp.csv", "w+") as csv_count:
             csvWriter = csv.writer(csv_count, delimiter=';')
             csvWriter.writerows(bev_points)
-
         fcev_points = res[n:(n * 2)]
         with open("temp/fcev_result_temp.csv", "w+") as csv_count:
             csvWriter = csv.writer(csv_count, delimiter=';')
@@ -405,98 +411,165 @@ class SaveResults:
             csvWriter.writerows(icev_points)
 
 class PlotClass:
-    def __init__(self, title = 'irgendwas', name='blabla',parent=None):
+    def __init__(self, border=True, title = 'irgendwas', name='blabla',parent=None):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.plotting()
-
-    def plotting(self):
-        # create the view
-        # view = pg.PlotWidget()
-
-        app = QtGui.QApplication(sys.argv)
-        mw = QtGui.QMainWindow()
         mw.resize(1000, 800)
         view = pg.GraphicsLayoutWidget()
         mw.setCentralWidget(view)
         mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
-        #aim_2020 = addLine(x=None, y=95, z=None) # Ziel 2020: 95 gGHG/km
-
-        w1 = view.addPlot()
-
-        #w1.setAspectLocked(True,1)
-
+        self.plt = view.addPlot()
         # X Axis Settings
-        w1.setLabel('bottom',text='Total Cost of Ownership', units='€ / km')
+        self.plt.setLabel('bottom', text='Total Cost of Ownership', units='€ / km')
         # Y Axis Settings
-        w1.setLabel('left', text='Lifecycle Emissions', units='gGHG / km')
-        #w1.ylabel.setTitleText('Lifecycle Emissions (gGHG / km)')
+        self.plt.setLabel('left', text='Lifecycle Emissions', units='gGHG / km')
 
-        w1.showGrid(True, True, alpha=.5)
+        self.plt.showGrid(True, True, alpha=.5)
+        self.l = pg.LegendItem((100,60), offset=(-30,30))  # args are (size, offset)
+        self.l.setParentItem(self.plt.graphicsItem())  # Note we do NOT call plt.addItem in this case
 
-        w1.addLegend(size=None, offset=(30, 30))
+        # Set Climate Goal lines
+        #InfiniteLine.__init__()
+        self.plt.addLine(x=None, y=200, z=None)  # Ziel 2030: 60 gGHG/km
+        self.plt.addLine(x=None, y=120, z=None)  # Aim 2040: .. gGHG/km
 
-        w1.addLine(x=None, y=200, z=None)  # Ziel 2030: 60 gGHG/km
-        w1.addLine(x=None, y=120, z=None)  # Aim 2040: .. gGHG/km
-        # Convert data array into a list of dictionaries with the x,y-coordinates
+        self.plt.setMenuEnabled(enableMenu=True, enableViewBoxMenu='same')
 
-        w1.setMenuEnabled(enableMenu=True, enableViewBoxMenu='same')
+        # Menubar
+        self.menubar = QtGui.QMenuBar(mw)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 22))
+        mw.setMenuBar(self.menubar)
 
+        # Status Bar
+        self.statusbar = QtGui.QStatusBar(mw)
+        mw.setStatusBar(self.statusbar)
+        QtCore.QMetaObject.connectSlotsByName(mw)
+
+        self.plotting()
+
+    def plotting(self):
+        # self.plt.scene().minDragTime = 0  # let us simulate mouse drags very quickly.
+        # vline = self.plt.addLine(x=0, movable=True)
+        #
+        # self.plt.addItem(vline)
+        # hline = self.plt.addLine(y=0, movable=True)
+        # hline2 = self.plt.addLine(y=-1, movable=False)
+        # self.plt.setXRange(-10, 10)
+        # self.plt.setYRange(-10, 10)
+
+
+        # SPLIT RESULTS
         x = res[:,0]
-        #print(x)
+        # print(x)
         y = res[:,1]
-        #print(y)
+        # print(y)
 
-
-        #self.plot.setData(self.pos)
         now = pg.ptime.time()
 
-        point_size = 8
-        #color = QtGui.QColor("#0000FF")
-
-        # Create Scatter Plot and add it to view
+        # Create Scatter Plot
+        point_size = 12
         # BEV
-        plot = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='cd5c5c', name='BEV')                              # red
-        w1.addItem(plot,  name='BEV')
-
+        plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
+                                  symbol = 'x', brush='cd5959', name='BEV')                              # red
         # FCEV
-        plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='87cefa', name ='FCEV')                            # blue
-        w1.addItem(plot, name ='FCEV')
-
+        plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
+                                  symbol = 'x', brush='5a9fcd', name ='FCEV')                            # blue
         # PHEV
-        plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='cd853f', name ='PHEV')                            # orange
-        w1.addItem(plot, name ='PHEV')
-
+        plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
+                                  symbol = 'x', brush='ea8f20', name ='PHEV')                            # orange
         # ICEV
-        plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='bdb76b', name ='ICEV')                            # green
-        w1.addItem(plot, name ='ICEV')
+        plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
+                                  symbol = 'x', brush='b2cd5b', name ='ICEV')                            # green
 
+        #pfill = pg.FillBetweenItem(plot_icev, plot_fcev, brush='59cdc1')
+
+        # Adding Plots to window plt
+        self.plt.addItem(plot_bev, name='BEV')
+        self.plt.addItem(plot_fcev, name='FCEV')
+        self.plt.addItem(plot_phev, name='PHEV')
+        self.plt.addItem(plot_icev, name='ICEV')
+        #self.plt.addItem(pfill, name='FILL')
+
+
+        # Adding Legend items to legendview l
+        self.l.addItem(plot_bev, name='BEV')
+        self.l.addItem(plot_fcev, name='FCEV')
+        self.l.addItem(plot_phev, name='PHEV')
+        self.l.addItem(plot_icev, name ='ICEV')
         print('plot time: {} sec'.format(pg.ptime.time() - now))
+    #     self.paintEvent()
+    #
+    # def paintEvent(self, event):
+    #     painter = QtGui.QPainter(self)
+    #     painter.setPen(QtGui.QPen(QtCore.Qt.red))
+    #     painter.drawArc(QtCore.QRectF(250, 250, 10, 10), 0, 5760)
 
-        mw.show()
-        sys.exit(app.exec_())
+        # TEST MOSEOVER EVENT
+        # # test horizontal drag
+        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(0, 5)).toPoint()
+        # pos2 = pos - QtCore.QPoint(200, 200)
+        # QtCore.QEvent.MouseMove(self.plt, pos)
+        # assert vline.mouseHovering is True and hline.mouseHovering is False
+        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
+        # px = vline.pixelLength(pg.Point(1, 0), ortho=True)
+        # assert abs(vline.value() - self.plt.plotItem.vb.mapSceneToView(pos2).x()) <= px
+        #
+        # # test missed drag
+        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(5, 0)).toPoint()
+        # pos = pos + QtCore.QPoint(0, 6)
+        # pos2 = pos + QtCore.QPoint(-20, -20)
+        # QtCore.QEvent.MouseMove(self.plt, pos)
+        # assert vline.mouseHovering is False and hline.mouseHovering is False
+        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
+        # assert hline.value() == 0
+        #
+        # # test vertical drag
+        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(5, 0)).toPoint()
+        # pos2 = pos - QtCore.QPoint(50, 50)
+        # QtCore.QEvent.MouseMove(self.plt, pos)
+        # assert vline.mouseHovering is False and hline.mouseHovering is True
+        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
+        # px = hline.pixelLength(pg.Point(1, 0), ortho=True)
+        # assert abs(hline.value() - self.plt.plotItem.vb.mapSceneToView(pos2).y()) <= px
+        #
+        # # test non-interactive line
+        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(5, -1)).toPoint()
+        # pos2 = pos - QtCore.QPoint(50, 50)
+        # QtCore.QEvent.mouseMove(self.plt, pos)
+        # assert hline2.mouseHovering == False
+        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
+        # assert hline2.value() == -1
+
+
 
 
 if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    n = 2  # Number of repeats (test it!)
+    # Number of repeats (test it!)
+    n = 100
 
     # Call Functions
-    class_sel = vehClassSel()
+    while True:
+        try:
+            class_sel = vehClassSel()
+        except ValueError:
+            print('Value Error! Hit a Number 1 - 3\n')
+        else:
+            break
+
     dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
     p = LatinHype(dimension, n)
     var = varFinal()
     res = resultCalc()
 
     # Make App
-    #app = pg.mkQApp()  # main application instance
-    #app = QApplication(sys.argv)
     save = SaveResults()
+    app = QtGui.QApplication(sys.argv)
+    mw = QtGui.QMainWindow()
     w = PlotClass()
+
     #w.show()
     #sys.exit(app.exec_())
+    mw.show()
+    sys.exit(app.exec_())

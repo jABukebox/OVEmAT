@@ -10,20 +10,24 @@ import os
 #       * boolean Checkbox und vehicle bei test! kommt von django
 
 vehicle = 'BEV'
-booleanCheckbox = 1
+#booleanCheckbox = 1
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
-    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'Em_elVC', 'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
-                                'min': [1.3, 4.0, 7.40, 400.0, 2200.0, 0.0, 550, 45.0, 0.0, 850.0, 10.0, 10000.0, 1.5, 0.30, 1.4, 1.5, 200.0, 0.0, 30.0, 0.0],
-                                'max': [1.5, 5.0, 7.8, 550, 2500, 0.0, 600, 60, 0.0, 900, 12, 12000, 1.8, 0.4, 2.3, 3, 2300, 0.0, 60.0, 0.0]
+    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'Em_elVC',
+                                         'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth',
+                                         'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],# Hier alle var Vals (Ranges)
+
+                                'min': [1.3,  4.0,   7.40,  400.0, 2200.0, 0.0, 550,
+                                        45.0, 0.0,   850.0, 10.0,  10000,  8.1, 0.20, 1.4,
+                                        1.5,  80.0, 0.0,   30.0,  0.0],
+
+                                'max': [1.5,  5.0,   7.8,   550,   2500,   0.0, 600,
+                                        60.0, 0.0,   900,   12,    12000,  10,  0.25, 2.3,
+                                        3.0,  120,  0.0,   60.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
-
-    # os.chdir('inputfiles/')
-    # default_val = pd.read_csv('default_general.csv', index_col='vars', delimiter=';')
-    # os.chdir(BASE_DIR)
     return default_val
 
 def changed_general():              # Aus Changed wird ausgelesen!
@@ -48,14 +52,6 @@ def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS ve
 
 def changed_compact():
     changed_vals = default_compact()
-    # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
-    # if booleanCheckbox == 1 and (
-    #         vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
-    #     changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
-    # elif booleanCheckbox == 1 and (vehicle == "PHEV"):
-    #     changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
-    # else:
-    #     pass
     return changed_vals
 
 # SUV
@@ -70,14 +66,7 @@ def default_suv(): # muss noch angepasst werden TODO: Werte anpassen für suv
 
 def changed_suv():                              # TODO: hier müssen auch value changes rein!!
     changed_vals = default_suv()
-    # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
-    # if booleanCheckbox == 1 and (
-    #         vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
-    #     changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
-    # elif booleanCheckbox == 1 and (vehicle == "PHEV"):
-    #     changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
-    # else:
-    #     pass
+
     return changed_vals
 
 # LDV
@@ -92,14 +81,6 @@ def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
 
 def changed_ldv():                              # TODO: hier müssen auch value changes rein!!
     changed_vals = default_ldv()
-    # Subsidization Renewables Yes / No             #TODO: DEFAULT darf nicht veränderbar sein. Boolean Checkbox aus DJANGO
-    # if booleanCheckbox == 1 and (
-    #         vehicle == "BEV" or vehicle == "FCEV"):  # Wenn S_ren selected, set S_ren -- > Für boolean muss get_val von checkbox hin !!!
-    #     changed_vals.iat[changed_vals.index.get_loc('S_renBig'), changed_vals.columns.get_loc('max')] = 4000
-    # elif booleanCheckbox == 1 and (vehicle == "PHEV"):
-    #     changed_vals.iat[changed_vals.index.get_loc('S_renSmall'), changed_vals.columns.get_loc('max')] = 3000
-    # else:
-    #     pass
     return changed_vals
 
 
