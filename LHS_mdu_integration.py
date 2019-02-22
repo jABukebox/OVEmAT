@@ -238,7 +238,7 @@ class LCE:
     def fuelCycle(self):
         # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:  # trennung von PHEV. Calculation andere
-            e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth #+ self.C5 * self.FE
+            e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
             print('C3: {}, FE: {}, E_elGer: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.E_elGer, self.w_h2, self.w_synth, self.C5))
             print('e_fc_normal: {}'.format(e_fc))
             return e_fc
@@ -503,23 +503,23 @@ class PlotClass:
         # Create Scatter Plot and add it to view
         # BEV
         plot = pg.ScatterPlotItem(x[:n], y[:n], size=8, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='cd5c5c')                                 # red
-        w1.addItem(plot, 'BEV')
+                                  symbol = 'x', brush='cd5c5c', name='BEV')                                 # red
+        w1.addItem(plot,  name='BEV')
 
         # FCEV
         plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=8, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='87cefa')                                 # blue
-        w1.addItem(plot, 'FCEV')
+                                  symbol = 'x', brush='87cefa', name ='FCEV')                                 # blue
+        w1.addItem(plot, name ='FCEV')
 
         # PHEV
         plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=8, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='cd853f')                                 # orange
-        w1.addItem(plot, 'PHEV')
+                                  symbol = 'x', brush='cd853f', name ='PHEV')                                 # orange
+        w1.addItem(plot, name ='PHEV')
 
         # ICEV
         plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=8, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='bdb76b')                                 # green
-        w1.addItem(plot, 'ICEV')
+                                  symbol = 'x', brush='bdb76b', name ='ICEV')                                 # green
+        w1.addItem(plot, name ='ICEV')
 
         print('plot time: {} sec'.format(pg.ptime.time() - now))
 
