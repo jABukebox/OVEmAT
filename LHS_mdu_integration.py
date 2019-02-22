@@ -230,123 +230,30 @@ def getVariables(class_sel, vehicle):
 # Definition of Classes (Calculations)                                          #
 # ============================================================================= #
 #################################################################################
-# class Vehicles:
-    # @classmethod
-    # def generalVals(cls,):
-    #     static = get_valsfrom_df
-    #     return static
-
-
 class LCE:
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
-    # def calcFuelCycle(self):
-    #     global e_fc         # Todo: auch löschen
-    #     #vehicle = 0 # TODO: UNBEDINGT LÖSCHEN.. MUSS SELBST LAUFEN
-    #     if vehicle == 0 or vehicle == 1 or vehicle == 3:              # trennung von PHEV. Calculation andere
-    #         e_fc = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE
-    #         print(e_fc)
-    #         #return e_fc
-    #
-    #     elif vehicle == 2:                                          # PHEV
-    #         pass # test!! pass danach entfernen
-    #         # try:
-    #         #     if class_sel == 1:              # Compact
-    #         #         C3 = # Hier müssen werte aus LHS verrechnung rein
-    #         #         c_v = gin.default_compact()  # bv = bev_vals
-    #         #
-    #         #     elif class_sel == 2:            # SUV
-    #         #
-    #         #
-    #         #     elif class_sel == 3:            # LDV
-    #         #         C3 =
-    #         #     cs = 1 - self.cd/100
-    #         #     e_fc_cs = self.C3 *self.FE * self.E_elGer + self.C5 * self.FE # Hier werte für ICEV
-    #         #     e_fc_cd = ... # Hier werte für BEV
-    #         #     e_fc = (e_fc_cs * cs + e_fc_cd * self.cd)/100
-    #         #     return e_fc
-    #         # except:
-    #         #     print("An error has occured! Please try again!")
 
-
-    # def calcVehicleCycle(self):
-    #     #try:
-    #     global e_vc # todo: auch löschen.. an calcLCE übergeben
-    #     # m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
-    #     # e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
-    #     #             self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
-    #     #                    self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
-    #     #return e_vc
-    #     #except:
-    #     #    print("Calc Vehicle: An error has occured! Please try again!")
     def fuelCycle(self):
         # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:  # trennung von PHEV. Calculation andere
-            e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
+            e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth #+ self.C5 * self.FE
+            print('C3: {}, FE: {}, E_elGer: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.E_elGer, self.w_h2, self.w_synth, self.C5))
+            print('e_fc_normal: {}'.format(e_fc))
             return e_fc
-            #self.calcLCE()
-
-        #elif vehicle == 2:  # PHEV
-            # cd = 60
-            # C3_icev = 2.5
-            # FE_icev = 0.03
-            # C5_icev = 2000
-            # C3_bev = 1.1
-            # FE_bev = 0.12
-            # C5_bev = 0
-
-            # if class_sel == 1:  # Compact
-            #     cd =
-            #
-            # elif class_sel == 2:  # SUV
-            #     ..
-            # elif class_sel == 3:  # LDV
-    # def fuelCycle_phev(self, **kwargs):
-    #     cs = 100 - self.cd_bev
-    #     e_fc_cs = self.C3_icev * self.FE_icev * self.E_elGer + self.C5_icev * self.FE_icev  # Hier werte für ICEV
-    #     e_fc_cd = self.C3_bev * self.FE_bev * self.E_elGer + self.C5_bev * self.FE_bev  # Hier werte für BEV
-    #     self.e_fc = ((e_fc_cs * cs) + (e_fc_cd * self.cd_bev)) / 100
-    #     return self.e_fc
-
 
 
     def calcLCE(self, e_fc):
-        # # FuelCycle Emissions
-        # if vehicle == 0 or vehicle == 1 or vehicle == 3:  # trennung von PHEV. Calculation andere
-        #     e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
-        # elif vehicle == 2:  # PHEV
-        #     cd = 60
-        #     C3_icev = 2.5
-        #     FE_icev = 0.03
-        #     C5_icev = 2000
-        #     C3_bev = 1.1
-        #     FE_bev = 0.12
-        #     C5_bev = 0
-        #
-        #     # if class_sel == 1:  # Compact
-        #     #     cd =
-        #     #
-        #     # elif class_sel == 2:  # SUV
-        #     #     ..
-        #     # elif class_sel == 3:  # LDV
-        #
-        #     cs = 100 - self.cd
-        #     e_fc_cs = C3_icev * FE_icev * self.E_elGer + C5_icev * FE_icev  # Hier werte für ICEV
-        #     e_fc_cd = C3_bev * FE_bev * self.E_elGer + C5_bev * FE_bev  # Hier werte für BEV
-        #     e_fc = ((e_fc_cs * cs) + (e_fc_cd * self.cd))/100
-
         # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
         e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
                 self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
                        self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
-
+        print('e_vc: {}'.format(e_vc))
         e_lce = (e_vc / (self.L * self.D) + e_fc)
-        #print('e_lce: {} g/km'.format(e_lce))
+        print('e_lce: {}\n'.format(e_lce))
         return e_lce
-        #except:
-        #    print("Calc LCE: An error has occured! Please try again!")
 
 class FuelCycle_phev():
     def __init__(self, **kwargs):
@@ -358,47 +265,26 @@ class FuelCycle_phev():
         e_fc_cs = self.C3_icev * self.FE_icev * self.E_elGer * self.w_h2 * self.w_synth + self.C5_icev * self.FE_icev  # Hier werte für ICEV
         e_fc_cd = self.C3_bev * self.FE_bev * self.E_elGer * self.w_h2 * self.w_synth + self.C5_bev * self.FE_bev  # Hier werte für BEV
         self.e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_bev))
+        print('e_fc_phev: {}'.format(self.e_fc))
         return self.e_fc
 
     def newPhevVals(self):
-        phev_dict = {}
-        phev_dict['FE'] = self.FE_icev * self.cs + self.FE_bev * self.cd_bev * 1.26   # Factor for Fuel Economy Convversion FE/2 (cd)
-        #print('FE_icev: {} und FE_bev {}'.format(self.FE_icev, self.FE_bev))
-        FE = self.FE_icev * self.cs + self.FE_bev * self.cd_bev * 1.26
-        phev_dict['E_batt'] = self.E_batt_bev
+        FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_bev * 1.26) # Factor for Fuel Economy Convversion FE/2 (cd)
         E_batt = self.E_batt_bev
-        phev_dict['P_batt'] = self.P_batt_bev
         P_batt = self.P_batt_bev
-        phev_dict['P_fc'] = self.P_fc_bev
         P_fc = self.P_fc_bev
-        phev_dict['C3'] = self.C3_icev * self.cs + self.C3_bev * self.cd_bev
         C3 = self.C3_icev * self.cs + self.C3_bev * self.cd_bev
-        phev_dict['C5'] = self.C5_icev * self.cs + self.C5_bev * self.cd_bev
         C5 = self.C5_icev * self.cs + self.C5_bev * self.cd_bev
-        phev_dict['E_elGer'] = self.E_elGer
         E_elGer =  self.E_elGer
-        phev_dict['cd'] = self.cd_bev
         cd = self.cd_bev
-        phev_dict['E_elCh'] = self.E_elCh
         E_elCh = self.E_elCh
-        phev_dict['L'] = self.L
         L = self.L
-        phev_dict['D'] = self.D
         D = self.D
-        phev_dict['r'] = self.r
         r = self.r
-        phev_dict['C_fuel'] = self.C_fuel_icev * self.cs + self.C_fuel_bev* self.cd
         C_fuel = self.C_fuel_icev * self.cs + self.C_fuel_bev* self.cd
-        phev_dict['C_batt'] = self.C_batt_bev
         C_batt = self.C_batt_bev
-        phev_dict['C_fc'] = self.C_fc_bev
         C_fc = self.C_fc_bev
-
-
         phev_vals = [FE, E_batt, P_batt, P_fc, C3, C5, E_elGer, cd, E_elCh, L, D, r, C_fuel, C_batt, C_fc]
-        #print("Phev_vals: {}".format(phev_vals))
-        #phev_dict = {'FE':FE_phev, 'E_batt':E_batt, 'P_batt','P_fc','C3','C5','E_elGer','cd','E_elCh', 'L', 'D', 'r', 'C_fuel',
-        #            'C_batt', 'C_fc', 'C3':C3_phev, 'C5':C5_phev}
         return phev_vals
 
 
@@ -439,7 +325,7 @@ def resultCalc():
         #lhs_lists = var[vehicle]                        # hier sind die berechneten lhs-listen je propType
     #result = np.zeros(shape=(n*4, 2))
     result = np.zeros(shape=(0, 2))
-    #print(result)
+    #print('result: {}'.format(result))
     #single_res = np.zeros(shape=(n,2))
     #single_res = np.zeros(shape=(n, 2))
     vehicle = 0
@@ -483,19 +369,6 @@ def resultCalc():
                     S_ren = 3000
                 else:
                     S_ren = 0.0
-                # all_cd = all_phev_lhs[:dimension]                   # Split cd and cs values
-                # all_cs = all_phev_lhs[dimension:(dimension*2)]      # After Calc of E_fuelcycle together again
-                #
-                # all_cd.extend(x_vals)
-                # all_cs.extend(x_vals)
-                #
-                # all_cd.append(S_ren)
-                # all_cs.append(S_ren)
-                #
-                # lhs_dict_cd = dict(zip(all_para_keys, all_cd))  # Hier liegen Dicts von lhs_vals
-                # lhs_dict_cs = dict(zip(all_para_keys, all_cs))
-                #all_phev = list(lhs_lists[list_num])
-
                 all_phev_lhs.extend(x_vals)
                 #all_phev_lhs.append(S_ren)
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
@@ -564,10 +437,8 @@ def resultCalc():
 # =============================================================================
 # Plot results
 # =============================================================================
-class PlotClass():
+class SaveResults:
     def __init__(self, parent=None):
-        pg.setConfigOption('background', 'w')
-        pg.setConfigOption('foreground', 'k')
         self.save_csv()
 
     def save_csv(self):  # create folder & file and write results
@@ -576,7 +447,13 @@ class PlotClass():
         with open("results/result.csv", 'w') as fp:
             a = csv.writer(fp, delimiter=";")
             a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), res))
-            self.plotting()
+
+
+class PlotClass:
+    def __init__(self, title = 'irgendwas', name='blabla',parent=None):
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
+        self.plotting()
 
     def plotting(self):
         # create the view
@@ -590,21 +467,25 @@ class PlotClass():
         mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
         #aim_2020 = addLine(x=None, y=95, z=None) # Ziel 2020: 95 gGHG/km
 
+        w1 = view.addPlot()
 
-        # mw.setAspectLocked(True)
-        #mw.showGrid(True, True, alpha=.5)
+        #w1.setAspectLocked(True,1)
 
         # X Axis Settings
-        #mw.xlabel.setTitleText('Total Cost of Ownership (€ / km)')
-
+        w1.setLabel('bottom',text='Total Cost of Ownership', units='€ / km')
         # Y Axis Settings
-        #mw.ylabel.setTitleText('Lifecycle Emissions (gGHG / km)')
+        w1.setLabel('left', text='Lifecycle Emissions', units='gGHG / km')
+        #w1.ylabel.setTitleText('Lifecycle Emissions (gGHG / km)')
 
-        w1 = view.addPlot()
+        w1.showGrid(True, True, alpha=.5)
+
+        w1.addLegend(size=None, offset=(30, 30))
 
         w1.addLine(x=None, y=200, z=None)  # Ziel 2030: 60 gGHG/km
         w1.addLine(x=None, y=120, z=None)  # Aim 2040: .. gGHG/km
         # Convert data array into a list of dictionaries with the x,y-coordinates
+
+        w1.setMenuEnabled(enableMenu=True, enableViewBoxMenu='same')
 
         x = res[:,0]
         #print(x)
@@ -623,22 +504,22 @@ class PlotClass():
         # BEV
         plot = pg.ScatterPlotItem(x[:n], y[:n], size=8, pen=pg.mkPen(None),
                                   symbol = 'x', brush='cd5c5c')                                 # red
-        w1.addItem(plot)
+        w1.addItem(plot, 'BEV')
 
         # FCEV
         plot = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=8, pen=pg.mkPen(None),
                                   symbol = 'x', brush='87cefa')                                 # blue
-        w1.addItem(plot)
+        w1.addItem(plot, 'FCEV')
 
         # PHEV
         plot = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=8, pen=pg.mkPen(None),
                                   symbol = 'x', brush='cd853f')                                 # orange
-        w1.addItem(plot)
+        w1.addItem(plot, 'PHEV')
 
         # ICEV
         plot = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=8, pen=pg.mkPen(None),
                                   symbol = 'x', brush='bdb76b')                                 # green
-        w1.addItem(plot)
+        w1.addItem(plot, 'ICEV')
 
         print('plot time: {} sec'.format(pg.ptime.time() - now))
 
@@ -649,7 +530,7 @@ class PlotClass():
 if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    n = 500  # Number of repeats (test it!)
+    n = 3  # Number of repeats (test it!)
 
     # Call Functions
     class_sel = vehClassSel()
@@ -661,6 +542,7 @@ if __name__ == '__main__':
     # Make App
     #app = pg.mkQApp()  # main application instance
     #app = QApplication(sys.argv)
+    save = SaveResults()
     w = PlotClass()
     #w.show()
     #sys.exit(app.exec_())
