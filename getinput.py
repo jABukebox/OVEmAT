@@ -31,9 +31,9 @@ vehicle = 'BEV'
 booleanCheckbox = 1
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
-    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'E_elGer','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'E_elCh', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
-                                'min': [1.05, 1.5, 2.80, 400.0, 2200.0, 0.0, 45.0, 0.0, 850.0, 10.0, 10000.0, 1.5, 0.50, 1.4, 1.5, 200.0, 0.0, 30.0, 0.0],
-                                'max': [1.15, 2.2, 3.1, 550, 2500, 0.0, 60, 0.0, 900, 15, 15000, 1.8, 0.8, 2.3, 3, 2300, 0.0, 60.0, 0.0]
+    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
+                                'min': [1.3, 4.0, 7.40, 400.0, 2200.0, 0.0, 45.0, 0.0, 850.0, 10.0, 2000.0, 1.5, 0.50, 1.4, 1.5, 200.0, 0.0, 30.0, 0.0],
+                                'max': [1.5, 5.0, 7.8, 550, 2500, 0.0, 60, 0.0, 900, 12, 4000, 1.8, 0.8, 2.3, 3, 2300, 0.0, 60.0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -51,8 +51,8 @@ def changed_general():              # Aus Changed wird ausgelesen!
 def default_compact(): # mist!? cd muss wählbarer fixwert sein. ohne mit LHS verrechnet zu werden -> cd und alle einfachwert values in extra df!? TODO: min - max werte festlegen,
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt', 'E_battEmpty', 'P_fc', 'P_fcEmpty', 'S_renBig',
                                          'S_renSmall', 'S_renEmpty'],  # Hier alle var Vals (Ranges)
-                                'min':[0.1, 0.007, 0.03, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[0.15, 0.012, 0.06, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
+                                'min':[0.15, 0.007, 0.03, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[0.21, 0.012, 0.06, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     # füge default_general und default_compact(class) zusammen

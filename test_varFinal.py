@@ -44,7 +44,7 @@ def getVariables(class_sel, vehicle):
 
         elif vehicle == 2:  # PHEV
             cc_phev = gin.changed_compact().reindex(
-                ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh',
+                ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'Em_elFC', 'C5_icev', 'C5_empty', 'cd', 'Em_elBatt',
                  'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
 
         elif vehicle == 3:  # ICEV

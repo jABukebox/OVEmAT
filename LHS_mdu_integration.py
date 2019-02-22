@@ -33,7 +33,7 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
     cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
                                        axis='rows')  # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
     cg_bev = gin.changed_general().reindex(
-        ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'],
+        ['C3_batt', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'],
         axis='rows')
     range_length = pd.concat([cc_bev, cg_bev])  # ZUSAMMENFÜHREN NACH GLEICHEN COLUMNS
     dim = (len(range_length))  # Length of Variable list # TODO: len(range_variablen)
@@ -129,7 +129,7 @@ def getVariables(class_sel, vehicle):
             cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
                                                axis='rows') # must stay here (in getinput.py) for LHS-Dimension / S_ren
             cg_bev = gin.changed_general().reindex(
-                ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
+                ['C3_batt', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
             lhs_vals = pd.concat([cc_bev, cg_bev])
 
@@ -137,7 +137,7 @@ def getVariables(class_sel, vehicle):
         elif vehicle == 1: # FCEV
             cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
             cg_fcev = gin.changed_general().reindex(
-                ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
+                ['C3_batt', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
             lhs_vals = pd.concat([cc_fcev, cg_fcev])
 
@@ -146,7 +146,7 @@ def getVariables(class_sel, vehicle):
 
         # elif vehicle == 2:  # PHEV                    #vehicle in getVariable never gets 2!! (see var Final dual loop)
         #     cc_phev = gin.changed_compact().reindex(
-        #         ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'E_elGer', 'C5_icev', 'C5_empty', 'cd', 'E_elCh',
+        #         ['C3_batt', 'FE_batt', 'C3_synth', 'FE_synth', 'cd', 'Em_elFC', 'C5_icev', 'C5_empty', 'cd', 'Em_elBatt',
         #          'E_batt', 'L', 'D', 'C_fuelEl', 'r', 'C_batt', 'S_renSmall'], axis='rows')
 
 
@@ -154,7 +154,7 @@ def getVariables(class_sel, vehicle):
             cc_icev = gin.changed_compact().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'],
                                                     axis='rows')
             cg_icev = gin.changed_general().reindex(
-                ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
+                ['C3_synth', 'C5_icev', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
             lhs_vals = pd.concat([cc_icev, cg_icev])
 
@@ -165,14 +165,14 @@ def getVariables(class_sel, vehicle):
         if vehicle == 0:    # BEV
             cs_bev = gin.changed_suv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_bev = gin.changed_general().reindex(
-                ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
+                ['C3_batt', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
             lhs_vals = pd.concat([cs_bev, cg_bev])
 
         elif vehicle == 1:  # FCEV
             cs_fcev = gin.changed_suv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
             cg_fcev = gin.changed_general().reindex(
-                ['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
+                ['C3_h2', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
             lhs_vals = pd.concat([cs_fcev, cg_fcev])
 
@@ -183,7 +183,7 @@ def getVariables(class_sel, vehicle):
             cs_icev = gin.changed_suv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'],
                                                 axis='rows')
             cg_icev = gin.changed_general().reindex(
-                ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
+                ['C3_synth', 'C5_icev', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
             lhs_vals = pd.concat([cs_icev, cg_icev])
 
@@ -194,14 +194,14 @@ def getVariables(class_sel, vehicle):
         if vehicle == 0:    # BEV
             cl_bev = gin.changed_ldv().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_bev = gin.changed_general().reindex(
-                ['C3_batt', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
+                ['C3_batt', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelEl', 'C_batt',
                  'C_fcEmpty'], axis='rows')
             lhs_vals = pd.concat([cl_bev, cg_bev])
 
         elif vehicle == 1:  # FCEV
             cl_fcev = gin.changed_ldv().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
             cg_fcev = gin.changed_general().reindex(
-                ['C3_h2', 'C5_empty', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
+                ['C3_h2', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                 axis='rows')
             lhs_vals = pd.concat([cl_fcev, cg_fcev])
 
@@ -211,7 +211,7 @@ def getVariables(class_sel, vehicle):
         elif vehicle == 3:  # ICEV
             cl_icev = gin.changed_ldv().reindex(['FE_synth', 'E_battEmpty', 'P_battEmpty', 'P_fcEmpty'], axis='rows')
             cg_icev = gin.changed_general().reindex(
-                ['C3_synth', 'C5_icev', 'E_elGer', 'cd_empty', 'E_elCh', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
+                ['C3_synth', 'C5_icev', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'L', 'D', 'r', 'C_fuelSynth', 'C_battEmpty',
                  'C_fcEmpty'], axis='rows')
             lhs_vals = pd.concat([cl_icev, cg_icev])
 
@@ -238,8 +238,8 @@ class LCE:
     def fuelCycle(self):
         # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:  # trennung von PHEV. Calculation andere
-            e_fc = self.C3 * self.FE * self.E_elGer * self.w_h2 * self.w_synth + self.C5 * self.FE
-            print('C3: {}, FE: {}, E_elGer: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.E_elGer, self.w_h2, self.w_synth, self.C5))
+            e_fc = self.C3 * self.FE * self.Em_elFC * self.w_h2 * self.w_synth + self.C5 * self.FE
+            print('C3: {}, FE: {}, Em_elFC: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.Em_elFC, self.w_h2, self.w_synth, self.C5))
             print('e_fc_normal: {}'.format(e_fc))
             return e_fc
 
@@ -247,9 +247,9 @@ class LCE:
     def calcLCE(self, e_fc):
         # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
-        e_vc = self.X2 + self.X3 * self.E_elGer + m_scal * (self.X4 + self.X5 * self.E_elGer) + self.P_batt * (
-                self.X7 + self.X8 * self.E_elCh) + self.E_batt * (
-                       self.X10 + self.X11 * self.E_elCh) + self.P_fc * (self.X13 + self.X14 * self.E_elGer)
+        e_vc = self.X2 + self.X3 * self.Em_elFC + m_scal * (self.X4 + self.X5 * self.Em_elFC) + self.P_batt * (
+                self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
+                       self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
         print('e_vc: {}'.format(e_vc))
         e_lce = (e_vc / (self.L * self.D) + e_fc)
         print('e_lce: {}\n'.format(e_lce))
@@ -262,8 +262,8 @@ class FuelCycle_phev():
 
     def fuelCycle(self, **kwargs):
         self.cs = (100 - self.cd_bev)/100
-        e_fc_cs = self.C3_icev * self.FE_icev * self.E_elGer * self.w_h2 * self.w_synth + self.C5_icev * self.FE_icev  # Hier werte für ICEV
-        e_fc_cd = self.C3_bev * self.FE_bev * self.E_elGer * self.w_h2 * self.w_synth + self.C5_bev * self.FE_bev  # Hier werte für BEV
+        e_fc_cs = self.C3_icev * self.FE_icev * self.Em_elFC * self.w_h2 * self.w_synth + self.C5_icev * self.FE_icev  # Hier werte für ICEV
+        e_fc_cd = self.C3_bev * self.FE_bev * self.Em_elFC * self.w_h2 * self.w_synth + self.C5_bev * self.FE_bev  # Hier werte für BEV
         self.e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_bev))
         print('e_fc_phev: {}'.format(self.e_fc))
         return self.e_fc
@@ -275,16 +275,16 @@ class FuelCycle_phev():
         P_fc = self.P_fc_bev
         C3 = self.C3_icev * self.cs + self.C3_bev * self.cd_bev
         C5 = self.C5_icev * self.cs + self.C5_bev * self.cd_bev
-        E_elGer =  self.E_elGer
+        Em_elFC =  self.Em_elFC
         cd = self.cd_bev
-        E_elCh = self.E_elCh
+        Em_elBatt = self.Em_elBatt
         L = self.L
         D = self.D
         r = self.r
         C_fuel = self.C_fuel_icev * self.cs + self.C_fuel_bev* self.cd
         C_batt = self.C_batt_bev
         C_fc = self.C_fc_bev
-        phev_vals = [FE, E_batt, P_batt, P_fc, C3, C5, E_elGer, cd, E_elCh, L, D, r, C_fuel, C_batt, C_fc]
+        phev_vals = [FE, E_batt, P_batt, P_fc, C3, C5, Em_elFC, cd, Em_elBatt, L, D, r, C_fuel, C_batt, C_fc]
         return phev_vals
 
 
@@ -309,14 +309,13 @@ class TCO:
 
 
 
-
 # =============================================================================
 # Berechnung des results mit varFinal variablen
 # =============================================================================
 
 def resultCalc():
     propType = ['BEV','FCEV','PHEV','ICEV']
-    all_para_keys = ['FE', 'E_batt', 'P_batt','P_fc','C3','C5','E_elGer','cd','E_elCh', 'L', 'D', 'r', 'C_fuel',
+    all_para_keys = ['FE', 'E_batt', 'P_batt','P_fc','C3','C5','Em_elFC','cd','Em_elBatt', 'L', 'D', 'r', 'C_fuel',
                     'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10','X11', 'X12',
                     'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_battSet',
                     'C_fcSet', 'CF', 'w_h2', 'w_synth','S_ren']
@@ -356,9 +355,9 @@ def resultCalc():
             #print(list_num)
             #S_ren = 0
             if vehicle == 2:
-                all_para_phev = ['FE_bev','E_batt_bev','P_batt_bev','P_fc_bev','C3_bev','C5_bev','E_elGer','cd_bev','E_elCh','L','D',
+                all_para_phev = ['FE_bev','E_batt_bev','P_batt_bev','P_fc_bev','C3_bev','C5_bev','Em_elFC','cd_bev','Em_elBatt','L','D',
                                  'r','C_fuel_bev','C_batt_bev','C_fc_bev','FE_icev','E_batt','P_batt','P_fc', 'C3_icev', 'C5_icev',
-                                 'E_elGer', 'cd', 'E_elCh', 'L', 'D', 'r', 'C_fuel_icev', 'C_batt', 'C_fc','X1', 'X2', 'X3',
+                                 'Em_elFC', 'cd', 'Em_elBatt', 'L', 'D', 'r', 'C_fuel_icev', 'C_batt', 'C_fc','X1', 'X2', 'X3',
                                  'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10','X11', 'X12', 'X13', 'X14', 'C_main',
                                  'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_battSet', 'C_fcSet', 'CF',
                                  'w_h2', 'w_synth','S_ren']
@@ -530,7 +529,7 @@ class PlotClass:
 if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    n = 3  # Number of repeats (test it!)
+    n = 100  # Number of repeats (test it!)
 
     # Call Functions
     class_sel = vehClassSel()
