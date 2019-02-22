@@ -1,0 +1,13 @@
+vars;min;max
+FE_batt;0.15;0.21
+FE_h2;0.007;0.012
+FE_synth;0.03;0.06
+P_batt;30.0;50.0
+P_battEmpty;0.0;0.0
+E_batt;30.0;50.0
+E_battEmpty;0.0;0.0
+P_fc;50.0;90.0
+P_fcEmpty;0.0;0.0
+S_renBig;0.0;0.0
+S_renSmall;0.0;0.0
+S_renEmpty;0.0;0.0
