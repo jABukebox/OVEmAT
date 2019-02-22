@@ -31,9 +31,9 @@ vehicle = 'BEV'
 booleanCheckbox = 1
 
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
-    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
-                                'min': [1.3, 4.0, 7.40, 400.0, 2200.0, 0.0, 45.0, 0.0, 850.0, 10.0, 2000.0, 1.5, 0.50, 1.4, 1.5, 200.0, 0.0, 30.0, 0.0],
-                                'max': [1.5, 5.0, 7.8, 550, 2500, 0.0, 60, 0.0, 900, 12, 4000, 1.8, 0.8, 2.3, 3, 2300, 0.0, 60.0, 0.0]
+    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'Em_elVC', 'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth', 'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],  # Hier alle var Vals (Ranges)
+                                'min': [1.3, 4.0, 7.40, 400.0, 2200.0, 0.0, 550, 45.0, 0.0, 850.0, 10.0, 10000.0, 1.5, 0.30, 1.4, 1.5, 200.0, 0.0, 30.0, 0.0],
+                                'max': [1.5, 5.0, 7.8, 550, 2500, 0.0, 600, 60, 0.0, 900, 12, 12000, 1.8, 0.4, 2.3, 3, 2300, 0.0, 60.0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
