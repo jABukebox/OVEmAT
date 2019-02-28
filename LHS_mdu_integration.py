@@ -30,8 +30,10 @@ global booleanCheckbox
 booleanCheckbox = 0
 
 # =============================================================================
-# Latin Hypercube Calculation TODO: check pyDOE "criterion and samples"!!
+# Latin Hypercube Calculation
 # =============================================================================
+
+
 def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension"
     cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
                                        axis='rows')  # must stay here (in getinput.py) for LHS-Dimension / S_ren!!!
@@ -42,7 +44,7 @@ def lhs_dimension():                  # Dynamic dimension of LHS - depending on 
     return dim
 
 
-def LatinHype(dimension, n):  # n = number of samples
+def latin_hype(dimension, n):  # n = number of samples
     points = pyDOE.lhs(dimension, samples=n*4)
     return points  # output.type = array
 
@@ -50,7 +52,9 @@ def LatinHype(dimension, n):  # n = number of samples
 # =============================================================================
 # Choose Vehicle Class
 # =============================================================================
-def vehClassSel():              # saved as "class_sel"
+
+
+def veh_class_sel():              # saved as "class_sel"
     veh_class = int(input("Select Vehicle Class:\n"
                           "1: Compact Cars - 2: SUVs - 3: LDVs (Light Duty Vehicles) \n"))
     return veh_class
@@ -59,12 +63,12 @@ def vehClassSel():              # saved as "class_sel"
 # =============================================================================
 # Verrechnen der LHS Ergebnisse mit Eingangsvariablen -> var_final entstehen      LHS!
 # =============================================================================
-def varFinal():
-    propType = ['BEV','FCEV','PHEV','ICEV']
+def var_final(p, dimension, class_sel):
+    propType = ['BEV', 'FCEV', 'PHEV', 'ICEV']
     var_all = []
     global vehicle
     for vehicle in range(len(propType)):                               # Durchlauf jedes propTypes
-        gV = getVariables(class_sel, vehicle)                          # holt die Values aus getVariables
+        gV = get_variables(class_sel, vehicle)                          # holt die Values aus getVariables
         lhs_items = 0                                                  # TODO: muss bei PHEV evtl verändert werden
         var_array = []
 
@@ -73,7 +77,7 @@ def varFinal():
                 var_list = []
                 dual = 0                                  # Changes getVariable from BEV to ICEV
                 while dual <= 3:                           # 0 ^= BEV
-                    gV_alt = getVariables(class_sel, dual)
+                    gV_alt = get_variables(class_sel, dual)
                     m = 0
                     t = 1
                     for k in range(dimension):  # alle Range-Werte mit reihe des LHS multiplizieren
@@ -82,13 +86,13 @@ def varFinal():
                         var_min = gV_alt.iloc[m][t]  # bestimmung des min Wertes der eingegebenen Range
                         t += 1
                         var = (p.item(lhs_items) * (
-                                    var_max - var_min)) + var_min # Verrechnung der Variablen mit LHS Ergebnissen in var
+                                    var_max - var_min)) + var_min  # Verrechnen der Variablen mit LHS Ergebnissen in var
                         var_list.append(var)  # Anhängen der Parameter an liste
                         lhs_items += 1
                         m += 1
                     dual += 3           # Erhöhung um 3 (3 ^= ICEV)
                 var_array.append(var_list)
-            var_array = np.around(var_array, decimals = 4)
+            var_array = np.around(var_array, decimals=4)
 
         else:                           # BEV, FCEV, ICEV #
             for r in range(n):                                      # Anzahl der LHS Durchläufe
@@ -114,7 +118,7 @@ def varFinal():
     return var_all
 
 
-def getVariables(class_sel, vehicle):
+def get_variables(class_sel, vehicle):
     global lhs_vals
     if class_sel == 1:                                  # compact car #   cc = changed compact
         if vehicle == 0:    # BEV
@@ -124,15 +128,14 @@ def getVariables(class_sel, vehicle):
                                                    axis='rows')
             lhs_vals = pd.concat([cc_bev, cg_bev])
 
-
-        elif vehicle == 1: # FCEV
+        elif vehicle == 1:  # FCEV
             cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'P_batt', 'P_fc'], axis='rows')
             cg_fcev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'Em_elFC', 'Em_elVC', 'cd_empty',
                                                      'Em_elBatt', 'L', 'D', 'r', 'C_fuelH2','C_batt', 'C_fc'],
                                                     axis='rows')
             lhs_vals = pd.concat([cc_fcev, cg_fcev])
 
-        elif vehicle == 2: # vehicle in getVariable never gets 2!! (see var Final dual loop)
+        elif vehicle == 2:  # vehicle in getVariable never gets 2!! (see var Final dual loop)
             pass
 
         # elif vehicle == 2:  # PHEV
@@ -198,7 +201,7 @@ def getVariables(class_sel, vehicle):
 
     else:
         print('Wrong Input! \n')
-        vehClassSel()                               # Erneute Eingabe der Fahrzeugklasse
+        veh_class_sel()                               # Erneute Eingabe der Fahrzeugklasse
     return lhs_vals
 
 
@@ -212,43 +215,43 @@ class LCE:
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
 
-    def fuelCycle(self):
+    def fuel_cycle(self):
         # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:  # trennung von PHEV. Calculation andere
             e_fc = self.C3 * self.FE * self.Em_elFC * self.w_h2 * self.w_synth + self.C5 * self.FE
-            print('C3: {}, FE: {}, Em_elFC: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.Em_elFC,
-                                                                                      self.w_h2, self.w_synth, self.C5))
-            print('e_fc_normal: {}'.format(e_fc))
+            # print('C3: {}, FE: {}, Em_elFC: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.Em_elFC,
+            #                                                                      self.w_h2, self.w_synth, self.C5))
+            # print('e_fc_normal: {}'.format(e_fc))
             return e_fc
 
-
-    def calcLCE(self, e_fc):
+    def calc_lce(self, e_fc):
         # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
-        print('e_vc: {}'.format(e_vc))
+        # print('e_vc: {}'.format(e_vc))
         e_lce = (e_vc / (self.L * self.D) + e_fc)
-        print('e_lce: {}\n'.format(e_lce))
+        # print('e_lce: {}\n'.format(e_lce))
         return e_lce
+
 
 class FuelCycle_phev():                             # EXTRA FUELCYCLE CLASS FOR PHEV
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
 
-    def fuelCycle(self, **kwargs):
+    def fuel_cycle_phev(self, **kwargs):
         self.cs = (100 - self.cd_bev)/100
         # Calc of ICEV FuelCycle
         e_fc_cs = self.C3_icev * self.FE_icev * self.Em_elFC * self.w_h2 * self.w_synth + self.C5_icev * self.FE_icev
         # Calc of BEV FuelCycle
         e_fc_cd = self.C3_bev * self.FE_bev * self.Em_elFC * self.w_h2 * self.w_synth + self.C5_bev * self.FE_bev
         self.e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_bev))
-        print('e_fc_phev: {}'.format(self.e_fc))
+        #print('e_fc_phev: {}'.format(self.e_fc))
         return self.e_fc
 
-    def newPhevVals(self): # TODO: 1.26 ??? Faktor klären!
+    def new_phev_vals(self): # TODO: 1.26 ??? Faktor klären!
         FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_bev * 1.26)  # Fuel Economy Convversion FE/2 (cd)
         E_batt = self.E_batt_bev
         P_batt = self.P_batt_bev
@@ -274,7 +277,7 @@ class TCO:
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
 
-    def calcTCO(self):
+    def calc_tco(self):
         sum_tco = 0
         for years in range(1, int(round(self.L+1))):  # Bildung der Summe               TODO: Schleife testen! L+1  ???
             Eq = ((self.C_fuel * self.FE) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
@@ -282,8 +285,8 @@ class TCO:
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
                 ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
                 ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet))-self.S_ren
-        #print('c_veh: {} €'.format(c_veh))
-        #print('sum_tco: {} €/km\n'.format(sum_tco))
+        # print('c_veh: {} €'.format(c_veh))
+        # print('sum_tco: {} €/km\n'.format(sum_tco))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco
 
@@ -293,7 +296,7 @@ class TCO:
 # Berechnung des results mit varFinal variablen                                 #
 # ============================================================================= #
 #################################################################################
-def resultCalc():
+def result_calc(var, class_sel):
     all_para_keys = ['FE', 'E_batt', 'P_batt', 'P_fc', 'C3', 'C5', 'Em_elFC', 'Em_elVC', 'cd', 'Em_elBatt', 'L', 'D',
                      'r', 'C_fuel', 'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10',
                      'X11', 'X12', 'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet',
@@ -317,7 +320,7 @@ def resultCalc():
         spec_vals = list(gin.spec_vals().iloc[countType])
         x_vals.extend(spec_vals)          # hier sind alle fix vals
         single_res = np.zeros(shape=(n, 2))
-        for list_num in range(len(lhs_lists)):          # TODO: lhs_lists müsste =n sein! TEST
+        for list_num in range(n):          # changed from 'len(lhs_lists)' to 'n'
             if vehicle == 2:
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
                                  'Em_elVC', 'cd_bev', 'Em_elBatt', 'L', 'D', 'r','C_fuel_bev','C_batt_bev','C_fc_bev',
@@ -336,9 +339,9 @@ def resultCalc():
                 all_phev_lhs.extend(x_vals)
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
                 e_inst = FuelCycle_phev(**lhs_dict)
-                e_fc_inst = e_inst.fuelCycle()                  # e_fc von PHEV hier
+                e_fc_inst = e_inst.fuel_cycle_phev()                  # e_fc von PHEV hier
 
-                phev_vals = list(e_inst.newPhevVals())
+                phev_vals = list(e_inst.new_phev_vals())
                 phev_vals.extend(x_vals)
                 phev_vals.append(S_ren)
                 lhs_dict = dict(zip(all_para_keys, phev_vals))
@@ -357,11 +360,11 @@ def resultCalc():
                 all_values.append(S_ren)
                 lhs_dict = dict(zip(all_para_keys, all_values))
                 lce_inst = LCE(**lhs_dict)
-                e_fc_inst = lce_inst.fuelCycle()
+                e_fc_inst = lce_inst.fuel_cycle()
 
             tco_inst = TCO(**lhs_dict)
-            e_lce_res = lce_inst.calcLCE(e_fc_inst)     #??
-            c_tco_res = tco_inst.calcTCO()
+            e_lce_res = lce_inst.calc_lce(e_fc_inst)     #??
+            c_tco_res = tco_inst.calc_tco()
 
             # Hier alle ergebnisse von BEV bzw. FCEV etc
             single_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4)]
@@ -378,9 +381,11 @@ def resultCalc():
 # =============================================================================
 # Plot results
 # =============================================================================
-class SaveResults:
-    def __init__(self, parent=None):
+class SaveResults():
+    def __init__(self, res, parent=None):
+        self.res = res
         self.save_csv()
+
 
     def save_csv(self):
         # SAVE all results to results/result.csv
@@ -388,29 +393,29 @@ class SaveResults:
             os.makedirs('results/')
         with open("results/result.csv", 'w+') as fp:
             a = csv.writer(fp, delimiter=";")
-            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), res))
+            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
         # SAVE propType Results to base-temp folder
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
-        bev_points = res[:n]
+        bev_points = self.res[:n]
         with open("temp/bev_result_temp.csv", "w+") as csv_count:
             csvWriter = csv.writer(csv_count, delimiter=';')
             csvWriter.writerows(bev_points)
-        fcev_points = res[n:(n * 2)]
+        fcev_points = self.res[n:(n * 2)]
         with open("temp/fcev_result_temp.csv", "w+") as csv_count:
             csvWriter = csv.writer(csv_count, delimiter=';')
             csvWriter.writerows(fcev_points)
-        phev_points = res[(2 * n):(n * 3)]
+        phev_points = self.res[(2 * n):(n * 3)]
         with open("temp/phev_result_temp.csv", "w+") as csv_count:
             csvWriter = csv.writer(csv_count, delimiter=';')
             csvWriter.writerows(phev_points)
-        icev_points = res[(3 * n):(n * 4)]
+        icev_points = self.res[(3 * n):(n * 4)]
         with open("temp/icev_result_temp.csv", "w+") as csv_count:
             csvWriter = csv.writer(csv_count, delimiter=';')
             csvWriter.writerows(icev_points)
 
-class PlotClass:
+class PlotClass():
     def __init__(self, border=True, title = 'irgendwas', name='blabla',parent=None):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
@@ -425,8 +430,8 @@ class PlotClass:
         self.plt.setLabel('left', text='Lifecycle Emissions', units='gGHG / km')
 
         self.plt.showGrid(True, True, alpha=.5)
-        self.l = pg.LegendItem((100,60), offset=(-30,30))  # args are (size, offset)
-        self.l.setParentItem(self.plt.graphicsItem())  # Note we do NOT call plt.addItem in this case
+        self.legend = pg.LegendItem((100,60), offset=(-30,30))  # args are (size, offset)
+        self.legend.setParentItem(self.plt.graphicsItem())  # Note we do NOT call plt.addItem in this case
 
         # Set Climate Goal lines
         #InfiniteLine.__init__()
@@ -459,9 +464,9 @@ class PlotClass:
 
 
         # SPLIT RESULTS
-        x = res[:,0]
+        x = end_result[:, 0]
         # print(x)
-        y = res[:,1]
+        y = end_result[:, 1]
         # print(y)
 
         now = pg.ptime.time()
@@ -470,106 +475,81 @@ class PlotClass:
         point_size = 12
         # BEV
         plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='cd5959', name='BEV')                              # red
+                                  symbol='x', brush='cd5959', name='BEV')                              # red
         # FCEV
         plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='5a9fcd', name ='FCEV')                            # blue
+                                  symbol='x', brush='5a9fcd', name ='FCEV')                            # blue
         # PHEV
         plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='ea8f20', name ='PHEV')                            # orange
+                                  symbol='x', brush='ea8f20', name='PHEV')                            # orange
         # ICEV
         plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                  symbol = 'x', brush='b2cd5b', name ='ICEV')                            # green
+                                  symbol='x', brush='b2cd5b', name='ICEV')                            # green
 
-        #pfill = pg.FillBetweenItem(plot_icev, plot_fcev, brush='59cdc1')
+        # pfill = pg.FillBetweenItem(plot_icev, plot_fcev, brush='59cdc1')
 
         # Adding Plots to window plt
         self.plt.addItem(plot_bev, name='BEV')
         self.plt.addItem(plot_fcev, name='FCEV')
         self.plt.addItem(plot_phev, name='PHEV')
         self.plt.addItem(plot_icev, name='ICEV')
-        #self.plt.addItem(pfill, name='FILL')
-
+        # self.plt.addItem(pfill, name='FILL')
 
         # Adding Legend items to legendview l
-        self.l.addItem(plot_bev, name='BEV')
-        self.l.addItem(plot_fcev, name='FCEV')
-        self.l.addItem(plot_phev, name='PHEV')
-        self.l.addItem(plot_icev, name ='ICEV')
+        self.legend.addItem(plot_bev, name='BEV')
+        self.legend.addItem(plot_fcev, name='FCEV')
+        self.legend.addItem(plot_phev, name='PHEV')
+        self.legend.addItem(plot_icev, name='ICEV')
         print('plot time: {} sec'.format(pg.ptime.time() - now))
-    #     self.paintEvent()
-    #
-    # def paintEvent(self, event):
-    #     painter = QtGui.QPainter(self)
-    #     painter.setPen(QtGui.QPen(QtCore.Qt.red))
-    #     painter.drawArc(QtCore.QRectF(250, 250, 10, 10), 0, 5760)
-
-        # TEST MOSEOVER EVENT
-        # # test horizontal drag
-        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(0, 5)).toPoint()
-        # pos2 = pos - QtCore.QPoint(200, 200)
-        # QtCore.QEvent.MouseMove(self.plt, pos)
-        # assert vline.mouseHovering is True and hline.mouseHovering is False
-        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
-        # px = vline.pixelLength(pg.Point(1, 0), ortho=True)
-        # assert abs(vline.value() - self.plt.plotItem.vb.mapSceneToView(pos2).x()) <= px
-        #
-        # # test missed drag
-        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(5, 0)).toPoint()
-        # pos = pos + QtCore.QPoint(0, 6)
-        # pos2 = pos + QtCore.QPoint(-20, -20)
-        # QtCore.QEvent.MouseMove(self.plt, pos)
-        # assert vline.mouseHovering is False and hline.mouseHovering is False
-        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
-        # assert hline.value() == 0
-        #
-        # # test vertical drag
-        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(5, 0)).toPoint()
-        # pos2 = pos - QtCore.QPoint(50, 50)
-        # QtCore.QEvent.MouseMove(self.plt, pos)
-        # assert vline.mouseHovering is False and hline.mouseHovering is True
-        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
-        # px = hline.pixelLength(pg.Point(1, 0), ortho=True)
-        # assert abs(hline.value() - self.plt.plotItem.vb.mapSceneToView(pos2).y()) <= px
-        #
-        # # test non-interactive line
-        # pos = self.plt.plotItem.vb.mapViewToScene(pg.Point(5, -1)).toPoint()
-        # pos2 = pos - QtCore.QPoint(50, 50)
-        # QtCore.QEvent.mouseMove(self.plt, pos)
-        # assert hline2.mouseHovering == False
-        # QtCore.QEvent.mouseDrag(self.plt, pos, pos2, QtCore.Qt.LeftButton)
-        # assert hline2.value() == -1
 
 
-
-
-if __name__ == '__main__':
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-    # Number of repeats (test it!)
-    n = 100
-
+def run(n):
     # Call Functions
     while True:
         try:
-            class_sel = vehClassSel()
+            class_sel = veh_class_sel()
         except ValueError:
             print('Value Error! Hit a Number 1 - 3\n')
         else:
             break
 
-    dimension = lhs_dimension()  # Dimension, bzw. Zahl der Variablen
-    p = LatinHype(dimension, n)
-    var = varFinal()
-    res = resultCalc()
+    now = pg.ptime.time()
+    dimension = lhs_dimension()
+    # print(timeit.timeit(lhs_dimension()))
+    print('dimension time: {} sec'.format(pg.ptime.time() - now))
+
+    now = pg.ptime.time()
+    p = latin_hype(dimension, n)
+    print('LatinHype time: {} sec'.format(pg.ptime.time() - now))
+
+    now = pg.ptime.time()
+    var = var_final(p, dimension, class_sel)
+    print('varFinal time: {} sec'.format(pg.ptime.time() - now))
+
+    now = pg.ptime.time()
+    res = result_calc(var, class_sel)
+    print('resultCalc time: {} sec'.format(pg.ptime.time() - now))
+
+    now = pg.ptime.time()
+    SaveResults(res)
+    print('SaveResult time: {} sec'.format(pg.ptime.time() - now))
+
+    return res
+
+
+if __name__ == '__main__':
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # Number of repeats ( Todo: test it!)
+    n = 200
+
+    end_result = run(n)
 
     # Make App
-    save = SaveResults()
     app = QtGui.QApplication(sys.argv)
     mw = QtGui.QMainWindow()
-    w = PlotClass()
 
-    #w.show()
-    #sys.exit(app.exec_())
+    w = PlotClass(end_result)
+
     mw.show()
     sys.exit(app.exec_())
