@@ -95,7 +95,7 @@ def changed_ldv():                              # TODO: hier müssen auch value 
 # ############################################ #
 # Following Values stay unchanged - fix values #
 # ############################################ #
-def x_vals():           # vehicle cycle - all fix set values
+def x_vals():           # vehicle cycle - all values are fix set
     vehicle_cycle_default = pd.DataFrame({'Class': ['compact(bev)', 'suv(bev)', 'ldv(bev)', 'compact(fcev)',
                                                     'suv(fcev)', 'ldv(fcev)', 'compact(phev)', 'suv(phev)',
                                                     'ldv(phev)','compact(icev)', 'suv(icev)','ldv(icev)'],
@@ -137,7 +137,7 @@ def x_vals():           # vehicle cycle - all fix set values
     return vehicle_cycle_default
 
 
-def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERTE ERSETZEN / fcev: cf = 1!?
+def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev: cf = 1!?
     spec_vals_default = pd.DataFrame({'Class':['compact(bev)', 'suv(bev)', 'ldv(bev)', 'compact(fcev)', 'suv(fcev)',
                                                'ldv(fcev)', 'compact(phev)', 'suv(phev)', 'ldv(phev)', 'compact(icev)',
                                                'suv(icev)', 'ldv(icev)'],
