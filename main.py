@@ -33,19 +33,19 @@ booleanCheckbox = 0
 # =============================================================================
 
 
-def lhs_dimension():                  # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension"
+def lhs_dimension():                     # Dynamic dimension of LHS - depending on no. of Vars saved as "dimension"
     cc_bev = gin.changed_compact().reindex(['FE_batt', 'E_batt', 'P_battEmpty', 'P_fcEmpty'],
                                            axis='rows')  # for LHS-Dimension / s_ren!!!
     cg_bev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'Em_elFC', 'cd_empty', 'Em_elBatt', 'Em_elVC', 'L',
                                             'D', 'r', 'C_fuelEl', 'C_batt', 'C_fcEmpty'], axis='rows')
     range_length = pd.concat([cc_bev, cg_bev])  # concatinate all needed lhs-variables
-    dim = (len(range_length))  # Length of Variable list
+    dim = (len(range_length))                   # Length of Variable list
     return dim
 
 
-def latin_hype(dimension, n):  # n = number of samples
+def latin_hype(dimension, n):                   # n = number of samples
     points = pyDOE.lhs(dimension, samples=n*4)
-    return points
+    return points  # Actual creation of LHS-Samples
 
 
 # =============================================================================
@@ -62,6 +62,8 @@ def veh_class_sel():                                                # saved as "
 # =============================================================================
 # Multiplication of LHS-Samples with set Variable Ranges -> var_final created
 # =============================================================================
+
+
 def final_variables(p, dimension, class_sel):
     prop_type = ['BEV', 'FCEV', 'PHEV', 'ICEV']
     var_all = []
@@ -518,13 +520,14 @@ if __name__ == '__main__':
     # Number of repeats
     n = 200
 
+    # Call all function in run function
     end_result = run(n)
 
     # Make App
     app = QtGui.QApplication(sys.argv)
     mw = QtGui.QMainWindow()
 
+    # Call PlotClass and show view
     w = PlotClass(end_result)
-
     mw.show()
     sys.exit(app.exec_())
