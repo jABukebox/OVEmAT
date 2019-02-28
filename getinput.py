@@ -32,9 +32,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # GENERAL VALUES
 def default_general():              # Hier alle werte die bei allen klassen und propTypes gleich bleiben
     try:
-        default_val = pd.read_csv('inputfiles/default_general.csv', index_col='vars', delimiter=';')
+        default_val = pd.read_csv('inputfiles/_default_general.csv', index_col='vars', delimiter=';')
     except:
-        default_val = pd.read_csv('inputfiles/default_general.csv', index_col='vars', delimiter=',')
+        default_val = pd.read_csv('inputfiles/_default_general.csv', index_col='vars', delimiter=',')
     return default_val
 
 
@@ -47,7 +47,7 @@ def changed_general():              # Aus Changed wird ausgelesen!
 
 # COMPACT
 def default_compact():                        # TODO: min - max werte festlegen,
-    default_val = pd.read_csv('inputfiles/default_compact.csv', index_col='vars', delimiter=';')
+    default_val = pd.read_csv('inputfiles/_default_compact.csv', index_col='vars', delimiter=';')
     return default_val
 
 
@@ -58,7 +58,7 @@ def changed_compact():
 
 # SUV
 def default_suv(): # muss noch angepasst werden TODO: Werte anpassen für suv
-    default_val = pd.read_csv('inputfiles/default_suv.csv', index_col='vars', delimiter=';')
+    default_val = pd.read_csv('inputfiles/_default_suv.csv', index_col='vars', delimiter=';')
     return default_val
 
 
@@ -69,7 +69,7 @@ def changed_suv():                              # TODO: hier müssen auch value 
 
 # LDV
 def default_ldv(): # Werte müssen noch angepasst werden TODO: Werte anpassen
-    default_val = pd.read_csv('inputfiles/default_ldv.csv', index_col='vars', delimiter=';')
+    default_val = pd.read_csv('inputfiles/_default_ldv.csv', index_col='vars', delimiter=';')
     return default_val
 
 
@@ -82,12 +82,12 @@ def changed_ldv():                              # TODO: hier müssen auch value 
 # Following Values stay unchanged - fix values #
 # ############################################ #
 def x_vals():           # vehicle cycle - alles fixwerte
-    vehicle_cycle_default = pd.read_csv('inputfiles/x_vals.csv', index_col='Class', delimiter=';')
+    vehicle_cycle_default = pd.read_csv('inputfiles/_x_vals.csv', index_col='Class', delimiter=';')
     return vehicle_cycle_default
 
 
 def spec_vals():           # specific vehicle vals - alles fixwerte # TODO: WERTE ERSETZEN / fcev: cf = 1!?
-    spec_vals_default = pd.read_csv('inputfiles/spec_vals.csv', index_col='Class', delimiter=';')
+    spec_vals_default = pd.read_csv('inputfiles/_spec_vals.csv', index_col='Class', delimiter=';')
     os.chdir(BASE_DIR)
     return spec_vals_default
 

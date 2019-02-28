@@ -8,6 +8,6 @@ E_batt;60.0;90.0
 E_battEmpty;0.0;0.0
 P_fc;70.0;100.0
 P_fcEmpty;0.0;0.0
-S_renBig;0.0;0.0
-S_renSmall;0.0;0.0
-S_renEmpty;0.0;0.0
+s_ren_big;0.0;0.0
+s_ren_small;0.0;0.0
+s_ren_empty;0.0;0.0
