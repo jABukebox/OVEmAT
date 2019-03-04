@@ -1,7 +1,7 @@
 vars;min;max
-FE_batt;0.15;0.21
-FE_h2;0.007;0.012
-FE_synth;0.03;0.06
+FE_batt;15.0;17.0
+FE_h2;1.0;1.6
+FE_synth;3.0;6.0
 P_batt;30.0;50.0
 P_battEmpty;0.0;0.0
 E_batt;30.0;50.0

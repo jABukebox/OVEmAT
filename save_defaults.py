@@ -12,19 +12,19 @@ import os
 vehicle = 'BEV'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
+# Todo: reziproken wert ändern
 
 def default_general():              # All values that stay the same in all classes and prop_types
     default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'Em_elVC',
                                          'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth',
                                          'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],
 
-                                'min': [1.3,  4.0,   7.40,  400.0, 2200.0, 0.0, 550,
-                                        45.0, 0.0,   850.0, 10.0,  10000,  8.1, 0.20, 1.4,
+                                'min': [93,  50,   42,  400.0, 0.0, 0.0, 550,
+                                        5.0, 0.0,   850.0, 10.0,  8000,  8.5, 0.20, 1.4,
                                         1.5,  80.0, 0.0,   30.0,  0.0],
 
-                                'max': [1.5,  5.0,   7.8,   550,   2500,   0.0, 600,
-                                        60.0, 0.0,   900,   12,    12000,  10,  0.25, 2.3,
+                                'max': [96,  54,   46,   550,   0,   0.0, 600,
+                                        10.0, 0.0,   900,   12,    12000,  10,  0.25, 2.3,
                                         3.0,  120,  0.0,   60.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
@@ -45,8 +45,8 @@ def default_compact():  #  TODO: min - max werte festlegen
     default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt',
                                         'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                         's_ren_empty'],
-                                'min':[0.15, 0.007, 0.03, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[0.21, 0.012, 0.06, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
+                                'min':[15, 1, 3, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
+                                'max':[17, 1.6, 6, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -62,8 +62,8 @@ def default_suv():  # TODO: Werte anpassen für suv
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                          'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                          's_ren_empty'],
-                                'min': [0.15, 0.01, 0.06, 40.0, 0.0, 60.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [0.2, 0.02, 0.15, 60.0, 0.0, 90.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
+                                'min': [18, 1.3, 6, 40.0, 0.0, 60.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
+                                'max': [23, 2, 13, 60.0, 0.0, 90.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -80,8 +80,8 @@ def default_ldv():  # TODO: Werte anpassen
     default_val = pd.DataFrame({'vars': ['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt',
                                          'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                          's_ren_empty'],
-                                'min': [0.2, 0.015, 0.08, 50.0, 0.0, 70.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [0.25, 0.025, 0.18, 70.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
+                                'min': [20, 1.5, 8, 50.0, 0.0, 70.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
+                                'max': [25, 2.5, 18, 70.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -165,6 +165,14 @@ def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev
                                         })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
+
+def subsidy_big():
+    s_ren = 4000
+    return s_ren
+
+def subsidy_small():
+    s_ren = 3000
+    return s_ren
 
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
