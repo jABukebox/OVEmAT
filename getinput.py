@@ -91,9 +91,11 @@ def spec_vals():           # specific vehicle vals - all values are fix set # TO
     os.chdir(BASE_DIR)
     return spec_vals_default
 
+
 def sub_big():          # Subsidy for BEVs and FCEVs
     s_ren = 4000
     return s_ren
+
 
 def sub_small():        # Subsidy for PHEVs
     s_ren = 3000

@@ -6,13 +6,13 @@ Em_elFC;400.0;550.0
 C5_icev;0.0;0.0
 C5_empty;0.0;0.0
 Em_elVC;550.0;600.0
-cd_bev;5.0;10.0
+cd;20.0;30.0
 cd_empty;0.0;0.0
 Em_elBatt;850.0;900.0
 L;10.0;12.0
 D;8000.0;12000.0
 C_fuelH2;8.5;10.0
-C_fuelEl;0.2;0.25
+C_fuelEl;0.5;0.7
 C_fuelSynth;1.4;2.3
 r;1.5;3.0
 C_batt;80.0;120.0

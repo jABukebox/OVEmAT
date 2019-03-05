@@ -6,8 +6,7 @@
 import pandas as pd
 import os
 
-# TODO: * Check welche default_vals immer gleich -> doppelung rausnehmen
-#       * boolean Checkbox und vehicle bei test! kommt von django
+# TODO: * boolean Checkbox und vehicle bei test! kommt von django
 
 vehicle = 'BEV'
 
@@ -15,16 +14,16 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Todo: reziproken wert ändern
 
 def default_general():              # All values that stay the same in all classes and prop_types
-    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC','C5_icev', 'C5_empty', 'Em_elVC',
+    default_val = pd.DataFrame({'vars': ['C3_batt', 'C3_h2', 'C3_synth', 'Em_elFC', 'C5_icev', 'C5_empty', 'Em_elVC',
                                          'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth',
                                          'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],
 
                                 'min': [93,  50,   42,  400.0, 0.0, 0.0, 550,
-                                        5.0, 0.0,   850.0, 10.0,  8000,  8.5, 0.20, 1.4,
+                                        50.0, 0.0,   850.0, 10.0,  8000,  8.5, 0.20, 1.4,
                                         1.5,  80.0, 0.0,   30.0,  0.0],
 
                                 'max': [96,  54,   46,   550,   0,   0.0, 600,
-                                        10.0, 0.0,   900,   12,    12000,  10,  0.25, 2.3,
+                                        70.0, 0.0,   900,   12,    12000,  10,  0.50, 2.3,
                                         3.0,  120,  0.0,   60.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
@@ -42,11 +41,11 @@ def changed_general():              # Calculation is getting Input from here ('c
 
 # COMPACT
 def default_compact():  #  TODO: min - max werte festlegen
-    default_val = pd.DataFrame({'vars':['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt',
+    default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                         'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                         's_ren_empty'],
-                                'min':[15, 1, 3, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
-                                'max':[17, 1.6, 6, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
+                                'min': [15, 1, 3, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
+                                'max': [17, 1.6, 6, 50.0, 0.0, 50.0, 0.0, 90.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -77,7 +76,7 @@ def changed_suv():                              # TODO: hier müssen auch value 
 
 # LDV
 def default_ldv():  # TODO: Werte anpassen
-    default_val = pd.DataFrame({'vars': ['FE_batt','FE_h2','FE_synth','P_batt', 'P_battEmpty','E_batt',
+    default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                          'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                          's_ren_empty'],
                                 'min': [20, 1.5, 8, 50.0, 0.0, 70.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
@@ -98,7 +97,7 @@ def changed_ldv():                              # TODO: hier müssen auch value 
 def x_vals():           # vehicle cycle - all values are fix set
     vehicle_cycle_default = pd.DataFrame({'Class': ['compact(bev)', 'suv(bev)', 'ldv(bev)', 'compact(fcev)',
                                                     'suv(fcev)', 'ldv(fcev)', 'compact(phev)', 'suv(phev)',
-                                                    'ldv(phev)','compact(icev)', 'suv(icev)','ldv(icev)'],
+                                                    'ldv(phev)', 'compact(icev)', 'suv(icev)', 'ldv(icev)'],
                                           'X1': [35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76,
                                                  80.51, 80.51],
 
@@ -138,9 +137,9 @@ def x_vals():           # vehicle cycle - all values are fix set
 
 
 def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev: cf = 1!?
-    spec_vals_default = pd.DataFrame({'Class':['compact(bev)', 'suv(bev)', 'ldv(bev)', 'compact(fcev)', 'suv(fcev)',
-                                               'ldv(fcev)', 'compact(phev)', 'suv(phev)', 'ldv(phev)', 'compact(icev)',
-                                               'suv(icev)', 'ldv(icev)'],
+    spec_vals_default = pd.DataFrame({'Class': ['compact(bev)', 'suv(bev)', 'ldv(bev)', 'compact(fcev)', 'suv(fcev)',
+                                                'ldv(fcev)', 'compact(phev)', 'suv(phev)', 'ldv(phev)', 'compact(icev)',
+                                                'suv(icev)', 'ldv(icev)'],
                                           'm_curb':     [1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5,
                                                          1395, 1943, 2100.5],  # averaged weights (researched)
 
@@ -162,13 +161,15 @@ def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev
                                           'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
                                           'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6]
-                                        })
+                                      })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
+
 
 def subsidy_big():
     s_ren = 4000
     return s_ren
+
 
 def subsidy_small():
     s_ren = 3000
