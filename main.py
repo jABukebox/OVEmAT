@@ -225,9 +225,7 @@ class LCE:
         return e_vc
 
     def calc_lce(self, e_fc, e_vc):
-        # print('e_vc: {}'.format(e_vc))
         e_lce = (e_vc / (self.L * self.D) + e_fc)
-        # print('e_lce: {}\n'.format(e_lce))
         return e_lce
 
 
@@ -243,22 +241,20 @@ class FuelCyclePHEV():                                          # EXTRA FuelCycl
         self.cs = (1 - self.cd_phev)
 
         print("cs: {}".format(self.cs))
-        FE_bev = self.FE_bev * 3
+        FE_bev = self.FE_bev * 3            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
         #FE_icev = self.FE_icev
 
         # Calc of ICEV FuelCycle
         e_fc_cs = (100/self.C3_icev) * (self.FE_icev/100) * self.Em_elFC * self.w_synth + self.C5_icev * (self.FE_icev/100)
 
         # Calc of BEV FuelCycle
-        e_fc_cd = (100/self.C3_bev) * (FE_bev/100) * self.Em_elFC + self.C5_bev * (FE_bev/100)  # w_bev = 1 -> not in calc
+        e_fc_cd = (100/self.C3_bev) * (FE_bev/100) * self.Em_elFC + self.C5_bev * (FE_bev/100)  # w_bev = 1 -> not needed
         e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_phev))
-        #print('e_fc_phev: {}'.format(self.e_fc))
         return e_fc
 
     def new_phev_vals(self):  # TODO: 1.26 ??? Faktor klären! - phev_fac  * self.phev_fac
         print("em_elBatt= {}".format(self.Em_elBatt))
         FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_phev * (3))  # Fuel Economy Conversion FE/2 (cd)
-        #print(self.FE_bev)
         E_batt = self.E_batt_bev
         P_batt = self.P_batt_bev
         P_fc = self.P_fc_bev
@@ -288,12 +284,27 @@ class TCO:
         sum_tco = 0
         for years in range(1, int(round(self.L+1))):  # creating sum
             equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
-            #equation = np.around(equation, decimals=4)
-            #print("equation: {}".format(equation))
+            equation = np.around(equation, decimals=4)
             sum_tco += equation
+        print("sum_tco: {}".format(sum_tco))
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
             ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
+        # print('c_veh: {} €'.format(c_veh))
+        # print('sum_tco: {} €/km\n'.format(sum_tco))
+        c_tco = (c_veh / (self.L * self.D)) + sum_tco
+        return c_tco
+
+    def calc_tco_phev(self):
+        sum_tco = 0
+        for years in range(1, int(round(self.L + 1))):  # creating sum
+            equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
+            # equation = np.around(equation, decimals=4)
+            # print("equation: {}".format(equation))
+            sum_tco += equation
+        c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
+                ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
+                ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
         # print('c_veh: {} €'.format(c_veh))
         # print('sum_tco: {} €/km\n'.format(sum_tco))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
@@ -363,16 +374,17 @@ def result_calc(var, class_sel):
                 e_inst = LCE(**lhs_dict)
                 e_vc = e_inst.vehicle_cycle()                          # e_vc of PHEV
                 lce_inst = LCE(**lhs_dict)
+                tco_inst = TCO(**lhs_dict)
+                e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
+                c_tco_res = tco_inst.calc_tco()
 
             elif vehicle_type == 0 or vehicle_type == 1 or vehicle_type == 3:
                 all_vals = list(lhs_lists[list_num])          # should be one single list of lhs_variable_results
                 all_vals.extend(x_vals)                       # ALL NEEDED VARS ARE HERE NOW
                 if booleanCheckbox == 1 and (vehicle_type == 0 or vehicle_type == 1):  # checks if there is a subsidy
-                    s_ren = 4000
-                    #s_ren = gin.sub_big()
+                    s_ren = gin.sub_big()
                 elif booleanCheckbox == 1 and (vehicle_type == 2):
-                    s_ren = 3000
-                    #s_ren = gin.sub_small()
+                    s_ren = gin.sub_small()
                 else:
                     s_ren = 0.0
                 all_vals.append(s_ren)
@@ -381,9 +393,9 @@ def result_calc(var, class_sel):
                 lce_inst = LCE(**lhs_dict)
                 e_fc = lce_inst.fuel_cycle()                           # e_fc of rest
                 e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest
-            tco_inst = TCO(**lhs_dict)
-            e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
-            c_tco_res = tco_inst.calc_tco()
+                tco_inst = TCO(**lhs_dict)
+                e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
+                c_tco_res = tco_inst.calc_tco()
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4)]
