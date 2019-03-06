@@ -297,7 +297,7 @@ class TCO:
 
     def calc_tco_phev(self):
         sum_tco = 0
-        for years in range(1, int(round(self.L + 1))):  # creating sum
+        for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
             equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             # equation = np.around(equation, decimals=4)
             # print("equation: {}".format(equation))
@@ -316,14 +316,15 @@ class TCO:
 # Berechnung des results mit varFinal variablen                                 #
 # ============================================================================= #
 #################################################################################
-def result_calc(var, class_sel):
+def result_calc(var, class_sel, dimension):
     all_para_keys = ['FE', 'E_batt', 'P_batt', 'P_fc', 'C3', 'C5', 'Em_elFC', 'Em_elVC', 'cd', 'cd_phev', 'Em_elBatt', 'L', 'D',
                      'r', 'C_fuel', 'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10',
                      'X11', 'X12', 'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet',
                      'C_battSet', 'C_fcSet', 'CF', 'w_h2', 'w_synth', 's_ren']
 
     result = np.zeros(shape=(0, 2))
-    result_all = np.zeros(shape=(0,4))
+    result_all = np.zeros(shape=(0, 4))
+    #all_dicts = np.zeros(shape=(n*4, dimension))
     vehicle_type = 0
 
     if class_sel == 1:            # Compact
@@ -335,7 +336,7 @@ def result_calc(var, class_sel):
     elif class_sel == 3:          # LDV
         count_type = 2
 
-    while count_type < len(gin.x_vals()):               # counter through fix vals of class (bev, fcev, phev, icev)
+    while count_type < len(gin.x_vals()):               # count through fix vals of class (bev, fcev, phev, icev)
         lhs_lists = var[vehicle_type]                        # all result lists of one propType
 
         x_vals = list(gin.x_vals().iloc[count_type])
@@ -351,7 +352,7 @@ def result_calc(var, class_sel):
                                  'Em_elBatt', 'L', 'D', 'r', 'C_fuel_icev', 'C_batt', 'C_fc','X1', 'X2', 'X3', 'X4',
                                  'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'X13', 'X14', 'C_main', 'm_curb',
                                  'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_battSet', 'C_fcSet', 'CF', 'w_h2',
-                                 'w_synth', 's_ren']  # 58 vals - 60 mit 2 x cd_phev
+                                 'w_synth', 's_ren']  # 58 vals - 60 with 2 x cd_phev
                 all_phev_lhs = list(lhs_lists[list_num])
 
                 if booleanCheckbox == 1 and (vehicle_type == 0 or vehicle_type == 1):  # Check if there is a subsidy
@@ -375,9 +376,10 @@ def result_calc(var, class_sel):
                 e_inst = LCE(**lhs_dict)
                 e_vc = e_inst.vehicle_cycle()                          # e_vc of PHEV
                 lce_inst = LCE(**lhs_dict)
-                tco_inst = TCO(**lhs_dict)
                 e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
-                c_tco_res = tco_inst.calc_tco()
+
+                tco_inst = TCO(**lhs_dict)
+                c_tco_res = tco_inst.calc_tco_phev()                    # tco result PHEV
 
             elif vehicle_type == 0 or vehicle_type == 1 or vehicle_type == 3:
                 all_vals = list(lhs_lists[list_num])          # should be one single list of lhs_variable_results
@@ -396,7 +398,24 @@ def result_calc(var, class_sel):
                 e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest
                 tco_inst = TCO(**lhs_dict)
                 e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
-                c_tco_res = tco_inst.calc_tco()
+                c_tco_res = tco_inst.calc_tco()                         # tco result rest
+
+            if not os.path.exists('results/'):
+                os.makedirs('results/')
+
+            # SAVE lhs_dict
+            # headers = ['TCO (€/km)', "LCE (gGHG/km)"]
+            lhs_dict = pd.DataFrame(lhs_dict.items())
+            print("dataframe:\n{}".format(lhs_dict))
+            lhs_dict = lhs_dict.set_index([0][0])
+            #with open("results/lhs_dicts.csv", 'w+') as fp:
+                #csv_writer = csv.writer(fp, delimiter=";")
+                # csv_writer.writerow([h for h in headers])
+                #csv_writer.writeheader()
+            lhs_dict.to_csv("results/lhs_dicts.csv", sep=";")
+                #csv_writer.writerow(lhs_dict.keys())
+                #csv_writer.writerow(lhs_dict.values())
+            #all_dicts[list_num] = lhs_dict
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4)]
@@ -404,36 +423,44 @@ def result_calc(var, class_sel):
 
         result = np.append(result, single_res, axis=0)           # --- TOTAL RESULT ---
         result_all = np.append(result_all, single_all_res, axis=0)
+        #all_values = np.append(all_values, lhs_dict, axis=0)
+
         # append to a longer list
         count_type += 3                                 # Jump from compact_bev to compact_fcev to compact_phev ...
         vehicle_type += 1                                    # increasing -> lhs_lists bev -> fcev
     result = np.around(result, decimals=4)
+    print('single results:\n{}'.format(single_res))
+    print('result:\n{}'.format(result))
     result_all = np.around(result_all, decimals=4)
     return result, result_all
 
 
 # =============================================================================
-# Plot results
+# Save Results
 # =============================================================================
-class SaveResults():
+class SaveResults:
     def __init__(self, res, res_all, parent=None):
         self.res = res
         self.res_all = res_all
         self.save_csv()
 
     def save_csv(self):
-        # SAVE all results to results/result.csv
         if not os.path.exists('results/'):
             os.makedirs('results/')
+
+        # SAVE results to results/result.csv (LCE / TCO)
+        headers = ['TCO (€/km)', "LCE (gGHG/km)"]
         with open("results/result.csv", 'w+') as fp:
-            a = csv.writer(fp, delimiter=";")
-            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
+            csv_writer = csv.writer(fp, delimiter=";")
+            csv_writer.writerow([h for h in headers])
+            csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
+        # SAVE results + all values to results/result_all.csv
+        headers = ['TCO (€/km)', "LCE (gGHG/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
         with open("results/result_all.csv", 'w+') as fp:
-            a = csv.writer(fp, delimiter=";")
-            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1],"%.4f" % t[2],"%.4f" % t[3]), self.res_all))
-
-
+            csv_writer = csv.writer(fp, delimiter=";")
+            csv_writer.writerow([h for h in headers])
+            csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1],"%.4f" % t[2],"%.4f" % t[3]), self.res_all))
 
         # SAVE propType Results to base-temp folder
         if not os.path.exists('temp/'):
@@ -447,18 +474,23 @@ class SaveResults():
         with open("temp/fcev_result_temp.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
             csv_writer.writerows(fcev_points)
+
         phev_points = self.res[(2 * n):(n * 3)]
         with open("temp/phev_result_temp.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
             csv_writer.writerows(phev_points)
+
         icev_points = self.res[(3 * n):(n * 4)]
         with open("temp/icev_result_temp.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
             csv_writer.writerows(icev_points)
 
 
+# =============================================================================
+# Plot Widget and Results
+# =============================================================================
 
-class PlotClass():
+class PlotClass:
     def __init__(self, border=True, title = 'irgendwas', name='blabla',parent=None):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
@@ -479,8 +511,8 @@ class PlotClass():
 
         # Set Climate Goal lines
         #InfiniteLine.__init__()
-        self.plt.addLine(x=None, y=200, z=None)  # Ziel 2030: 60 gGHG/km
-        self.plt.addLine(x=None, y=120, z=None)  # Aim 2040: .. gGHG/km
+        self.plt.addLine(x=None, y=200, z=None)  # Ziel 2020: 200 gGHG/km
+        self.plt.addLine(x=None, y=120, z=None)  # Aim 2030: 120 gGHG/km
 
         self.plt.setMenuEnabled(enableMenu=True, enableViewBoxMenu='same')
 
@@ -563,7 +595,7 @@ def run(n):
     print('varFinal time: {} sec'.format(pg.ptime.time() - now))
 
     now = pg.ptime.time()
-    res, res_all = result_calc(var, class_sel)
+    res, res_all = result_calc(var, class_sel, dimension)
     print('resultCalc time: {} sec'.format(pg.ptime.time() - now))
 
     now = pg.ptime.time()
@@ -577,7 +609,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 100
+    n = 10
 
     # Call all function in run function
     end_result = run(n)
