@@ -286,12 +286,11 @@ class TCO:
             equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             equation = np.around(equation, decimals=4)
             sum_tco += equation
-        print("sum_tco: {}".format(sum_tco))
+
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
             ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
-        # print('c_veh: {} €'.format(c_veh))
-        # print('sum_tco: {} €/km\n'.format(sum_tco))
+
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco
 
@@ -299,14 +298,12 @@ class TCO:
         sum_tco = 0
         for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
             equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
-            # equation = np.around(equation, decimals=4)
-            # print("equation: {}".format(equation))
+
             sum_tco += equation
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
                 ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
                 ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
-        # print('c_veh: {} €'.format(c_veh))
-        # print('sum_tco: {} €/km\n'.format(sum_tco))
+
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco
 
@@ -324,7 +321,8 @@ def result_calc(var, class_sel, dimension):
 
     result = np.zeros(shape=(0, 2))
     result_all = np.zeros(shape=(0, 4))
-    #all_dicts = np.zeros(shape=(n*4, dimension))
+
+    all_values = []
     vehicle_type = 0
 
     if class_sel == 1:            # Compact
@@ -363,9 +361,9 @@ def result_calc(var, class_sel, dimension):
                     s_ren = 0.0
                 all_phev_lhs.extend(x_vals)
                 all_phev_lhs.append(s_ren)
-                #print('S_REN:{}'.format(s_ren))
+
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
-                #print('lhs dict: \n{}'.format(lhs_dict))
+
                 e_inst = FuelCyclePHEV(**lhs_dict)
                 e_fc = e_inst.fuel_cycle_phev()                        # e_fc of PHEV
                 phev_vals = list(e_inst.new_phev_vals())
@@ -400,22 +398,9 @@ def result_calc(var, class_sel, dimension):
                 e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
                 c_tco_res = tco_inst.calc_tco()                         # tco result rest
 
-            if not os.path.exists('results/'):
-                os.makedirs('results/')
 
-            # SAVE lhs_dict
-            # headers = ['TCO (€/km)', "LCE (gGHG/km)"]
-            lhs_dict = pd.DataFrame(lhs_dict.items())
-            print("dataframe:\n{}".format(lhs_dict))
-            lhs_dict = lhs_dict.set_index([0][0])
-            #with open("results/lhs_dicts.csv", 'w+') as fp:
-                #csv_writer = csv.writer(fp, delimiter=";")
-                # csv_writer.writerow([h for h in headers])
-                #csv_writer.writeheader()
-            lhs_dict.to_csv("results/lhs_dicts.csv", sep=";")
-                #csv_writer.writerow(lhs_dict.keys())
-                #csv_writer.writerow(lhs_dict.values())
-            #all_dicts[list_num] = lhs_dict
+
+            all_values.append(lhs_dict)
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4)]
@@ -423,25 +408,33 @@ def result_calc(var, class_sel, dimension):
 
         result = np.append(result, single_res, axis=0)           # --- TOTAL RESULT ---
         result_all = np.append(result_all, single_all_res, axis=0)
-        #all_values = np.append(all_values, lhs_dict, axis=0)
+        #all_values[list_num] = lhs_dict
 
         # append to a longer list
         count_type += 3                                 # Jump from compact_bev to compact_fcev to compact_phev ...
         vehicle_type += 1                                    # increasing -> lhs_lists bev -> fcev
+
+    all_values = pd.DataFrame(all_values, columns=all_para_keys)
+    all_values = round(all_values, 4)
+    all_values.to_csv("results/lhs_dicts.csv", sep=";")
+
     result = np.around(result, decimals=4)
-    print('single results:\n{}'.format(single_res))
-    print('result:\n{}'.format(result))
-    result_all = np.around(result_all, decimals=4)
-    return result, result_all
+
+    columns = ['TCO (€/km)', "LCE (gGHG/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
+    result_extend = np.around(result_all, decimals=4)
+    result_extend = pd.DataFrame(data=result_extend, columns=columns)
+
+    return result, result_extend, all_values
 
 
 # =============================================================================
 # Save Results
 # =============================================================================
 class SaveResults:
-    def __init__(self, res, res_all, parent=None):
+    def __init__(self, res, res_extend, all_values, parent=None):
         self.res = res
-        self.res_all = res_all
+        self.res_extend = res_extend
+        self.all_values = all_values
         self.save_csv()
 
     def save_csv(self):
@@ -456,11 +449,9 @@ class SaveResults:
             csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
         # SAVE results + all values to results/result_all.csv
-        headers = ['TCO (€/km)', "LCE (gGHG/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
-        with open("results/result_all.csv", 'w+') as fp:
-            csv_writer = csv.writer(fp, delimiter=";")
-            csv_writer.writerow([h for h in headers])
-            csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1],"%.4f" % t[2],"%.4f" % t[3]), self.res_all))
+        all_data = self.res_extend.join(self.all_values)
+        all_data.to_csv("results/result_all.csv", sep=';', header=True)
+
 
         # SAVE propType Results to base-temp folder
         if not os.path.exists('temp/'):
@@ -595,11 +586,11 @@ def run(n):
     print('varFinal time: {} sec'.format(pg.ptime.time() - now))
 
     now = pg.ptime.time()
-    res, res_all = result_calc(var, class_sel, dimension)
+    res, res_extend, all_values = result_calc(var, class_sel, dimension)
     print('resultCalc time: {} sec'.format(pg.ptime.time() - now))
 
     now = pg.ptime.time()
-    SaveResults(res, res_all)
+    SaveResults(res, res_extend, all_values)
     print('SaveResult time: {} sec'.format(pg.ptime.time() - now))
 
     return res
@@ -609,7 +600,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 10
+    n = 100
 
     # Call all function in run function
     end_result = run(n)
