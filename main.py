@@ -429,16 +429,17 @@ class SaveResults():
             a = csv.writer(fp, delimiter=";")
             a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
+        with open("results/result_all.csv", 'w+') as fp:
+            a = csv.writer(fp, delimiter=";")
+            a.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1],"%.4f" % t[2],"%.4f" % t[3]), self.res_all))
+
+
+
         # SAVE propType Results to base-temp folder
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
         bev_points = self.res[:n]
         with open("temp/bev_result_temp.csv", "w+") as csv_count:
-            csv_writer = csv.writer(csv_count, delimiter=';')
-            csv_writer.writerows(bev_points)
-
-        bev_points = self.res_all[:n]
-        with open("temp/bev_result_all.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
             csv_writer.writerows(bev_points)
 
