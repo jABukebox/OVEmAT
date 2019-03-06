@@ -241,7 +241,7 @@ class FuelCyclePHEV():                                          # EXTRA FuelCycl
         self.cs = (1 - self.cd_phev)
 
         print("cs: {}".format(self.cs))
-        FE_bev = self.FE_bev * 3            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
+        FE_bev = self.FE_bev * 1.5            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
         #FE_icev = self.FE_icev
 
         # Calc of ICEV FuelCycle
@@ -254,7 +254,7 @@ class FuelCyclePHEV():                                          # EXTRA FuelCycl
 
     def new_phev_vals(self):  # TODO: 1.26 ??? Faktor klären! - phev_fac  * self.phev_fac
         print("em_elBatt= {}".format(self.Em_elBatt))
-        FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_phev * (3))  # Fuel Economy Conversion FE/2 (cd)
+        FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_phev * 1.5)  # Fuel Economy Conversion FE/2 (cd)
         E_batt = self.E_batt_bev
         P_batt = self.P_batt_bev
         P_fc = self.P_fc_bev
@@ -323,7 +323,7 @@ def result_calc(var, class_sel):
                      'C_battSet', 'C_fcSet', 'CF', 'w_h2', 'w_synth', 's_ren']
 
     result = np.zeros(shape=(0, 2))
-
+    result_all = np.zeros(shape=(0,4))
     vehicle_type = 0
 
     if class_sel == 1:            # Compact
@@ -342,6 +342,7 @@ def result_calc(var, class_sel):
         spec_vals = list(gin.spec_vals().iloc[count_type])
         x_vals.extend(spec_vals)                        # all fix vals saved here
         single_res = np.zeros(shape=(n, 2))
+        single_all_res = np.zeros(shape=(n, 4))
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
             if vehicle_type == 2:
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
@@ -399,22 +400,25 @@ def result_calc(var, class_sel):
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4)]
+            single_all_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4), np.around(e_fc, decimals=4), np.around(e_vc, decimals=4)]
 
         result = np.append(result, single_res, axis=0)           # --- TOTAL RESULT ---
-
+        result_all = np.append(result_all, single_all_res, axis=0)
         # append to a longer list
         count_type += 3                                 # Jump from compact_bev to compact_fcev to compact_phev ...
         vehicle_type += 1                                    # increasing -> lhs_lists bev -> fcev
     result = np.around(result, decimals=4)
-    return result
+    result_all = np.around(result_all, decimals=4)
+    return result, result_all
 
 
 # =============================================================================
 # Plot results
 # =============================================================================
 class SaveResults():
-    def __init__(self, res, parent=None):
+    def __init__(self, res, res_all, parent=None):
         self.res = res
+        self.res_all = res_all
         self.save_csv()
 
     def save_csv(self):
@@ -432,6 +436,12 @@ class SaveResults():
         with open("temp/bev_result_temp.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
             csv_writer.writerows(bev_points)
+
+        bev_points = self.res_all[:n]
+        with open("temp/bev_result_all.csv", "w+") as csv_count:
+            csv_writer = csv.writer(csv_count, delimiter=';')
+            csv_writer.writerows(bev_points)
+
         fcev_points = self.res[n:(n * 2)]
         with open("temp/fcev_result_temp.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
@@ -444,6 +454,7 @@ class SaveResults():
         with open("temp/icev_result_temp.csv", "w+") as csv_count:
             csv_writer = csv.writer(csv_count, delimiter=';')
             csv_writer.writerows(icev_points)
+
 
 
 class PlotClass():
@@ -551,11 +562,11 @@ def run(n):
     print('varFinal time: {} sec'.format(pg.ptime.time() - now))
 
     now = pg.ptime.time()
-    res = result_calc(var, class_sel)
+    res, res_all = result_calc(var, class_sel)
     print('resultCalc time: {} sec'.format(pg.ptime.time() - now))
 
     now = pg.ptime.time()
-    SaveResults(res)
+    SaveResults(res, res_all)
     print('SaveResult time: {} sec'.format(pg.ptime.time() - now))
 
     return res
