@@ -1,1 +1,1 @@
-# OVEmAT - Open Vehicle Emission Analyzing Tool
+# OVEmAT - Open Vehicle Emission Analysis Tool
