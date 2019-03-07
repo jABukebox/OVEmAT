@@ -16,12 +16,13 @@ import numpy as np
 import pyDOE as pyDOE
 import pandas as pd
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui
+from PyQt5 import QtCore, QtGui
+from pyqtgraph import PlotWidget
 import getinput as gin
 import os
 import sys
 import csv
-from PyQt5 import QtCore
+from scipy.spatial import ConvexHull as ch
 
 
 # Todo: boolean muss durch checkbox ersetzt werden
@@ -229,7 +230,7 @@ class LCE:
         return e_lce
 
 
-class FuelCyclePHEV():                                          # EXTRA FuelCycle CLASS FOR PHEV
+class FuelCyclePHEV:                                          # EXTRA FuelCycle CLASS FOR PHEV
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
@@ -253,7 +254,6 @@ class FuelCyclePHEV():                                          # EXTRA FuelCycl
         return e_fc
 
     def new_phev_vals(self):  # TODO: 1.26 ??? Faktor klären! - phev_fac  * self.phev_fac
-        print("em_elBatt= {}".format(self.Em_elBatt))
         FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_phev * 1.5)  # Fuel Economy Conversion FE/2 (cd)
         E_batt = self.E_batt_bev
         P_batt = self.P_batt_bev
@@ -292,20 +292,35 @@ class TCO:
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
 
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
-        return c_tco
+        return c_tco, sum_tco, c_veh
 
     def calc_tco_phev(self):
-        sum_tco = 0
-        for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
-            equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
 
-            sum_tco += equation
+        ## BEV
+        sum_tco_cd = 0
+        FE_cd = self.FE_bev * 1.15                      # TODO: take numbers out code
+        for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
+            equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
+            sum_tco_cd += equation
+
+        ## ICEV
+        sum_tco_cs = 0
+        FE_cs = self.FE_icev * 1.15
+        for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
+            equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
+            sum_tco_cs += equation
+
+        sum_tco = sum_tco_cd + sum_tco_cs
+
+        print("FE_bev: {}\t FE_icev: {}".format(FE_cd, FE_cs))
+        print("sum_cd: {}\t sum_cs: {}".format(sum_tco_cd, sum_tco_cs))
+
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
                 ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
                 ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
 
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
-        return c_tco
+        return c_tco, sum_tco, c_veh
 
 
 #################################################################################
@@ -320,7 +335,7 @@ def result_calc(var, class_sel, dimension):
                      'C_battSet', 'C_fcSet', 'CF', 'w_h2', 'w_synth', 's_ren']
 
     result = np.zeros(shape=(0, 2))
-    result_all = np.zeros(shape=(0, 4))
+    result_all = np.zeros(shape=(0, 6))
 
     all_values = []
     vehicle_type = 0
@@ -341,7 +356,7 @@ def result_calc(var, class_sel, dimension):
         spec_vals = list(gin.spec_vals().iloc[count_type])
         x_vals.extend(spec_vals)                        # all fix vals saved here
         single_res = np.zeros(shape=(n, 2))
-        single_all_res = np.zeros(shape=(n, 4))
+        single_all_res = np.zeros(shape=(n, 6))
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
             if vehicle_type == 2:
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
@@ -359,25 +374,31 @@ def result_calc(var, class_sel, dimension):
                     s_ren = gin.sub_small()
                 else:
                     s_ren = 0.0
+
                 all_phev_lhs.extend(x_vals)
                 all_phev_lhs.append(s_ren)
-
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
+                print("lhs_dict: \n{}".format(lhs_dict))
 
                 e_inst = FuelCyclePHEV(**lhs_dict)
-                e_fc = e_inst.fuel_cycle_phev()                        # e_fc of PHEV
-                phev_vals = list(e_inst.new_phev_vals())
+                e_fc = e_inst.fuel_cycle_phev()                         # e_fc of PHEV
+
+
+                ## Hier unterscheidung tco icev / bev - FE
+                tco_inst = TCO(**lhs_dict)
+                tco_res, tco_opex, tco_capex  = tco_inst.calc_tco_phev()                    ## tco result PHEV
+
+
+                phev_vals = list(e_inst.new_phev_vals())                # updated PHEV vals
                 phev_vals.extend(x_vals)
                 phev_vals.append(s_ren)
                 lhs_dict = dict(zip(all_para_keys, phev_vals))
 
-                e_inst = LCE(**lhs_dict)
-                e_vc = e_inst.vehicle_cycle()                          # e_vc of PHEV
                 lce_inst = LCE(**lhs_dict)
-                e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
+                e_vc = lce_inst.vehicle_cycle()                         # e_vc of PHEV
 
-                tco_inst = TCO(**lhs_dict)
-                c_tco_res = tco_inst.calc_tco_phev()                    # tco result PHEV
+                lce_res = lce_inst.calc_lce(e_fc, e_vc)               ## LCE
+
 
             elif vehicle_type == 0 or vehicle_type == 1 or vehicle_type == 3:
                 all_vals = list(lhs_lists[list_num])          # should be one single list of lhs_variable_results
@@ -395,16 +416,23 @@ def result_calc(var, class_sel, dimension):
                 e_fc = lce_inst.fuel_cycle()                           # e_fc of rest
                 e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest
                 tco_inst = TCO(**lhs_dict)
-                e_lce_res = lce_inst.calc_lce(e_fc, e_vc)
-                c_tco_res = tco_inst.calc_tco()                         # tco result rest
+                lce_res = lce_inst.calc_lce(e_fc, e_vc)                ##### LCE
+                tco_res, tco_opex, tco_capex = tco_inst.calc_tco()                         # tco result rest
 
 
 
             all_values.append(lhs_dict)
 
             # all results of BEV or FCEV etc
-            single_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4)]
-            single_all_res[list_num] = [np.around(c_tco_res, decimals=4), np.around(e_lce_res, decimals=4), np.around(e_fc, decimals=4), np.around(e_vc, decimals=4)]
+            single_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4)]
+            #single_all_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4), np.around(tco_capex, decimals=4), np.around(tco_opex, decimals=4), np.around(e_fc, decimals=4), np.around(e_vc, decimals=4)]
+
+            # single_all_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4),
+            #                             np.around(tco_capex, decimals=4), np.around(tco_opex, decimals=4),
+            #                             np.around(e_fc, decimals=4), np.around(e_vc, decimals=4)]
+            single_all_res[list_num] = [tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc]
+
+            single_all_res = np.around(single_all_res, decimals=4)
 
         result = np.append(result, single_res, axis=0)           # --- TOTAL RESULT ---
         result_all = np.append(result_all, single_all_res, axis=0)
@@ -420,7 +448,7 @@ def result_calc(var, class_sel, dimension):
 
     result = np.around(result, decimals=4)
 
-    columns = ['TCO (€/km)', "LCE (gGHG/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
+    columns = ['TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
     result_extend = np.around(result_all, decimals=4)
     result_extend = pd.DataFrame(data=result_extend, columns=columns)
 
@@ -449,8 +477,8 @@ class SaveResults:
             csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
         # SAVE results + all values to results/result_all.csv
-        all_data = self.res_extend.join(self.all_values)
-        all_data.to_csv("results/result_all.csv", sep=';', header=True)
+        self.all_data = self.res_extend.join(self.all_values)
+        self.all_data.to_csv("results/result_all.csv", sep=';', header=True)
 
 
         # SAVE propType Results to base-temp folder
@@ -481,15 +509,16 @@ class SaveResults:
 # Plot Widget and Results
 # =============================================================================
 
-class PlotClass:
-    def __init__(self, border=True, title = 'irgendwas', name='blabla',parent=None):
+class PlotClass(QtGui.QWidget):
+    def __init__(self, execute):
+        QtGui.QWidget.__init__(self)
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         mw.resize(1000, 800)
-        view = pg.GraphicsLayoutWidget()
-        mw.setCentralWidget(view)
+        self.view = pg.GraphicsLayoutWidget()
+        mw.setCentralWidget(self.view)
         mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
-        self.plt = view.addPlot()
+        self.plt = self.view.addPlot()
 
         # X Axis Settings
         self.plt.setLabel('bottom', text='Total Cost of Ownership', units='€ / km')
@@ -497,11 +526,10 @@ class PlotClass:
         self.plt.setLabel('left', text='Lifecycle Emissions', units='gGHG / km')
 
         self.plt.showGrid(True, True, alpha=.5)
-        self.legend = pg.LegendItem((100,60), offset=(-30,30))  # args are (size, offset)
+        self.legend = pg.LegendItem((100, 60), offset=(-30, 30))  # args are (size, offset)
         self.legend.setParentItem(self.plt.graphicsItem())  # Note we do NOT call plt.addItem in this case
 
         # Set Climate Goal lines
-        #InfiniteLine.__init__()
         self.plt.addLine(x=None, y=200, z=None)  # Ziel 2020: 200 gGHG/km
         self.plt.addLine(x=None, y=120, z=None)  # Aim 2030: 120 gGHG/km
 
@@ -518,12 +546,13 @@ class PlotClass:
         QtCore.QMetaObject.connectSlotsByName(mw)
 
         self.plotting()
+        # self.CrossHair()
 
     def plotting(self):
         # SPLIT RESULTS
-        x = end_result[:, 0]
+        x = execute[:, 0]
         # print(x)
-        y = end_result[:, 1]
+        y = execute[:, 1]
         # print(y)
 
         now = pg.ptime.time()
@@ -533,6 +562,17 @@ class PlotClass:
         # BEV
         plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
                                   symbol='x', brush='cd5959', name='BEV')                              # red
+
+        # zipp1 = np.array(list(zip(x[:n], y[:n])))
+        # print("zipped: {}".format(zipp1))
+        # #hull_bev = self.convex_hull(zipp1)
+        # #print(hull_bev)
+        # hull = ch(zipp1)
+        # print("hull:\n{}".format(hull))
+        # hull_plt_bev = pg.plot(hull)
+        # #hull_plt_bev = pg.plot.fill(zipp1[hull.vertices, 0], zipp1[hull.vertices,1], 'k', alpha=0.3 )
+        # #print("hull:\n{}".format(hull))
+
         # FCEV
         plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
                                   symbol='x', brush='5a9fcd', name ='FCEV')                            # blue
@@ -550,12 +590,80 @@ class PlotClass:
         self.plt.addItem(plot_icev, name='ICEV')
         # self.plt.addItem(pfill, name='FILL')
 
+        # Adding hulls to plot
+        # self.plt.addItem(hull_plt_bev)
+
         # Adding Legend items to legendview l
         self.legend.addItem(plot_bev, name='BEV')
         self.legend.addItem(plot_fcev, name='FCEV')
         self.legend.addItem(plot_phev, name='PHEV')
         self.legend.addItem(plot_icev, name='ICEV')
         print('plot time: {} sec'.format(pg.ptime.time() - now))
+
+    # def convex_hull(self, points):
+    #     """Computes the convex hull of a set of 2D points.
+    #
+    #     Input: an iterable sequence of (x, y) pairs representing the points.
+    #     Output: a list of vertices of the convex hull in counter-clockwise order,
+    #       starting from the vertex with the lexicographically smallest coordinates.
+    #     Implements Andrew's monotone chain algorithm. O(n log n) complexity.
+    #     """
+    #
+    #     # Sort the points lexicographically (tuples are compared lexicographically).
+    #     # Remove duplicates to detect the case we have just one unique point.
+    #     points = sorted(set(points))
+    #
+    #     # Boring case: no points or a single point, possibly repeated multiple times.
+    #     if len(points) <= 1:
+    #         return points
+    #
+    #     # 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
+    #     # Returns a positive value, if OAB makes a counter-clockwise turn,
+    #     # negative for clockwise turn, and zero if the points are collinear.
+    #     def cross(o, a, b):
+    #         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    #
+    #     # Build lower hull
+    #     lower = []
+    #     for p in points:
+    #         while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+    #             lower.pop()
+    #         lower.append(p)
+    #
+    #     # Build upper hull
+    #     upper = []
+    #     for p in reversed(points):
+    #         while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+    #             upper.pop()
+    #         upper.append(p)
+    #
+    #     # Concatenation of the lower and upper hulls gives the convex hull.
+    #     # Last point of each list is omitted because it is repeated at the beginning of the other list.
+    #     return lower[:-1] + upper[:-1]
+    #
+    # # # Example: convex hull of a 10-by-10 grid.
+    # # assert convex_hull([(i // 10, i % 10) for i in range(100)]) == [(0, 0), (9, 0), (9, 9), (0, 9)]
+
+
+
+        # # crosshair
+        # Plotted = self.plt
+        # vLine = pg.InfiniteLine(angle=90, movable=False)
+        # hLine = pg.InfiniteLine(angle=0, movable=False)
+        # Plotted.addItem(vLine, ignoreBounds=True)
+        # Plotted.addItem(hLine, ignoreBounds=True)
+        # Plotted.setMouseTracking(True)
+        # Plotted.scene().sigMouseMoved.connect(self.mouseMoved)
+
+    # def mouseMoved(self, evt):
+    #     pos = evt
+    #     if self.plot.sceneBoundingRect().contains(pos):
+    #         mousePoint = self.plot.plotItem.vb.mapSceneToView(pos)
+    #         self.mousecoordinatesdisplay.setText(
+    #             "<span style='font-size: 15pt'>X=%0.1f, <span style='color: black'>Y=%0.1f</span>" % (
+    #             mousePoint.x(), mousePoint.y()))
+    #     self.plot.plotItem.vLine.setPos(mousePoint.x())
+    #     self.plot.plotItem.hLine.setPos(mousePoint.y())
 
 
 # =============================================================================
@@ -593,6 +701,7 @@ def run(n):
     SaveResults(res, res_extend, all_values)
     print('SaveResult time: {} sec'.format(pg.ptime.time() - now))
 
+
     return res
 
 
@@ -600,16 +709,16 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 100
+    n = 4
 
     # Call all function in run function
-    end_result = run(n)
+    execute = run(n)
 
     # Make App
     app = QtGui.QApplication(sys.argv)
     mw = QtGui.QMainWindow()
 
     # Call PlotClass and show view
-    w = PlotClass(end_result)
+    w = PlotClass(execute)
     mw.show()
     sys.exit(app.exec_())
