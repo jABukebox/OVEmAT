@@ -6,7 +6,7 @@ P_batt;30.0;50.0
 P_battEmpty;0.0;0.0
 E_batt;30.0;50.0
 E_battEmpty;0.0;0.0
-P_fc;50.0;90.0
+P_fc;60.0;80.0
 P_fcEmpty;0.0;0.0
 s_ren_big;0.0;0.0
 s_ren_small;0.0;0.0
