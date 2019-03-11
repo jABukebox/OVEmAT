@@ -20,7 +20,7 @@ def default_general():              # All values that stay the same in all class
 
                                 'min': [93,  50,   42,  400.0, 0.0, 0.0, 550,
                                         50.0, 0.0,   850.0, 10.0,  8000,  8.5, 0.20, 1.3,
-                                        1.5,  80.0, 0.0,   30.0,  0.0],
+                                        1.5,  100.0, 0.0,   30.0,  0.0],
 
                                 'max': [96,  54,   46,   550,   0,   0.0, 600,
                                         70.0, 0.0,   900,   12,    12000,  10,  0.50, 1.9,
@@ -44,8 +44,8 @@ def default_compact():  #  TODO: min - max werte festlegen
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                         'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                         's_ren_empty'],
-                                'min': [15, 1, 3, 30.0, 0.0, 30.0, 0.0, 50.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [17, 1.6, 6, 50.0, 0.0, 50.0, 0.0, 70.0, 0.0, 0, 0, 0.0]
+                                'min': [15, 1, 3, 30.0, 0.0, 30.0, 0.0, 60.0, 0.0, 0.0, 0.0, 0.0],
+                                'max': [17, 1.6, 6, 50.0, 0.0, 50.0, 0.0, 80.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val

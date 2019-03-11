@@ -17,12 +17,11 @@ import pyDOE as pyDOE
 import pandas as pd
 import pyqtgraph as pg
 from PyQt5 import QtCore, QtGui
-from pyqtgraph import PlotWidget
 import getinput as gin
 import os
 import sys
 import csv
-from scipy.spatial import ConvexHull as ch
+
 
 
 # Todo: boolean muss durch checkbox ersetzt werden
@@ -91,7 +90,7 @@ def final_variables(p, dimension, class_sel):
                         t += 1
                         var = (p.item(lhs_items) * (
                                     var_max - var_min)) + var_min   # Allocation of variables with LHS results in var
-                        #var = np.around(var, decimals=4)
+
                         var_list.append(var)                        # append Parameter to list
                         lhs_items += 1
                         m += 1
@@ -111,7 +110,7 @@ def final_variables(p, dimension, class_sel):
                     var_min = g_v.iloc[m][t]                        # determine min value of set range
                     t += 1
                     var = (p.item(lhs_items) * (var_max - var_min)) + var_min   # calculation of variables with LHS
-                    #var = np.around(var, decimals=4)
+
                     var_list.append(var)                                        # append Parameter to list
                     lhs_items += 1
                     m += 1
@@ -213,9 +212,6 @@ class LCE:
     def fuel_cycle(self):                                       # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:            # Seperate prop Types from PHEV
             e_fc = (100/self.C3) * (self.FE/100) * self.Em_elFC * self.w_h2 * self.w_synth + self.C5 * (self.FE/100)
-            # print('C3: {}, FE: {}, Em_elFC: {}, w_h2: {}, w_synth: {}, C5: {}'.format(self.C3, self.FE, self.Em_elFC,
-            #                                                                      self.w_h2, self.w_synth, self.C5))
-            # print('e_fc_normal: {}'.format(e_fc))
             return e_fc
 
     def vehicle_cycle(self):                                    # Vehicle Cycle Emissions
@@ -236,14 +232,10 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
             setattr(self, attribute, value)
 
     def fuel_cycle_phev(self, **kwargs):
-        print('cd_phev fuel cycle: {}'.format(self.cd_phev))
         self.cd_phev = self.cd_phev/100
-        print("cd: {}\n".format(self.cd_phev))
         self.cs = (1 - self.cd_phev)
 
-        print("cs: {}".format(self.cs))
         FE_bev = self.FE_bev * 1.5            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
-        #FE_icev = self.FE_icev
 
         # Calc of ICEV FuelCycle
         e_fc_cs = (100/self.C3_icev) * (self.FE_icev/100) * self.Em_elFC * self.w_synth + self.C5_icev * (self.FE_icev/100)
@@ -313,7 +305,6 @@ class TCO:
         sum_tco = sum_tco_cd + sum_tco_cs
 
         print("FE_bev: {}\t FE_icev: {}".format(FE_cd, FE_cs))
-        print("sum_cd: {}\t sum_cs: {}".format(sum_tco_cd, sum_tco_cs))
 
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
                 ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
@@ -358,6 +349,7 @@ def result_calc(var, class_sel, dimension):
         single_res = np.zeros(shape=(n, 2))
         single_all_res = np.zeros(shape=(n, 6))
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
+            tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict = 0,0,0,0,0,0,0
             if vehicle_type == 2:
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
                                  'Em_elVC', 'cd_empty', 'cd_phev', 'Em_elBatt', 'L', 'D', 'r','C_fuel_bev', 'C_batt_bev', 'C_fc_bev',
@@ -378,7 +370,6 @@ def result_calc(var, class_sel, dimension):
                 all_phev_lhs.extend(x_vals)
                 all_phev_lhs.append(s_ren)
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
-                print("lhs_dict: \n{}".format(lhs_dict))
 
                 e_inst = FuelCyclePHEV(**lhs_dict)
                 e_fc = e_inst.fuel_cycle_phev()                         # e_fc of PHEV
@@ -425,18 +416,11 @@ def result_calc(var, class_sel, dimension):
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4)]
-            #single_all_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4), np.around(tco_capex, decimals=4), np.around(tco_opex, decimals=4), np.around(e_fc, decimals=4), np.around(e_vc, decimals=4)]
-
-            # single_all_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4),
-            #                             np.around(tco_capex, decimals=4), np.around(tco_opex, decimals=4),
-            #                             np.around(e_fc, decimals=4), np.around(e_vc, decimals=4)]
             single_all_res[list_num] = [tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc]
-
             single_all_res = np.around(single_all_res, decimals=4)
 
-        result = np.append(result, single_res, axis=0)           # --- TOTAL RESULT ---
-        result_all = np.append(result_all, single_all_res, axis=0)
-        #all_values[list_num] = lhs_dict
+        result = np.append(result, single_res, axis=0)
+        result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
 
         # append to a longer list
         count_type += 3                                 # Jump from compact_bev to compact_fcev to compact_phev ...
@@ -444,7 +428,7 @@ def result_calc(var, class_sel, dimension):
 
     all_values = pd.DataFrame(all_values, columns=all_para_keys)
     all_values = round(all_values, 4)
-    all_values.to_csv("results/lhs_dicts.csv", sep=";")
+    all_values.to_csv("results/input_values.csv", sep=";")
 
     result = np.around(result, decimals=4)
 
@@ -509,15 +493,16 @@ class SaveResults:
 # Plot Widget and Results
 # =============================================================================
 
-class PlotClass(QtGui.QWidget):
+class PlotClass(QtGui.QMainWindow):
     def __init__(self, execute):
-        QtGui.QWidget.__init__(self)
+        super(QtGui.QMainWindow, self).__init__()
+        self.mw = QtGui.QMainWindow()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        mw.resize(1000, 800)
+        self.mw.resize(1000, 800)
         self.view = pg.GraphicsLayoutWidget()
-        mw.setCentralWidget(self.view)
-        mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
+        self.mw.setCentralWidget(self.view)
+        self.mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
         self.plt = self.view.addPlot()
 
         # X Axis Settings
@@ -536,135 +521,128 @@ class PlotClass(QtGui.QWidget):
         self.plt.setMenuEnabled(enableMenu=True, enableViewBoxMenu='same')
 
         # Menubar
-        self.menubar = QtGui.QMenuBar(mw)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 22))
-        mw.setMenuBar(self.menubar)
+        extractAction = QtGui.QAction("&Close app", self)
+        extractAction.setShortcut("Ctrl+O")
+        extractAction.setStatusTip("Leave the app")
+        extractAction.triggered.connect(self.close_application)
+
+        # Open Files
+        openFile = QtGui.QAction("&Open File", self)
+        openFile.setShortcut("Ctrl+O")
+        openFile.setStatusTip('Open File')
+        openFile.triggered.connect(self.file_open)
+
+        # Save Files
+        saveFile = QtGui.QAction("&Save File", self)
+        saveFile.setShortcut("Ctrl+S")
+        saveFile.setStatusTip('Save File')
+        saveFile.triggered.connect(self.file_save)
+
+        self.statusBar()
+
+        mainMenu = self.mw.menuBar()
+        fileMenu = mainMenu.addMenu("&File")
+        fileMenu.addAction(extractAction)
+        fileMenu.addAction(openFile)
+        fileMenu.addAction(saveFile)
 
         # Status Bar
-        self.statusbar = QtGui.QStatusBar(mw)
-        mw.setStatusBar(self.statusbar)
-        QtCore.QMetaObject.connectSlotsByName(mw)
+        statusbar = self.mw.statusBar()
+        self.mw.setStatusBar(statusbar)
+        QtCore.QMetaObject.connectSlotsByName(self)
+
 
         self.plotting()
+
+    def file_open(self):
+        name = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
+        file = open(name, 'r')
+        self.editor()
+        with file:
+            text = file.read()
+            self.textEdit.setText(text)
+
+    def file_save(self):
+        name = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
+        file = open(name,'w')
+        text = self.textEdit.toPlainText()
+        file.write(text)
+        file.close()
+
+    def editor(self):
+        self.textEdit = QtGui.QTextEdit()
+        self.setCentralWidget(self.textEdit)
+
+        #self.menu_bar()
         # self.CrossHair()
 
+    # def menu_bar(self):
+    #     self._menu = QtGui.QMenuBar(self)
+    #     self._menu.setNativeMenuBar(False)
+    #
+    #     fileMenu = self._menu.addMenu("File")
+    #     fileMenu.addAction("New")
+    #     fileMenu.addAction("Open", self.openFileBrowser)
+    #     fileMenu.addAction("Save", self.saveToFile)
+    #     fileMenu.addAction("Save As")
+    #     fileMenu.addSeparator()
+    #     fileMenu.addAction("Import")
+    #     fileMenu.addAction("Export")
+    #
+    #     nodeMenu = self._menu.addMenu("Node")
+    #     nodeMenu.addAction("Create...")
+    #     nodeMenu.addAction("Duplicate")
+    #     nodeMenu.addAction("Delete")
+    #     nodeMenu.addAction("Find...")
+    #
+    #     self._menu.addAction("Save", self.saveToFile)
+    #
+    #     self._layout.addWidget(self._menu)
+    #     self.plotting()
+    def close_application(self):
+        sys.exit()
+
     def plotting(self):
-        # SPLIT RESULTS
-        x = execute[:, 0]
-        # print(x)
-        y = execute[:, 1]
-        # print(y)
+            # SPLIT RESULTS
+            x = execute[:, 0]
+            # print(x)
+            y = execute[:, 1]
+            # print(y)
 
-        now = pg.ptime.time()
+            now = pg.ptime.time()
 
-        # Create Scatter Plot
-        point_size = 12
-        # BEV
-        plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
-                                  symbol='x', brush='cd5959', name='BEV')                              # red
+            # Create Scatter Plot
+            point_size = 12
+            # BEV
+            plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
+                                      symbol='x', brush='cd5959', name='BEV')                              # red
+            # FCEV
+            plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
+                                      symbol='x', brush='5a9fcd', name ='FCEV')                            # blue
+            # PHEV
+            plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
+                                      symbol='x', brush='ea8f20', name='PHEV')                            # orange
+            # ICEV
+            plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
+                                      symbol='x', brush='b2cd5b', name='ICEV')                            # green
 
-        # zipp1 = np.array(list(zip(x[:n], y[:n])))
-        # print("zipped: {}".format(zipp1))
-        # #hull_bev = self.convex_hull(zipp1)
-        # #print(hull_bev)
-        # hull = ch(zipp1)
-        # print("hull:\n{}".format(hull))
-        # hull_plt_bev = pg.plot(hull)
-        # #hull_plt_bev = pg.plot.fill(zipp1[hull.vertices, 0], zipp1[hull.vertices,1], 'k', alpha=0.3 )
-        # #print("hull:\n{}".format(hull))
+            # Adding Plots to window plt
+            self.plt.addItem(plot_bev, name='BEV')
+            self.plt.addItem(plot_fcev, name='FCEV')
+            self.plt.addItem(plot_phev, name='PHEV')
+            self.plt.addItem(plot_icev, name='ICEV')
+            # self.plt.addItem(pfill, name='FILL')
 
-        # FCEV
-        plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                  symbol='x', brush='5a9fcd', name ='FCEV')                            # blue
-        # PHEV
-        plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
-                                  symbol='x', brush='ea8f20', name='PHEV')                            # orange
-        # ICEV
-        plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                  symbol='x', brush='b2cd5b', name='ICEV')                            # green
+            # Adding hulls to plot
+            # self.plt.addItem(hull_plt_bev)
 
-        # Adding Plots to window plt
-        self.plt.addItem(plot_bev, name='BEV')
-        self.plt.addItem(plot_fcev, name='FCEV')
-        self.plt.addItem(plot_phev, name='PHEV')
-        self.plt.addItem(plot_icev, name='ICEV')
-        # self.plt.addItem(pfill, name='FILL')
-
-        # Adding hulls to plot
-        # self.plt.addItem(hull_plt_bev)
-
-        # Adding Legend items to legendview l
-        self.legend.addItem(plot_bev, name='BEV')
-        self.legend.addItem(plot_fcev, name='FCEV')
-        self.legend.addItem(plot_phev, name='PHEV')
-        self.legend.addItem(plot_icev, name='ICEV')
-        print('plot time: {} sec'.format(pg.ptime.time() - now))
-
-    # def convex_hull(self, points):
-    #     """Computes the convex hull of a set of 2D points.
-    #
-    #     Input: an iterable sequence of (x, y) pairs representing the points.
-    #     Output: a list of vertices of the convex hull in counter-clockwise order,
-    #       starting from the vertex with the lexicographically smallest coordinates.
-    #     Implements Andrew's monotone chain algorithm. O(n log n) complexity.
-    #     """
-    #
-    #     # Sort the points lexicographically (tuples are compared lexicographically).
-    #     # Remove duplicates to detect the case we have just one unique point.
-    #     points = sorted(set(points))
-    #
-    #     # Boring case: no points or a single point, possibly repeated multiple times.
-    #     if len(points) <= 1:
-    #         return points
-    #
-    #     # 2D cross product of OA and OB vectors, i.e. z-component of their 3D cross product.
-    #     # Returns a positive value, if OAB makes a counter-clockwise turn,
-    #     # negative for clockwise turn, and zero if the points are collinear.
-    #     def cross(o, a, b):
-    #         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
-    #
-    #     # Build lower hull
-    #     lower = []
-    #     for p in points:
-    #         while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
-    #             lower.pop()
-    #         lower.append(p)
-    #
-    #     # Build upper hull
-    #     upper = []
-    #     for p in reversed(points):
-    #         while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
-    #             upper.pop()
-    #         upper.append(p)
-    #
-    #     # Concatenation of the lower and upper hulls gives the convex hull.
-    #     # Last point of each list is omitted because it is repeated at the beginning of the other list.
-    #     return lower[:-1] + upper[:-1]
-    #
-    # # # Example: convex hull of a 10-by-10 grid.
-    # # assert convex_hull([(i // 10, i % 10) for i in range(100)]) == [(0, 0), (9, 0), (9, 9), (0, 9)]
-
-
-
-        # # crosshair
-        # Plotted = self.plt
-        # vLine = pg.InfiniteLine(angle=90, movable=False)
-        # hLine = pg.InfiniteLine(angle=0, movable=False)
-        # Plotted.addItem(vLine, ignoreBounds=True)
-        # Plotted.addItem(hLine, ignoreBounds=True)
-        # Plotted.setMouseTracking(True)
-        # Plotted.scene().sigMouseMoved.connect(self.mouseMoved)
-
-    # def mouseMoved(self, evt):
-    #     pos = evt
-    #     if self.plot.sceneBoundingRect().contains(pos):
-    #         mousePoint = self.plot.plotItem.vb.mapSceneToView(pos)
-    #         self.mousecoordinatesdisplay.setText(
-    #             "<span style='font-size: 15pt'>X=%0.1f, <span style='color: black'>Y=%0.1f</span>" % (
-    #             mousePoint.x(), mousePoint.y()))
-    #     self.plot.plotItem.vLine.setPos(mousePoint.x())
-    #     self.plot.plotItem.hLine.setPos(mousePoint.y())
-
+            # Adding Legend items to legendview l
+            self.legend.addItem(plot_bev, name='BEV')
+            self.legend.addItem(plot_fcev, name='FCEV')
+            self.legend.addItem(plot_phev, name='PHEV')
+            self.legend.addItem(plot_icev, name='ICEV')
+            print('plot time: {} sec'.format(pg.ptime.time() - now))
+            self.mw.show()
 
 # =============================================================================
 # Run functions and classes
@@ -709,16 +687,16 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 4
+    n = 100
 
     # Call all function in run function
     execute = run(n)
 
     # Make App
     app = QtGui.QApplication(sys.argv)
-    mw = QtGui.QMainWindow()
+    #mw = QtGui.QMainWindow()
 
     # Call PlotClass and show view
     w = PlotClass(execute)
-    mw.show()
+    #mw.show()
     sys.exit(app.exec_())
