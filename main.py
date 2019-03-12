@@ -468,25 +468,19 @@ class SaveResults:
         # SAVE propType Results to base-temp folder
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
-        bev_points = self.res[:n]
-        with open("temp/bev_result_temp.csv", "w+") as csv_count:
-            csv_writer = csv.writer(csv_count, delimiter=';')
-            csv_writer.writerows(bev_points)
 
-        fcev_points = self.res[n:(n * 2)]
-        with open("temp/fcev_result_temp.csv", "w+") as csv_count:
-            csv_writer = csv.writer(csv_count, delimiter=';')
-            csv_writer.writerows(fcev_points)
+        self.bev_points = self.all_data[:n]
+        self.bev_points.to_csv("temp/bev_result_temp.csv", sep=';', header=True)
 
-        phev_points = self.res[(2 * n):(n * 3)]
-        with open("temp/phev_result_temp.csv", "w+") as csv_count:
-            csv_writer = csv.writer(csv_count, delimiter=';')
-            csv_writer.writerows(phev_points)
+        self.fcev_points = self.all_data[n:(n * 2)]
+        self.fcev_points.to_csv("temp/fcev_result_temp.csv", sep=';', header=True)
 
-        icev_points = self.res[(3 * n):(n * 4)]
-        with open("temp/icev_result_temp.csv", "w+") as csv_count:
-            csv_writer = csv.writer(csv_count, delimiter=';')
-            csv_writer.writerows(icev_points)
+        self.phev_points = self.all_data[(2 * n):(n * 3)]
+        self.phev_points.to_csv("temp/phev_result_temp.csv", sep=';', header=True)
+
+        self.icev_points = self.all_data[(3 * n):(n * 4)]
+        self.icev_points.to_csv("temp/icev_result_temp.csv", sep=';', header=True)
+
 
 
 # =============================================================================
