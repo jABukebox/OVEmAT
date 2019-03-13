@@ -16,6 +16,7 @@ import numpy as np
 import pyDOE as pyDOE
 import pandas as pd
 import pyqtgraph as pg
+import pyqtgraph.exporters
 from PyQt5 import QtCore, QtGui
 import getinput as gin
 import os
@@ -25,7 +26,6 @@ import csv
 
 
 # Todo: boolean muss durch checkbox ersetzt werden
-# Todo: zahlen raus
 # todo: FE_phev_cd, FE_phev_cs
 global booleanCheckbox
 booleanCheckbox = 1
@@ -235,7 +235,7 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         self.cd_phev = self.cd_phev/100
         self.cs = (1 - self.cd_phev)
 
-        FE_bev = self.FE_bev * 1.5            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
+        FE_bev = self.FE_bev * gin.fe_cd_x()            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
 
         # Calc of ICEV FuelCycle
         e_fc_cs = (100/self.C3_icev) * (self.FE_icev/100) * self.Em_elFC * self.w_synth + self.C5_icev * (self.FE_icev/100)
@@ -290,14 +290,14 @@ class TCO:
 
         ## BEV
         sum_tco_cd = 0
-        FE_cd = self.FE_bev * 1.15                      # TODO: take numbers out code
+        FE_cd = self.FE_bev * gin.fe_cd_x()                      # TODO: take numbers out code
         for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
             equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             sum_tco_cd += equation
 
         ## ICEV
         sum_tco_cs = 0
-        FE_cs = self.FE_icev * 1.15
+        FE_cs = self.FE_icev * gin.fe_cs_x()
         for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
             equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             sum_tco_cs += equation
@@ -557,11 +557,22 @@ class PlotClass(QtGui.QMainWindow):
             self.textEdit.setText(text)
 
     def file_save(self):
-        name = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
-        file = open(name,'w')
-        text = self.textEdit.toPlainText()
-        file.write(text)
-        file.close()
+        options = QtGui.QFileDialog.Options()
+        options |= QtGui.QFileDialog.DontUseNativeDialog
+        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+                                                  "All Files (*);;Image Files (*.png);;Text Files (*.txt)", options=options)
+
+        if fileName:
+            exporter = pg.exporters.ImageExporter(self.plt)
+            exporter.export(fileName)
+            print(fileName)
+        # name = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
+        # file = open(name, 'wb')
+        # #text = self.textEdit.toPlainText()
+        # exporter = pg.exporters.ImageExporter(self.plt)
+        # exporter.export(name)
+        # #file.write(text)
+        # file.close()
 
     def editor(self):
         self.textEdit = QtGui.QTextEdit()
@@ -606,19 +617,19 @@ class PlotClass(QtGui.QMainWindow):
             now = pg.ptime.time()
 
             # Create Scatter Plot
-            point_size = 12
+            point_size = 8
             # BEV
             plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
-                                      symbol='x', brush='cd5959', name='BEV')                              # red
+                                      symbol='o', brush='cd5959', name='BEV')                              # red
             # FCEV
             plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                      symbol='x', brush='5a9fcd', name ='FCEV')                            # blue
+                                      symbol='o', brush='5a9fcd', name ='FCEV')                            # blue
             # PHEV
             plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
-                                      symbol='x', brush='ea8f20', name='PHEV')                            # orange
+                                      symbol='o', brush='ea8f20', name='PHEV')                            # orange
             # ICEV
             plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                      symbol='x', brush='b2cd5b', name='ICEV')                            # green
+                                      symbol='o', brush='b2cd5b', name='ICEV')                            # green
 
             # Adding Plots to window plt
             self.plt.addItem(plot_bev, name='BEV')

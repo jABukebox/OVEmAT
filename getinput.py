@@ -100,3 +100,11 @@ def sub_big():          # Subsidy for BEVs and FCEVs
 def sub_small():        # Subsidy for PHEVs
     s_ren = 3000
     return s_ren
+
+def fe_cd_x():         # Correction Factor for PHEV in cd mode
+    fe_cd = 1.15
+    return fe_cd
+
+def fe_cs_x():         # Correction Factor for PHEV in cs mode
+    fe_cs = 1.15
+    return fe_cs
