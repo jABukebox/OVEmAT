@@ -18,7 +18,7 @@ import pandas as pd
 import pyqtgraph as pg
 import pyqtgraph.exporters
 from PyQt5 import QtCore, QtGui
-from functions import getinput as gin
+from src.functions import getinput as gin
 import os
 import sys
 import csv
