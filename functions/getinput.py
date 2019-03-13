@@ -88,7 +88,6 @@ def x_vals():           # vehicle cycle - all values are fix set
 
 def spec_vals():           # specific vehicle vals - all values are fix set # TODO: WERTE ERSETZEN / fcev: cf = 1!?
     spec_vals_default = pd.read_csv('inputfiles/_spec_vals.csv', index_col='Class', delimiter=';')
-    os.chdir(BASE_DIR)
     return spec_vals_default
 
 
@@ -100,3 +99,11 @@ def sub_big():          # Subsidy for BEVs and FCEVs
 def sub_small():        # Subsidy for PHEVs
     s_ren = 3000
     return s_ren
+
+def fe_cd_x():         # Correction Factor for PHEV in cd mode
+    fe_cd = 1.15
+    return fe_cd
+
+def fe_cs_x():         # Correction Factor for PHEV in cs mode
+    fe_cs = 1.15
+    return fe_cs
