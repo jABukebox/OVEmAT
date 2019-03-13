@@ -20,11 +20,11 @@ def default_general():              # All values that stay the same in all class
 
                                 'min': [93,  50,   42,  400.0, 0.0, 0.0, 550,
                                         50.0, 0.0,   850.0, 10.0,  8000,  8.5, 0.20, 1.3,
-                                        1.5,  100.0, 0.0,   30.0,  0.0],
+                                        1.5,  160.0, 0.0,   30.0,  0.0],
 
                                 'max': [96,  54,   46,   550,   0,   0.0, 600,
                                         70.0, 0.0,   900,   12,    12000,  10,  0.50, 1.9,
-                                        3.0,  120,  0.0,   60.0,  0.0]
+                                        3.0,  200,  0.0,   60.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -166,18 +166,9 @@ def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev
     return spec_vals_default
 
 
-def subsidy_big():
-    s_ren = 4000
-    return s_ren
-
-
-def subsidy_small():
-    s_ren = 3000
-    return s_ren
-
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-os.chdir('inputfiles/')
+os.chdir('../inputfiles/')
 default_general().to_csv('_default_general.csv', index='vars', sep=';')
 default_compact().to_csv('_default_compact.csv', index='vars', sep=';')
 default_suv().to_csv('_default_suv.csv', index='vars', sep=';')

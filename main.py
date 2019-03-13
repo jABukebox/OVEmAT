@@ -18,7 +18,7 @@ import pandas as pd
 import pyqtgraph as pg
 import pyqtgraph.exporters
 from PyQt5 import QtCore, QtGui
-import getinput as gin
+from functions import getinput as gin
 import os
 import sys
 import csv
@@ -304,7 +304,7 @@ class TCO:
 
         sum_tco = sum_tco_cd + sum_tco_cs
 
-        print("FE_bev: {}\t FE_icev: {}".format(FE_cd, FE_cs))
+        # print("FE_bev: {}\t FE_icev: {}".format(FE_cd, FE_cs))
 
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
                 ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
