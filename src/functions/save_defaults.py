@@ -5,6 +5,7 @@
 
 import pandas as pd
 import os
+import psycopg2 as psy
 
 # TODO: * boolean Checkbox und vehicle bei test! kommt von django
 
@@ -22,7 +23,7 @@ def default_general():              # All values that stay the same in all class
                                         50.0, 0.0,   850.0, 10.0,  8000,  8.5, 0.20, 1.3,
                                         1.5,  160.0, 0.0,   30.0,  0.0],
 
-                                'max': [96,  54,   46,   550,   0,   0.0, 600,
+                                'max': [96,  54,   46,   550,   0.0,   0.0, 600,
                                         70.0, 0.0,   900,   12,    12000,  10,  0.50, 1.9,
                                         3.0,  200,  0.0,   60.0,  0.0]
                                 })
@@ -176,5 +177,19 @@ default_ldv().to_csv('_default_ldv.csv', index='vars', sep=';')
 x_vals().to_csv('_x_vals.csv', index='Class', sep=';')
 spec_vals().to_csv('_spec_vals.csv', index='Class', sep=';')
 
+
+# DB Connection
+
+# conn = psy.connect(
+#     database="ovemat_db",
+#     user="ovemat",
+#     host="localhost",
+#     password="ovemat"
+# )
+# curs = conn.cursor()
+#
+# out = pd.read_csv('_default_general.csv')
+# curs.copy_from(out, '_default_general', null="")
+# conn.commit()
 
 os.chdir(BASE_DIR)

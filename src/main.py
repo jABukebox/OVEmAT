@@ -22,6 +22,8 @@ from src.functions import getinput as gin
 import os
 import sys
 import csv
+from scipy.spatial import ConvexHull
+#import matplotlib.pyplot as plt
 
 
 
@@ -461,26 +463,25 @@ class SaveResults:
             csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
         # SAVE results + all values to results/result_all.csv
-        self.all_data = self.res_extend.join(self.all_values)
-        self.all_data.to_csv("results/result_all.csv", sep=';', header=True)
-
+        global all_data
+        all_data = self.res_extend.join(self.all_values)
+        all_data.to_csv("results/result_all.csv", sep=';', header=True)
 
         # SAVE propType Results to base-temp folder
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
 
-        self.bev_points = self.all_data[:n]
+        self.bev_points = all_data[:n]
         self.bev_points.to_csv("temp/bev_result_temp.csv", sep=';', header=True)
 
-        self.fcev_points = self.all_data[n:(n * 2)]
+        self.fcev_points = all_data[n:(n * 2)]
         self.fcev_points.to_csv("temp/fcev_result_temp.csv", sep=';', header=True)
 
-        self.phev_points = self.all_data[(2 * n):(n * 3)]
+        self.phev_points = all_data[(2 * n):(n * 3)]
         self.phev_points.to_csv("temp/phev_result_temp.csv", sep=';', header=True)
 
-        self.icev_points = self.all_data[(3 * n):(n * 4)]
+        self.icev_points = all_data[(3 * n):(n * 4)]
         self.icev_points.to_csv("temp/icev_result_temp.csv", sep=';', header=True)
-
 
 
 # =============================================================================
@@ -498,6 +499,7 @@ class PlotClass(QtGui.QMainWindow):
         self.mw.setCentralWidget(self.view)
         self.mw.setWindowTitle('OVEmAt - Open Vehicle Emission Analysis Tool')
         self.plt = self.view.addPlot()
+        #self.plt_add = self.view.addItem()
 
         # X Axis Settings
         self.plt.setLabel('bottom', text='Total Cost of Ownership', units='€ / km')
@@ -545,6 +547,11 @@ class PlotClass(QtGui.QMainWindow):
         self.mw.setStatusBar(statusbar)
         QtCore.QMetaObject.connectSlotsByName(self)
 
+        # Result Points
+        self.bev_points = execute[:n]
+        self.fcev_points = execute[n:(n * 2)]
+        self.phev_points = execute[(2 * n):(n * 3)]
+        self.icev_points = execute[(3 * n):(n * 4)]
 
         self.plotting()
 
@@ -559,20 +566,14 @@ class PlotClass(QtGui.QMainWindow):
     def file_save(self):
         options = QtGui.QFileDialog.Options()
         options |= QtGui.QFileDialog.DontUseNativeDialog
-        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
-                                                  "All Files (*);;Image Files (*.png);;Text Files (*.txt)", options=options)
+        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, "Save File", "",
+                                                        "All Files (*);;Image Files (*.png);;Text Files (*.txt)",
+                                                        options=options)
 
         if fileName:
             exporter = pg.exporters.ImageExporter(self.plt)
             exporter.export(fileName)
             print(fileName)
-        # name = QtGui.QFileDialog.getSaveFileName(self, 'Save File')
-        # file = open(name, 'wb')
-        # #text = self.textEdit.toPlainText()
-        # exporter = pg.exporters.ImageExporter(self.plt)
-        # exporter.export(name)
-        # #file.write(text)
-        # file.close()
 
     def editor(self):
         self.textEdit = QtGui.QTextEdit()
@@ -617,29 +618,47 @@ class PlotClass(QtGui.QMainWindow):
             now = pg.ptime.time()
 
             # Create Scatter Plot
-            point_size = 8
+            point_size = 4
             # BEV
             plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
-                                      symbol='o', brush='cd5959', name='BEV')                              # red
+                                          symbol='o', brush='cd5959', name='BEV')                              # red
             # FCEV
             plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                      symbol='o', brush='5a9fcd', name ='FCEV')                            # blue
+                                           symbol='o', brush='5a9fcd', name ='FCEV')                            # blue
             # PHEV
             plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
-                                      symbol='o', brush='ea8f20', name='PHEV')                            # orange
+                                           symbol='o', brush='b2cd5b', name='PHEV')                            # green
             # ICEV
             plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                      symbol='o', brush='b2cd5b', name='ICEV')                            # green
+                                           symbol='o', brush='ea8f20', name='ICEV')                            # orange
 
-            # Adding Plots to window plt
+            ### plot Hulls
+            hull_bev = np.array(self.convex_hull(self.bev_points))
+            hull_fcev = np.array(self.convex_hull(self.fcev_points))
+            hull_phev = np.array(self.convex_hull(self.phev_points))
+            hull_icev = np.array(self.convex_hull(self.icev_points))
+
+            # Hull Color
+            color_bev = QtGui.QColor(249, 202, 202)     # f9caca
+            color_bev.setAlphaF(0.5)
+            color_fcev = QtGui.QColor(186, 227, 255)    # bae3ff
+            color_fcev.setAlphaF(0.5)
+            color_phev = QtGui.QColor(239, 249, 207)    # eff9cf
+            color_phev.setAlphaF(0.5)
+            color_icev = QtGui.QColor(249, 209, 159)    # f9d19f
+            color_icev.setAlphaF(0.5)
+
+            # Hull Plot
+            self.plt.plot(hull_bev, pen=pg.mkPen('f9b8b8', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_bev, alpha=0.5))
+            self.plt.plot(hull_fcev, pen=pg.mkPen('a4d7f9', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_fcev, alpha=0.5))
+            self.plt.plot(hull_phev, pen=pg.mkPen('eefcbf', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_phev, alpha=0.5))
+            self.plt.plot(hull_icev, pen=pg.mkPen('f7c88f', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_icev, alpha=0.5))
+
+            # Adding Scatter to window plt
             self.plt.addItem(plot_bev, name='BEV')
             self.plt.addItem(plot_fcev, name='FCEV')
             self.plt.addItem(plot_phev, name='PHEV')
             self.plt.addItem(plot_icev, name='ICEV')
-            # self.plt.addItem(pfill, name='FILL')
-
-            # Adding hulls to plot
-            # self.plt.addItem(hull_plt_bev)
 
             # Adding Legend items to legendview l
             self.legend.addItem(plot_bev, name='BEV')
@@ -647,7 +666,30 @@ class PlotClass(QtGui.QMainWindow):
             self.legend.addItem(plot_phev, name='PHEV')
             self.legend.addItem(plot_icev, name='ICEV')
             print('plot time: {} sec'.format(pg.ptime.time() - now))
+
             self.mw.show()
+
+    def split(self, u, v, points):
+        # return points on left side of UV
+        return [p for p in points if np.cross(p - u, v - u) < 0]
+
+    def extend(self, u, v, points):
+        if not points:
+            return []
+        # find furthest point W, and split search to WV, UW
+        w = min(points, key=lambda p: np.cross(p - u, v - u))
+        p1, p2 = self.split(w, v, points), self.split(u, w, points)
+        return self.extend(w, v, p1) + [w] + self.extend(u, w, p2)
+
+    def convex_hull(self, points):
+        # find two hull points, U, V, and split to left and right search
+        u = min(points, key=lambda p: p[0])
+        v = max(points, key=lambda p: p[0])
+        left, right = self.split(u, v, points), self.split(v, u, points)
+
+        # find convex hull on each side
+        return [v] + self.extend(u, v, left) + [u] + self.extend(v, u, right) + [v]
+
 
 # =============================================================================
 # Run functions and classes
@@ -655,6 +697,8 @@ class PlotClass(QtGui.QMainWindow):
 
 def run(n):
     # Call Functions
+    global now2
+
     while True:
         try:
             class_sel = veh_class_sel()
@@ -662,7 +706,7 @@ def run(n):
             print('Value Error! Hit a Number 1 - 3\n')
         else:
             break
-
+    now2 = pg.ptime.time()
     now = pg.ptime.time()
     dimension = lhs_dimension()
     # print(timeit.timeit(lhs_dimension()))
@@ -692,7 +736,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 100
+    n = 60
 
     # Call all function in run function
     execute = run(n)
@@ -702,6 +746,7 @@ if __name__ == '__main__':
     #mw = QtGui.QMainWindow()
 
     # Call PlotClass and show view
+    print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
     #mw.show()
     sys.exit(app.exec_())
