@@ -5,7 +5,6 @@
 
 import pandas as pd
 import os
-import psycopg2 as psy
 
 # TODO: * boolean Checkbox und vehicle bei test! kommt von django
 
@@ -20,11 +19,11 @@ def default_general():              # All values that stay the same in all class
                                          'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],
 
                                 'min': [93,  50,   42,  400.0, 0.0, 0.0, 550,
-                                        50.0, 0.0,   850.0, 15.0,  15000,  8.5, 0.20, 1.3,
+                                        99.0, 0.0,   850.0, 15.0,  15000,  8.5, 0.20, 1.3,
                                         1.5,  160.0, 0.0,   30.0,  0.0],
 
                                 'max': [96,  54,   46,   550,   0.0,   0.0, 600,
-                                        51.0, 0.0,   900,   20,    30000,  10,  0.50, 1.9,
+                                        100.0, 0.0,   900,   20,    30000,  10,  0.50, 1.9,
                                         3.0,  200,  0.0,   60.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
@@ -161,7 +160,7 @@ def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev
 
                                           'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
-                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6]
+                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6, 11.6, 11.6, 11.6]
                                       })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
