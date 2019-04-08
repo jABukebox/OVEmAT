@@ -214,6 +214,14 @@ class LCE:
     def fuel_cycle(self):                                       # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:            # Seperate prop Types from PHEV
             e_fc = (100/self.C3) * (self.FE/100) * self.Em_elFC * self.w_h2 * self.w_synth + self.C5 * (self.FE/100)
+            print("-----------------------------")
+            print("FE: {}".format(self.FE))
+            print("c3: {}".format(self.C3))
+            print("Em_elFC: {}".format(self.Em_elFC))
+            print("w_synth: {}".format(self.w_synth))
+            print("w_h2: {}".format(self.w_h2))
+            print("C5: {}".format(self.C5))
+            print("e_fc ALL: {}".format(e_fc))
             return e_fc
 
     def vehicle_cycle(self):                                    # Vehicle Cycle Emissions
@@ -236,14 +244,28 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
     def fuel_cycle_phev(self, **kwargs):
         self.cd_phev = self.cd_phev/100
         self.cs = (1 - self.cd_phev)
+        print("--------------PHEV---------------")
+        print("cd_phev: {}".format(self.cd_phev))
+        print("cs_phev: {}".format(self.cs))
+        print("FE_PHEV_pre: {}".format(self.FE_bev))
 
         FE_bev = self.FE_bev * gin.fe_cd_x()            # TODO: Zahl rausnehmen - change FE_bev to self.FE_bev
+        print("FE_PHEV_after: {}".format(FE_bev))
+        print("FE_icev_: {}".format(self.FE_icev))
+        print("c3_icev_: {}".format(self.C3_icev))
+        print("Em_elFC_icev_: {}".format(self.Em_elFC))
+        print("w_synth_icev_: {}".format(self.w_synth))
+
+        print("C5_icev_icev_: {}".format(self.C5_icev))
 
         # Calc of ICEV FuelCycle
         e_fc_cs = (100/self.C3_icev) * (self.FE_icev/100) * self.Em_elFC * self.w_synth + self.C5_icev * (self.FE_icev/100)
+        print("e_fc_cs: {}".format(e_fc_cs))
+
 
         # Calc of BEV FuelCycle
         e_fc_cd = (100/self.C3_bev) * (FE_bev/100) * self.Em_elFC + self.C5_bev * (FE_bev/100)  # w_bev = 1 -> not needed
+        print("e_fc_cd: {}".format(e_fc_cd))
         e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_phev))
         return e_fc
 
@@ -265,6 +287,7 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         C_fuel = self.C_fuel_icev * self.cs + self.C_fuel_bev * self.cd_phev
         C_batt = self.C_batt_bev
         C_fc = self.C_fc_bev
+        #w_synth = self.w_synth
         phev_vals = [FE, E_batt, P_batt, P_fc, C3, C5, Em_elFC, Em_elVC, cd, cd_phev, Em_elBatt, L, D, r, C_fuel, C_batt, C_fc]
         return phev_vals
 
@@ -353,6 +376,7 @@ def result_calc(var, class_sel, dimension):
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
             tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict = 0,0,0,0,0,0,0
             if vehicle_type == 2:
+
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
                                  'Em_elVC', 'cd_empty', 'cd_phev', 'Em_elBatt', 'L', 'D', 'r','C_fuel_bev', 'C_batt_bev', 'C_fc_bev',
                                  'FE_icev', 'E_batt', 'P_batt', 'P_fc', 'C3_icev', 'C5_icev', 'Em_elFC', 'Em_elVC', 'cd_empty', 'cd_empty',
@@ -389,6 +413,7 @@ def result_calc(var, class_sel, dimension):
 
                 lce_inst = LCE(**lhs_dict)
                 e_vc = lce_inst.vehicle_cycle()                         # e_vc of PHEV
+                print("e_vc = {}".format(e_vc))
 
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)               ## LCE
 
@@ -579,32 +604,6 @@ class PlotClass(QtGui.QMainWindow):
         self.textEdit = QtGui.QTextEdit()
         self.setCentralWidget(self.textEdit)
 
-        #self.menu_bar()
-        # self.CrossHair()
-
-    # def menu_bar(self):
-    #     self._menu = QtGui.QMenuBar(self)
-    #     self._menu.setNativeMenuBar(False)
-    #
-    #     fileMenu = self._menu.addMenu("File")
-    #     fileMenu.addAction("New")
-    #     fileMenu.addAction("Open", self.openFileBrowser)
-    #     fileMenu.addAction("Save", self.saveToFile)
-    #     fileMenu.addAction("Save As")
-    #     fileMenu.addSeparator()
-    #     fileMenu.addAction("Import")
-    #     fileMenu.addAction("Export")
-    #
-    #     nodeMenu = self._menu.addMenu("Node")
-    #     nodeMenu.addAction("Create...")
-    #     nodeMenu.addAction("Duplicate")
-    #     nodeMenu.addAction("Delete")
-    #     nodeMenu.addAction("Find...")
-    #
-    #     self._menu.addAction("Save", self.saveToFile)
-    #
-    #     self._layout.addWidget(self._menu)
-    #     self.plotting()
     def close_application(self):
         sys.exit()
 
@@ -621,16 +620,16 @@ class PlotClass(QtGui.QMainWindow):
             point_size = 4
             # BEV
             plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None),
-                                          symbol='o', brush='cd5959', name='BEV')                              # red
+                                          symbol='o', brush='cd5959', name='BEV', alpha=0.2)                 # red
             # FCEV
             plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                           symbol='o', brush='5a9fcd', name ='FCEV')                            # blue
+                                           symbol='o', brush='5a9fcd', name ='FCEV', alpha=0.2)              # blue
             # PHEV
             plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
-                                           symbol='o', brush='b2cd5b', name='PHEV')                            # green
+                                           symbol='o', brush='b2cd5b', name='PHEV', alpha=0.2)               # green
             # ICEV
             plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                           symbol='o', brush='ea8f20', name='ICEV')                            # orange
+                                           symbol='o', brush='ea8f20', name='ICEV', alpha=0.2)               # orange
 
             ### plot Hulls
             hull_bev = np.array(self.convex_hull(self.bev_points))
@@ -639,14 +638,15 @@ class PlotClass(QtGui.QMainWindow):
             hull_icev = np.array(self.convex_hull(self.icev_points))
 
             # Hull Color
+            alpha = 0.6
             color_bev = QtGui.QColor(249, 202, 202)     # f9caca
-            color_bev.setAlphaF(0.5)
+            color_bev.setAlphaF(alpha)
             color_fcev = QtGui.QColor(186, 227, 255)    # bae3ff
-            color_fcev.setAlphaF(0.5)
+            color_fcev.setAlphaF(alpha)
             color_phev = QtGui.QColor(239, 249, 207)    # eff9cf
-            color_phev.setAlphaF(0.5)
+            color_phev.setAlphaF(alpha)
             color_icev = QtGui.QColor(249, 209, 159)    # f9d19f
-            color_icev.setAlphaF(0.5)
+            color_icev.setAlphaF(alpha)
 
             # Hull Plot
             self.plt.plot(hull_bev, pen=pg.mkPen('f9b8b8', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_bev, alpha=0.5))
@@ -669,6 +669,7 @@ class PlotClass(QtGui.QMainWindow):
 
             self.mw.show()
 
+    # https://www.oreilly.com/ideas/an-elegant-solution-to-the-convex-hull-problem
     def split(self, u, v, points):
         # return points on left side of UV
         return [p for p in points if np.cross(p - u, v - u) < 0]
@@ -707,26 +708,12 @@ def run(n):
         else:
             break
     now2 = pg.ptime.time()
-    now = pg.ptime.time()
+
     dimension = lhs_dimension()
-    # print(timeit.timeit(lhs_dimension()))
-    print('dimension time: {} sec'.format(pg.ptime.time() - now))
-
-    now = pg.ptime.time()
     p = latin_hype(dimension, n)
-    print('LatinHype time: {} sec'.format(pg.ptime.time() - now))
-
-    now = pg.ptime.time()
     var = final_variables(p, dimension, class_sel)
-    print('varFinal time: {} sec'.format(pg.ptime.time() - now))
-
-    now = pg.ptime.time()
     res, res_extend, all_values = result_calc(var, class_sel, dimension)
-    print('resultCalc time: {} sec'.format(pg.ptime.time() - now))
-
-    now = pg.ptime.time()
     SaveResults(res, res_extend, all_values)
-    print('SaveResult time: {} sec'.format(pg.ptime.time() - now))
 
 
     return res
@@ -736,17 +723,15 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 60
+    n = 200
 
     # Call all function in run function
     execute = run(n)
 
     # Make App
     app = QtGui.QApplication(sys.argv)
-    #mw = QtGui.QMainWindow()
 
     # Call PlotClass and show view
     print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
-    #mw.show()
     sys.exit(app.exec_())
