@@ -229,6 +229,7 @@ class LCE:
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
+        print("e_vc: {}".format(e_vc))
         return e_vc
 
     def calc_lce(self, e_fc, e_vc):
@@ -292,6 +293,7 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         return phev_vals
 
 
+
 class TCO:
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
@@ -307,12 +309,17 @@ class TCO:
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
             ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
-
+        #print("self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren")
+        #print(self.C_msrp, self.C_batt, self.P_batt, self.C_battSet, self.P_battSet, self.CF,
+        #    self.C_batt, self.E_batt, self.C_battSet, self.E_battSet,
+        #    self.C_fc, self.P_fc, self.C_fcSet, self.P_fcSet, self.s_ren)
+        #print("c_veh: {}".format(c_veh))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco, sum_tco, c_veh
 
     def calc_tco_phev(self):
-
+        cs = 100 - self.cd_phev
+        #### OPEX ####
         ## BEV
         sum_tco_cd = 0
         FE_cd = self.FE_bev * gin.fe_cd_x()                      # TODO: take numbers out code
@@ -326,16 +333,19 @@ class TCO:
         for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
             equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             sum_tco_cs += equation
+        sum_tco = (sum_tco_cd * self.cd_phev / 100) + (sum_tco_cs * cs / 100) # cd cs fehlt
 
-        sum_tco = sum_tco_cd + sum_tco_cs
-
-        # print("FE_bev: {}\t FE_icev: {}".format(FE_cd, FE_cs))
-
+        #### CAPEX ####
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
-                ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
-                ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
+            ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
+            ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
+        #print("self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren")
+        #print(self.C_msrp, self.C_batt, self.P_batt, self.C_battSet, self.P_battSet, self.CF,
+        #      self.C_batt, self.E_batt, self.C_battSet, self.E_battSet,
+        #      self.C_fc, self.P_fc, self.C_fcSet, self.P_fcSet, self.s_ren)
+        #print("c_veh_phev: {}".format(c_veh))
+        c_tco = (c_veh / (self.L * self.D)) + sum_tco # c_batt_set = 150 und E_batt_set = 10 ????
 
-        c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco, sum_tco, c_veh
 
 
@@ -434,6 +444,9 @@ def result_calc(var, class_sel, dimension):
                 e_fc = lce_inst.fuel_cycle()                           # e_fc of rest
                 e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest
                 tco_inst = TCO(**lhs_dict)
+                #print("lhs_dict: {}".format(lhs_dict))
+                #print("lhs_dict: {}".format(lhs_dict))
+
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)                ##### LCE
                 tco_res, tco_opex, tco_capex = tco_inst.calc_tco()                         # tco result rest
 

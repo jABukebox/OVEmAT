@@ -5,7 +5,6 @@
 
 import pandas as pd
 import os
-import psycopg2 as psy
 
 # TODO: * boolean Checkbox und vehicle bei test! kommt von django
 
@@ -161,7 +160,7 @@ def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev
 
                                           'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
-                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6]
+                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6, 11.6, 11.6, 11.6]
                                       })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
