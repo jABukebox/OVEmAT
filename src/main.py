@@ -229,6 +229,7 @@ class LCE:
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
+        print("e_vc: {}".format(e_vc))
         return e_vc
 
     def calc_lce(self, e_fc, e_vc):
@@ -261,12 +262,14 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         # Calc of ICEV FuelCycle
         e_fc_cs = (100/self.C3_icev) * (self.FE_icev/100) * self.Em_elFC * self.w_synth + self.C5_icev * (self.FE_icev/100)
         print("e_fc_cs: {}".format(e_fc_cs))
-
+        print("cs_phev vor Calc: {}".format(self.cs))
 
         # Calc of BEV FuelCycle
         e_fc_cd = (100/self.C3_bev) * (FE_bev/100) * self.Em_elFC + self.C5_bev * (FE_bev/100)  # w_bev = 1 -> not needed
         print("e_fc_cd: {}".format(e_fc_cd))
+        print("cd_phev vor Calc: {}".format(self.cd_phev))
         e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_phev))
+        print("e_fc_phev_all: {}".format(e_fc))
         return e_fc
 
     def new_phev_vals(self):  # TODO: 1.26 ??? Faktor klären! - phev_fac  * self.phev_fac
@@ -292,6 +295,7 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         return phev_vals
 
 
+
 class TCO:
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
@@ -307,12 +311,17 @@ class TCO:
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
             ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
-
+        #print("self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren")
+        #print(self.C_msrp, self.C_batt, self.P_batt, self.C_battSet, self.P_battSet, self.CF,
+        #    self.C_batt, self.E_batt, self.C_battSet, self.E_battSet,
+        #    self.C_fc, self.P_fc, self.C_fcSet, self.P_fcSet, self.s_ren)
+        #print("c_veh: {}".format(c_veh))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco, sum_tco, c_veh
 
     def calc_tco_phev(self):
-
+        cs = 100 - self.cd_phev
+        #### OPEX ####
         ## BEV
         sum_tco_cd = 0
         FE_cd = self.FE_bev * gin.fe_cd_x()                      # TODO: take numbers out code
@@ -326,16 +335,19 @@ class TCO:
         for years in range(1, int(round(self.L + 1))):  # creating sum              # splitten - 2 x summe
             equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
             sum_tco_cs += equation
+        sum_tco = (sum_tco_cd * self.cd_phev / 100) + (sum_tco_cs * cs / 100) # cd cs fehlt
 
-        sum_tco = sum_tco_cd + sum_tco_cs
-
-        # print("FE_bev: {}\t FE_icev: {}".format(FE_cd, FE_cs))
-
+        #### CAPEX ####
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
-                ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
-                ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
+            ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
+            ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
+        #print("self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren")
+        #print(self.C_msrp, self.C_batt, self.P_batt, self.C_battSet, self.P_battSet, self.CF,
+        #      self.C_batt, self.E_batt, self.C_battSet, self.E_battSet,
+        #      self.C_fc, self.P_fc, self.C_fcSet, self.P_fcSet, self.s_ren)
+        #print("c_veh_phev: {}".format(c_veh))
+        c_tco = (c_veh / (self.L * self.D)) + sum_tco # c_batt_set = 150 und E_batt_set = 10 ????
 
-        c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco, sum_tco, c_veh
 
 
@@ -367,6 +379,8 @@ def result_calc(var, class_sel, dimension):
 
     while count_type < len(gin.x_vals()):               # count through fix vals of class (bev, fcev, phev, icev)
         lhs_lists = var[vehicle_type]                        # all result lists of one propType
+        print("Count_type: {}".format(count_type))
+        print(lhs_lists)
 
         x_vals = list(gin.x_vals().iloc[count_type])
         spec_vals = list(gin.spec_vals().iloc[count_type])
@@ -376,7 +390,7 @@ def result_calc(var, class_sel, dimension):
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
             tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict = 0,0,0,0,0,0,0
             if vehicle_type == 2:
-
+                print("Count_type_PHEV: {}".format(count_type))
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
                                  'Em_elVC', 'cd_empty', 'cd_phev', 'Em_elBatt', 'L', 'D', 'r','C_fuel_bev', 'C_batt_bev', 'C_fc_bev',
                                  'FE_icev', 'E_batt', 'P_batt', 'P_fc', 'C3_icev', 'C5_icev', 'Em_elFC', 'Em_elVC', 'cd_empty', 'cd_empty',
@@ -385,6 +399,7 @@ def result_calc(var, class_sel, dimension):
                                  'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_battSet', 'C_fcSet', 'CF', 'w_h2',
                                  'w_synth', 's_ren']  # 58 vals - 60 with 2 x cd_phev
                 all_phev_lhs = list(lhs_lists[list_num])
+                print("all_phev_lhs: {}".format(all_phev_lhs))
 
                 if booleanCheckbox == 1 and (vehicle_type == 0 or vehicle_type == 1):  # Check if there is a subsidy
                     s_ren = gin.sub_big()
@@ -396,6 +411,7 @@ def result_calc(var, class_sel, dimension):
                 all_phev_lhs.extend(x_vals)
                 all_phev_lhs.append(s_ren)
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
+                print(lhs_dict)
 
                 e_inst = FuelCyclePHEV(**lhs_dict)
                 e_fc = e_inst.fuel_cycle_phev()                         # e_fc of PHEV
@@ -434,6 +450,9 @@ def result_calc(var, class_sel, dimension):
                 e_fc = lce_inst.fuel_cycle()                           # e_fc of rest
                 e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest
                 tco_inst = TCO(**lhs_dict)
+                #print("lhs_dict: {}".format(lhs_dict))
+                #print("lhs_dict: {}".format(lhs_dict))
+
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)                ##### LCE
                 tco_res, tco_opex, tco_capex = tco_inst.calc_tco()                         # tco result rest
 
