@@ -5,7 +5,7 @@
 
 import pandas as pd
 import os
-import psycopg2 as psy
+
 
 # TODO: * boolean Checkbox und vehicle bei test! kommt von django
 
@@ -19,13 +19,13 @@ def default_general():              # All values that stay the same in all class
                                          'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth',
                                          'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],
 
-                                'min': [93,  50,   42,  400.0, 0.0, 0.0, 550,
-                                        50.0, 0.0,   850.0, 15.0,  15000,  8.5, 0.20, 1.3,
-                                        1.5,  160.0, 0.0,   30.0,  0.0],
+                                'min': [93,  50,   42,  0.0, 0.0, 0.0, 0,
+                                        50.0, 0.0,   0.0, 15.0,  15000,  3, 0.20, 1.3,
+                                        1.5,  160.0, 0.0,   45.0,  0.0],
 
-                                'max': [96,  54,   46,   550,   0.0,   0.0, 600,
-                                        51.0, 0.0,   900,   20,    30000,  10,  0.50, 1.9,
-                                        3.0,  200,  0.0,   60.0,  0.0]
+                                'max': [96,  54,   46,   600,   0.0,   0.0, 1000,
+                                        51.0, 0.0,   1000,   20,    30000,  10,  0.50, 3,
+                                        3.0,  200,  0.0,   600.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -45,8 +45,8 @@ def default_compact():  #  TODO: min - max werte festlegen
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                         'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                         's_ren_empty'],
-                                'min': [15, 1, 3, 30.0, 0.0, 30.0, 0.0, 60.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [17, 1.6, 6, 50.0, 0.0, 50.0, 0.0, 80.0, 0.0, 0, 0, 0.0]
+                                'min': [15, 1, 3, 30.0, 0.0, 30.0, 0.0, 114.0, 0.0, 0.0, 0.0, 0.0],
+                                'max': [17, 1.6, 6, 50.0, 0.0, 120.0, 0.0, 114.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -151,17 +151,17 @@ def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev
 
                                           'E_battSet':  [40, 50, 60, 0.0, 0.0, 0.0, 10, 20, 30, 0.0, 0.0, 0.0],
 
-                                          'P_fcSet':    [0.0, 0.0, 0.0, 40, 50, 60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'P_fcSet':    [0.0, 0.0, 0.0, 114, 50, 60, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
                                           'C_battSet':  [150, 150, 150, 180, 180, 180, 150, 150, 150, 0.0, 0.0, 0.0],
 
-                                          'C_fcSet':    [0.0, 0.0, 0.0, 45, 45, 45, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                          'C_fcSet':    [0.0, 0.0, 0.0, 600, 600, 600, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
                                           'CF_Pbatt':   [1.0, 1.0, 1.0, 25, 25, 25, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
                                           'w_h2':      [1.0, 1.0, 1.0, 33.3, 33.3, 33.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
 
-                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6]
+                                          'w_synth':    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 11.6, 11.6, 11.6, 11.6, 11.6, 11.6]
                                       })
     spec_vals_default = spec_vals_default.set_index('Class')
     return spec_vals_default
