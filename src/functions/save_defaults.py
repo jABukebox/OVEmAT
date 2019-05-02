@@ -19,13 +19,13 @@ def default_general():              # All values that stay the same in all class
                                          'cd', 'cd_empty', 'Em_elBatt', 'L', 'D', 'C_fuelH2', 'C_fuelEl', 'C_fuelSynth',
                                          'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],
 
-                                'min': [93,  50,   42,  0.0, 0.0, 0.0, 0,
-                                        50.0, 0.0,   0.0, 15.0,  15000,  3, 0.20, 1.3,
-                                        1.5,  160.0, 0.0,   45.0,  0.0],
+                                'min': [65,  50,   30,  0.0, 0.0, 0.0, 0,
+                                        0, 0.0,   500.0, 10.0,  15000,  3, 0.10, 1,
+                                        1.5,  60.0, 0.0,   30.0,  0.0],
 
-                                'max': [96,  54,   46,   600,   0.0,   0.0, 1000,
-                                        51.0, 0.0,   1000,   20,    30000,  10,  0.50, 3,
-                                        3.0,  200,  0.0,   600.0,  0.0]
+                                'max': [95,  80,   50,   600,   0.0,   0.0, 600,
+                                        100, 0.0,   1000,   10,    15000,  10,  0.50, 3,
+                                        3.0,  200,  0.0,   300.0,  0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -45,8 +45,8 @@ def default_compact():  #  TODO: min - max werte festlegen
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                         'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                         's_ren_empty'],
-                                'min': [15, 1, 3, 30.0, 0.0, 30.0, 0.0, 114.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [17, 1.6, 6, 50.0, 0.0, 120.0, 0.0, 114.0, 0.0, 0, 0, 0.0]
+                                'min': [15, 0.8, 3, 30.0, 0.0, 30.0, 0.0, 114.0, 0.0, 0.0, 0.0, 0.0],
+                                'max': [17, 1.2, 6, 50.0, 0.0, 120.0, 0.0, 114.0, 0.0, 0, 0, 0.0]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -102,11 +102,11 @@ def x_vals():           # vehicle cycle - all values are fix set
                                           'X1': [35.25, 50.30, 50.30, 35.25, 50.30, 50.30, 42.39, 59.38, 59.38, 58.76,
                                                  80.51, 80.51],
 
-                                          'X2': [1.140, 1.471, 1.471, 1.124, 1.455, 1.455, 1.656, 2.219, 2.219, 1.716,
-                                                 2.301, 2.301],
+                                          'X2': [1140, 1471, 1471, 1124, 1455, 1455, 1656, 2219, 2219, 1716,
+                                                 2301, 2301],
 
-                                          'X3': [1.141, 1.246, 1.246, 1.074, 1.179, 1.179, 1.174, 1.294, 1.294, 1.120,
-                                                 1.244, 1.244],
+                                          'X3': [1141, 1246, 1246, 1074, 1179, 1179, 1174, 1294, 1294, 1120,
+                                                 1244, 1244],
 
                                           'X4':[2.40, 2.38, 2.37, 2.41, 2.39, 2.38, 2.41, 2.40, 2.40, 2.40, 2.36, 2.38],
 
@@ -138,14 +138,10 @@ def x_vals():           # vehicle cycle - all values are fix set
 
 
 def spec_vals():           # all values are fix set  TODO: WERTE ERSETZEN / fcev: cf = 1!?
-    spec_vals_default = pd.DataFrame({'Class': ['compact(bev)', 'suv(bev)', 'ldv(bev)', 'compact(fcev)', 'suv(fcev)',
-                                                'ldv(fcev)', 'compact(phev)', 'suv(phev)', 'ldv(phev)', 'compact(icev)',
-                                                'suv(icev)', 'ldv(icev)'],
-                                          'm_curb':     [1395, 1943, 2100.5, 1395, 1943, 2100.5, 1395, 1943, 2100.5,
-                                                         1395, 1943, 2100.5],  # averaged weights (researched)
+    spec_vals_default = pd.DataFrame({'Class':      ['compact(bev)',    'suv(bev)', 'ldv(bev)', 'compact(fcev)', 'suv(fcev)', 'ldv(fcev)', 'compact(phev)', 'suv(phev)', 'ldv(phev)', 'compact(icev)', 'suv(icev)', 'ldv(icev)'],
+                                        'm_curb':   [1615,              1943,        2100.5,     1925,           1943,          2100.5,     1400,           1943,         2100.5,     895,             1943,        2100.5],  # averaged weights (researched)
 
-                                          'C_msrp':     [33465, 73096, 48446, 79000, 69000, 65000, 30366, 36395, 35000,
-                                                         24302, 39037, 21564],
+                                          'C_msrp':  [33465,            73096,       48446,     79000,          69000,          65000,      30366,          36395,        35000,      24302,            39037,      21564],
 
                                           'P_battSet':  [0.0, 0.0, 0.0, 20, 30, 40, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 
