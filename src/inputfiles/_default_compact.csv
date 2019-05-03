@@ -4,7 +4,7 @@ FE_h2;1.0;1.6
 FE_synth;3.0;6.0
 P_batt;30.0;50.0
 P_battEmpty;0.0;0.0
-E_batt;40.0;100.0
+E_batt;40.0;80.0
 E_battPHEV;5.0;10.0
 E_battEmpty;0.0;0.0
 E_battEmptyPHEV;0.0;0.0
