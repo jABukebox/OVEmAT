@@ -37,7 +37,7 @@ def changed_general():              # Calculation is getting Input from here ('c
     # TODO: Here update by user Input
 
     #changed_vals = changed_vals.set_index('vars')          # switch on when changed
-    return changed_vals
+    return changed_valsk
 
 
 # COMPACT
