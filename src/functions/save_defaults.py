@@ -44,10 +44,10 @@ def default_compact():  #  TODO: min - max werte festlegen
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt', 'E_battPHEV',
                                         'E_battEmpty', 'E_battEmptyPHEV', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
                                         's_ren_empty'],
-                                'min': [15, 1, 3, 30.0, 0.0, 40.0, 5,
+                                'min': [15, 1, 5, 30.0, 0.0, 40.0, 5,
                                         0.0, 0.0, 80.0, 0.0, 0.0, 0.0,
                                         0.0],
-                                'max': [17, 1.6, 6, 50.0, 0.0, 80.0, 10,
+                                'max': [17, 1.6, 7, 50.0, 0.0, 80.0, 10,
                                         0.0, 0.0, 110.0, 0.0, 0, 0,
                                         0.0]
                                 })
