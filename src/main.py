@@ -388,8 +388,10 @@ def result_calc(var, class_sel, dimension):
     input_number = []
 
     # Array for PHEV FE's
-    FE_phev_cd_array = []
-    FE_phev_cs_array = []
+    fe_phev_cd_array = []
+    fe_phev_cs_array = []
+    c_phev_el_array = []
+    c_phev_synth_array = []
 
     if class_sel == 1:            # Compact
         E_battPHEV = gin.changed_compact().reindex(['E_battPHEV'], axis='rows')
@@ -408,8 +410,10 @@ def result_calc(var, class_sel, dimension):
         lhs_lists = var[vehicle_type]                        # all result lists of one propType
 
         # Array for PHEV FE's
-        FE_phev_cd_list = []
-        FE_phev_cs_list = []
+        fe_phev_cd_list = []
+        fe_phev_cs_list = []
+        c_phev_el_list = []
+        c_phev_synth_list = []
 
         x_vals = list(gin.x_vals().iloc[count_type])
         spec_vals = list(gin.spec_vals().iloc[count_type])
@@ -464,6 +468,8 @@ def result_calc(var, class_sel, dimension):
                 fe_phev_cd = lhs_dict['FE_bev']
                 fe_phev_cs = lhs_dict['FE_icev']
 
+                c_phev_el = lhs_dict['C_fuel_bev']
+                c_phev_synth = lhs_dict['C_fuel_icev']
                 print('E_battPHEV2: ', E_battPHEV)
                 print('Vehicle Cost PHEV: ', tco_capex)
 
@@ -511,6 +517,8 @@ def result_calc(var, class_sel, dimension):
                 # Filling Zeros to PHEV specific FE Columns
                 fe_phev_cd = 0
                 fe_phev_cs = 0
+                c_phev_el = 0
+                c_phev_synth = 0
 
             all_values.append(lhs_dict)
 
@@ -522,20 +530,27 @@ def result_calc(var, class_sel, dimension):
             single_all_res[list_num] = [tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc]
             single_all_res = np.around(single_all_res, decimals=4)
 
-            FE_phev_cd_list.append(fe_phev_cd)
-            FE_phev_cs_list.append(fe_phev_cs)
-            print('LISTTT:',FE_phev_cd_list)
+
+            fe_phev_cd_list.append(fe_phev_cd)
+            fe_phev_cs_list.append(fe_phev_cs)
+            c_phev_el_list.append(c_phev_el)
+            c_phev_synth_list.append(c_phev_synth)
+
+
+            print('LISTTT:',fe_phev_cd_list)
 
             input_number.append(input_counter)
             input_counter += 1
         print('Input_No:', input_number)
-        #print('fe_phev_cs: ', FE_phev_cs_array)
+        #print('fe_phev_cs: ', fe_phev_cs_array)
         result = np.append(result, single_res, axis=0)
         result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
 
         # Additional Values for csv
-        FE_phev_cd_array.extend(FE_phev_cd_list)
-        FE_phev_cs_array.extend(FE_phev_cs_list)
+        fe_phev_cd_array.extend(fe_phev_cd_list)
+        fe_phev_cs_array.extend(fe_phev_cs_list)
+        c_phev_el_array.extend(c_phev_el_list)
+        c_phev_synth_array.extend(c_phev_synth_list)
 
         # append to a longer list
         count_type += 3                                 # Jump from compact_bev to compact_fcev to compact_phev ...
@@ -550,8 +565,11 @@ def result_calc(var, class_sel, dimension):
     all_values_csv['Number'] = input_number
 
 
-    all_values_csv['fe_phev_cd'] = FE_phev_cd_array
-    all_values_csv['fe_phev_cs'] = FE_phev_cs_array
+    all_values_csv['fe_phev_cd'] = fe_phev_cd_array
+    all_values_csv['fe_phev_cs'] = fe_phev_cs_array
+    all_values_csv['c_phev_el'] = c_phev_el_array
+    all_values_csv['c_phev_synth'] = c_phev_synth_array
+
 
     all_values_csv.to_csv("results/input_values.csv", sep=";")
 
