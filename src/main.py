@@ -121,7 +121,7 @@ def final_variables(lhs, dimension, class_sel):
                 var_array.append(var_list)                                      # Var_list gets appended to var_array
             var_array = np.around(var_array, decimals=4)                        # round numbers
         var_all.append(var_array)                                               # saving all calculated propType vars
-    print("var_all: ", var_all)
+    #print("var_all: ", var_all)
     return var_all
 
 
@@ -319,17 +319,12 @@ class TCO:
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
         print('Vehicle Cost: ', c_veh)
         print('E_batt: ', self.E_batt)
-        #print("self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren")
-        #print(self.C_msrp, self.C_batt, self.P_batt, self.C_battSet, self.P_battSet, self.CF,
-        #    self.C_batt, self.E_batt, self.C_battSet, self.E_battSet,
-        #    self.C_fc, self.P_fc, self.C_fcSet, self.P_fcSet, self.s_ren)
-        #print("c_veh: {}".format(c_veh))
         c_tco = (c_veh / (self.L * self.D)) + sum_tco
         return c_tco, sum_tco, c_veh
 
     def calc_tco_phev(self):
         cs = 100 - self.cd_phev
-        #### OPEX ####
+        # --- OPEX --- #
         ## BEV
         sum_tco_cd = 0
         FE_cd = self.FE_bev * gin.fe_cd_x()                      # TODO: take numbers out code
@@ -348,7 +343,7 @@ class TCO:
         sum_tco = (sum_tco_cd * self.cd_phev / 100) + (sum_tco_cs * cs / 100) # cd cs fehlt
         print('sum_tco_cs: ', sum_tco_cs)
 
-        #### CAPEX ####
+        # --- CAPEX --- #
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
             ((self.C_batt_bev * self.E_battPHEV) - (self.C_battSet * self.E_battSet)) + \
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
@@ -384,11 +379,19 @@ def result_calc(var, class_sel, dimension):
     result = np.zeros(shape=(0, 2))
     result_all = np.zeros(shape=(0, 6))
 
+    # Array of all Values
     all_values = []
     vehicle_type = 0
 
+    # Counter for No. of Calculations
     input_counter = 1
     input_number = []
+
+    # Array for PHEV FE's
+    fe_phev_cd_array = []
+    fe_phev_cs_array = []
+    c_phev_el_array = []
+    c_phev_synth_array = []
 
     if class_sel == 1:            # Compact
         E_battPHEV = gin.changed_compact().reindex(['E_battPHEV'], axis='rows')
@@ -405,9 +408,12 @@ def result_calc(var, class_sel, dimension):
 
     while count_type < len(gin.x_vals()):               # count through fix vals of class (bev, fcev, phev, icev)
         lhs_lists = var[vehicle_type]                        # all result lists of one propType
-        #print("var: ", var)
-        #print("Count_type: {}".format(count_type))
-        #print("lhs lists: \n", lhs_lists)
+
+        # Array for PHEV FE's
+        fe_phev_cd_list = []
+        fe_phev_cs_list = []
+        c_phev_el_list = []
+        c_phev_synth_list = []
 
         x_vals = list(gin.x_vals().iloc[count_type])
         spec_vals = list(gin.spec_vals().iloc[count_type])
@@ -415,7 +421,7 @@ def result_calc(var, class_sel, dimension):
         single_res = np.zeros(shape=(n, 2))
         single_all_res = np.zeros(shape=(n, 6))
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
-            tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict = 0,0,0,0,0,0,0
+            tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict, fe_phev_cd, fe_phev_cs = 0,0,0,0,0,0,0,0,0
             if vehicle_type == 2:
                 #print("Count_type_PHEV: {}".format(count_type))
                 all_para_phev = ['FE_bev', 'E_batt_bev', 'E_battPHEV', 'P_batt_bev', 'P_fc_bev', 'C3_bev', 'C5_bev', 'Em_elFC',
@@ -458,8 +464,16 @@ def result_calc(var, class_sel, dimension):
                 tco_res, tco_opex, tco_capex  = tco_inst.calc_tco_phev()                    ## tco result PHEV
 
 
+                print('FE_bev_DICT: ', lhs_dict['FE_bev'])
+                fe_phev_cd = lhs_dict['FE_bev']
+                fe_phev_cs = lhs_dict['FE_icev']
+
+                c_phev_el = lhs_dict['C_fuel_bev']
+                c_phev_synth = lhs_dict['C_fuel_icev']
                 print('E_battPHEV2: ', E_battPHEV)
                 print('Vehicle Cost PHEV: ', tco_capex)
+
+
 
                 phev_vals = list(e_inst.new_phev_vals())                # updated PHEV vals
                 phev_vals.extend(x_vals)
@@ -472,6 +486,7 @@ def result_calc(var, class_sel, dimension):
                 #print("e_vc = {}".format(e_vc))
 
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)               ## LCE
+
 
 
             elif vehicle_type == 0 or vehicle_type == 1 or vehicle_type == 3:
@@ -499,6 +514,11 @@ def result_calc(var, class_sel, dimension):
                 tco_res, tco_opex, tco_capex = tco_inst.calc_tco()                         # tco result rest
                 print('Vehicle Cost 2: ', tco_capex)
 
+                # Filling Zeros to PHEV specific FE Columns
+                fe_phev_cd = 0
+                fe_phev_cs = 0
+                c_phev_el = 0
+                c_phev_synth = 0
 
             all_values.append(lhs_dict)
 
@@ -507,16 +527,30 @@ def result_calc(var, class_sel, dimension):
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4)]
-
             single_all_res[list_num] = [tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc]
-
             single_all_res = np.around(single_all_res, decimals=4)
+
+
+            fe_phev_cd_list.append(fe_phev_cd)
+            fe_phev_cs_list.append(fe_phev_cs)
+            c_phev_el_list.append(c_phev_el)
+            c_phev_synth_list.append(c_phev_synth)
+
+
+            print('LISTTT:',fe_phev_cd_list)
+
             input_number.append(input_counter)
             input_counter += 1
         print('Input_No:', input_number)
+        #print('fe_phev_cs: ', fe_phev_cs_array)
         result = np.append(result, single_res, axis=0)
-        #result_csv =
         result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
+
+        # Additional Values for csv
+        fe_phev_cd_array.extend(fe_phev_cd_list)
+        fe_phev_cs_array.extend(fe_phev_cs_list)
+        c_phev_el_array.extend(c_phev_el_list)
+        c_phev_synth_array.extend(c_phev_synth_list)
 
         # append to a longer list
         count_type += 3                                 # Jump from compact_bev to compact_fcev to compact_phev ...
@@ -526,11 +560,17 @@ def result_calc(var, class_sel, dimension):
     all_values = pd.DataFrame(all_values, columns=all_para_keys)
     all_values = round(all_values, 4)
 
-    #input_number = {'Number': input_counter}
+    # Copy all_values to customly save as csv // Adding No. of Calculation, fe_phev_cd, fe_phev_cs,
     all_values_csv = all_values
     all_values_csv['Number'] = input_number
 
-    #all_values_csv.update(input_number)
+
+    all_values_csv['fe_phev_cd'] = fe_phev_cd_array
+    all_values_csv['fe_phev_cs'] = fe_phev_cs_array
+    all_values_csv['c_phev_el'] = c_phev_el_array
+    all_values_csv['c_phev_synth'] = c_phev_synth_array
+
+
     all_values_csv.to_csv("results/input_values.csv", sep=";")
 
     result = np.around(result, decimals=4)
@@ -642,6 +682,7 @@ class PlotClass(QtGui.QMainWindow):
 
         self.statusBar()
 
+        # Add Actions to Menu
         mainMenu = self.mw.menuBar()
         fileMenu = mainMenu.addMenu("&File")
         fileMenu.addAction(extractAction)
@@ -815,7 +856,7 @@ def run(n):
     res, res_extend, all_values, input_number = result_calc(var, class_sel, dimension)
     SaveResults(res, res_extend, all_values, input_number)
 
-    print('res:', res)
+    #print('res:', res)
     return res
 
 
@@ -823,7 +864,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 500
+    n = 200
 
     # Call all function in run function
     execute = run(n)
