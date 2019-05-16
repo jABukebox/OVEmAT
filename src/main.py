@@ -30,6 +30,11 @@ from scipy.spatial import ConvexHull
 
 # Todo: boolean muss durch checkbox ersetzt werden
 # todo: FE_phev_cd, FE_phev_cs
+
+
+
+# TODO: C_main fehlt in csv! !!!!!!!!!!!!!!!
+
 global booleanCheckbox
 booleanCheckbox = 1
 
@@ -56,7 +61,6 @@ def lhs_dimension():                     # Dynamic dimension of LHS - depending 
 
 def latin_hype(dimension, n):                   # n = number of samples
     points = pyDOE.lhs(dimension, samples=n*4)
-    print('points: ', points)
     return points  # Actual creation of LHS-Samples
 
 
@@ -235,7 +239,7 @@ class LCE:
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
-        print(self.X2, self.X3, self.X4, self.X5, self.X7, self.X8, self.X10, self.X11, self.X13, self.X14, self.Em_elVC, self.Em_elFC, self.Em_elBatt )
+        # print(self.X2, self.X3, self.X4, self.X5, self.X7, self.X8, self.X10, self.X11, self.X13, self.X14, self.Em_elVC, self.Em_elFC, self.Em_elBatt )
 
     def fuel_cycle(self):                                       # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:            # Seperate prop Types from PHEV
@@ -244,14 +248,12 @@ class LCE:
 
     def vehicle_cycle(self):                                    # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
-        print('m_scal: ', m_scal)
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
         return e_vc
 
     def calc_lce(self, e_fc, e_vc):
-        print('e_fc: {}          e_vc: {}'.format(e_fc, e_vc))
         e_lce = (e_vc / (self.L * self.D) + e_fc)
         return e_lce
 
@@ -273,7 +275,6 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         # Calc of BEV FuelCycle
         e_fc_cd = (100/self.C3_bev) * (FE_bev/100) * self.Em_elFC + self.C5_bev * (FE_bev/100)  # w_bev = 1 -> not needed
         e_fc = ((e_fc_cs * self.cs) + (e_fc_cd * self.cd_phev))
-        print('e_fc: ', e_fc)
         return e_fc
 
     def new_phev_vals(self):  # TODO: 1.26 ??? Faktor klären! - phev_fac  * self.phev_fac
@@ -454,16 +455,15 @@ def result_calc(var, class_sel, dimension):
                 c_phev_el = lhs_dict['C_fuel_bev']
                 c_phev_synth = lhs_dict['C_fuel_icev']
 
-
+                ### UPDATE PHEV VALS TO FIT LCE CALCULATION
                 phev_vals = list(e_inst.new_phev_vals())                # updated PHEV vals
-                print('######## phev_vals: \n', phev_vals)
-                print('all_para_keys: \n', all_para_keys)
+                # print('######## phev_vals: \n', phev_vals)
+                # print('all_para_keys: \n', all_para_keys)
                 phev_vals.extend(x_vals)
                 phev_vals.append(s_ren)
                 lhs_dict = dict(zip(all_para_keys, phev_vals))
-
-
-                print('lhs_dict PRE VC: \n',lhs_dict)               ### TODO: HERE PROBLEM WITH E_VC
+                lhs_dict['C_main'] = lhs_dict['c_main_phev']
+                # print('lhs_dict PRE VC: \n', lhs_dict)               ### TODO: HERE PROBLEM WITH E_VC
                 lce_inst = LCE(**lhs_dict)
                 e_vc = lce_inst.vehicle_cycle()                         # e_vc of PHEV
 
@@ -513,12 +513,16 @@ def result_calc(var, class_sel, dimension):
                 c_phev_synth = 0
 
             all_values.append(lhs_dict)
+            # print('------------------')
+            # print('all_values: ', all_values)
+            # print('length:', len(all_values))
+
 
             # all results of BEV or FCEV etc
             single_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4)]
             single_all_res[list_num] = [tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc]
             single_all_res = np.around(single_all_res, decimals=4)
-
+            #print('single_all_result: ', single_all_res['C_main'])
 
             fe_phev_cd_list.append(fe_phev_cd)
             fe_phev_cs_list.append(fe_phev_cs)
@@ -542,8 +546,10 @@ def result_calc(var, class_sel, dimension):
         vehicle_type += 1                                    # increasing -> lhs_lists bev -> fcev
 
 
-    all_values = pd.DataFrame(all_values, columns=all_para_keys)
+    #all_values = pd.DataFrame(all_values, columns=all_para_keys)
+    all_values = pd.DataFrame(all_values)
     all_values = round(all_values, 4)
+
 
     # Copy all_values to customly save as csv // Adding No. of Calculation, fe_phev_cd, fe_phev_cs,
     all_values_csv = all_values
@@ -557,7 +563,7 @@ def result_calc(var, class_sel, dimension):
 
     #print('c_main_bev: ', result_all['c_main_bev'])
 
-
+    #print('all_values C_main: ', all_values_csv['C_main'])
     all_values_csv.to_csv("results/input_values.csv", sep=";")
 
     result = np.around(result, decimals=4)
@@ -592,6 +598,7 @@ class SaveResults:
         # SAVE results + all values to results/result_all.csv
         global all_data
         all_data = self.res_extend.join(self.all_values)
+        #print(all_data['C_main'])
 
         # REINDEX dataframe columns #
         all_data = all_data.reindex(
@@ -603,20 +610,21 @@ class SaveResults:
              'w_h2', 'w_synth', 's_ren', 'Number'],
             axis='columns')
 
-        # Change E_battEmptyPHEV to E_battPHEV
+        # Changed E_battEmptyPHEV to E_battPHEV
         all_data.columns = ['TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)",
              'FE', 'L (years)', 'D (km)', 'r (%)', 'Em_elFC (gGHG/kWh)', 'Em_elVC (gGHG/kWh)', 'Em_elBatt (gGHG/kWh)', 'C_fuel', 'cd_phev (%)', 'fe_phev_cd (%)', 'fe_phev_cs (%)',
              'c_phev_el', 'c_phev_synth', 'E_battPHEV', 'E_batt', 'P_batt', 'P_fc', 'C3', 'C5',
              'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11',
              'X12', 'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_fcSet', 'CF',
              'w_h2', 'w_synth', 's_ren', 'Number']
+
+
         all_data.to_csv("results/result_all.csv", sep=';', header=True)
 
         # ------ SAVE propType Results to base-temp folder ----- #
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
 
-        print('all_data: \n', all_data)
         self.bev_points = all_data[:n]
         self.bev_points.to_csv("temp/bev_result_temp.csv", sep=';', header=True)
 
@@ -695,10 +703,8 @@ class PlotClass(QtGui.QMainWindow):
 
         # Result Points
         self.bev_points = execute[:n]
-        print('bev_points: \n', self.bev_points)
         self.fcev_points = execute[n:(n * 2)]
         self.phev_points = execute[(2 * n):(n * 3)]
-        print('phev_points: \n', self.phev_points)
         self.icev_points = execute[(3 * n):(n * 4)]
 
         self.plotting()
@@ -758,7 +764,6 @@ class PlotClass(QtGui.QMainWindow):
 
             ### plot Hulls
             hull_bev = np.array(self.convex_hull(self.bev_points))
-            print('hull_bev: ', hull_bev)
             hull_fcev = np.array(self.convex_hull(self.fcev_points))
             hull_phev = np.array(self.convex_hull(self.phev_points))
             hull_icev = np.array(self.convex_hull(self.icev_points))
@@ -825,7 +830,6 @@ class PlotClass(QtGui.QMainWindow):
         return self.extend(w, v, p1) + [w] + self.extend(u, w, p2)
 
     def convex_hull(self, points):
-        print('points: ', points)
         # find two hull points, U, V, and split to left and right search
         u = min(points, key=lambda p: p[0])
         v = max(points, key=lambda p: p[0])
