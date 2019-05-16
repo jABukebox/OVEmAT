@@ -19,10 +19,10 @@ def default_general():              # All values that stay the same in all class
                                          'r', 'C_batt', 'C_battEmpty', 'C_fc', 'C_fcEmpty'],
 
                                 'min': [93,  50,   42,  400.0, 0.0, 0.0, 500,
-                                        0.0, 0.0,   700, 15.0,  10000,  3, 0.20, 1.3,
+                                        0.9, 0.0,   700, 15.0,  10000,  3, 0.20, 1.3,
                                         7,  160.0, 0.0,   80.0,  0.0],
 
-                                'max': [96,  54,   46,   200,   500.0,   0.0, 600,
+                                'max': [96,  54,   46,   500,   500.0,   0.0, 600,
                                         1.0, 0.0,   900,   17,    12000,  7,  0.50, 3,
                                         8,  200,  0.0,   120.0,  0.0]
                                 })
@@ -43,13 +43,13 @@ def changed_general():              # Calculation is getting Input from here ('c
 def default_compact():  #  TODO: min - max werte festlegen
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt', 'E_battPHEV',
                                         'E_battEmpty', 'E_battEmptyPHEV', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
-                                        's_ren_empty'],
+                                        's_ren_empty', 'c_main_bev', 'c_main_fcev', 'c_main_phev', 'c_main_icev'],
                                 'min': [15, 1, 5, 30.0, 0.0, 40.0, 10,
                                         0.0, 0.0, 80.0, 0.0, 0.0, 0.0,
-                                        0.0],
+                                        0.0, 571, 570.8, 680.5, 790],
                                 'max': [17, 1.6, 7, 50.0, 0.0, 80.0, 12,
                                         0.0, 0.0, 110.0, 0.0, 0, 0,
-                                        0.0]
+                                        0.0, 571, 570.8, 680.5, 790]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -64,9 +64,9 @@ def changed_compact():
 def default_suv():  # TODO: Werte anpassen für suv
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                          'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
-                                         's_ren_empty'],
-                                'min': [18, 1.3, 6, 40.0, 0.0, 60.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [23, 2, 13, 60.0, 0.0, 90.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
+                                         's_ren_empty', 'c_main_bev', 'c_main_fcev', 'c_main_phev', 'c_main_icev'],
+                                'min': [18, 1.3, 6, 40.0, 0.0, 60.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 648.5, 648.5, 771, 893.5],
+                                'max': [23, 2, 13, 60.0, 0.0, 90.0, 0.0, 100.0, 0.0, 0, 0, 0.0, 648.5, 648.5, 771, 893.5]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -82,9 +82,9 @@ def changed_suv():                              # TODO: hier müssen auch value 
 def default_ldv():  # TODO: Werte anpassen
     default_val = pd.DataFrame({'vars': ['FE_batt', 'FE_h2', 'FE_synth', 'P_batt', 'P_battEmpty', 'E_batt',
                                          'E_battEmpty', 'P_fc', 'P_fcEmpty', 's_ren_big', 's_ren_small',
-                                         's_ren_empty'],
-                                'min': [20, 1.5, 8, 50.0, 0.0, 70.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0],
-                                'max': [25, 2.5, 18, 70.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0, 0, 0.0]
+                                         's_ren_empty', 'c_main_bev', 'c_main_fcev', 'c_main_phev', 'c_main_icev'],
+                                'min': [20, 1.5, 8, 50.0, 0.0, 70.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 648.5, 648.5, 771, 893.5],
+                                'max': [25, 2.5, 18, 70.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0, 0, 0.0, 648.5, 648.5, 771, 893.5]
                                 })
     default_val = default_val.set_index('vars')
     return default_val
@@ -94,6 +94,10 @@ def changed_ldv():                              # TODO: hier müssen auch value 
     changed_vals = default_ldv()
     return changed_vals
 
+    # 'C_main': [571,   648.5,  648.5,
+    #            570.8, 648.5,  648.5,
+    #            680.5, 771,    771,
+    #            790,   893.5,  893.5]
 
 # ############################################ #
 # Following Values stay unchanged - fix values #
@@ -171,13 +175,13 @@ def x_vals():           # vehicle cycle - all values are fix set
                                           'X14': [0, 0, 0,
                                                   40.89, 40.89, 40.89,
                                                   0, 0, 0,
-                                                  0, 0, 0],
-
-                                          'C_main': [571, 648.5, 648.5,
-                                                     570.8, 648.5, 648.5,
-                                                     680.5, 771, 771,
-                                                     790, 893.5, 893.5]
+                                                  0, 0, 0]
                                         })
+    # 'C_main': [571,   648.5,  648.5,
+    #            570.8, 648.5,  648.5,
+    #            680.5, 771,    771,
+    #            790,   893.5,  893.5]
+
     vehicle_cycle_default = vehicle_cycle_default.set_index('Class')
     return vehicle_cycle_default
 
