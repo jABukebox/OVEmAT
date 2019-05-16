@@ -128,7 +128,6 @@ def final_variables(lhs, dimension, class_sel):
                     lhs_items += 1
                     m += 1
                 var_array.append(var_list)                                      # Var_list gets appended to var_array
-            print('var_list: ', var_list)
             var_array = np.around(var_array, decimals=4)                        # round numbers
         var_all.append(var_array)                                               # saving all calculated propType vars
 
