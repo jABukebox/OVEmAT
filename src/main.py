@@ -235,7 +235,7 @@ class LCE:
     def __init__(self, **kwargs):
         for attribute, value in kwargs.items():
             setattr(self, attribute, value)
-
+        print(self.X2, self.X3, self.X4, self.X5, self.X7, self.X8, self.X10, self.X11, self.X13, self.X14, self.Em_elVC, self.Em_elFC, self.Em_elBatt )
 
     def fuel_cycle(self):                                       # FuelCycle Emissions
         if vehicle == 0 or vehicle == 1 or vehicle == 3:            # Seperate prop Types from PHEV
@@ -244,6 +244,7 @@ class LCE:
 
     def vehicle_cycle(self):                                    # Vehicle Cycle Emissions
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
+        print('m_scal: ', m_scal)
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
@@ -288,6 +289,10 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         cd = self.cd_empty
         cd_phev = self.cd_phev
         Em_elBatt = self.Em_elBatt
+        c_main_bev = self.c_main_bev
+        c_main_fcev = self.c_main_fcev
+        c_main_phev = self.c_main_phev
+        c_main_icev = self.c_main_icev
         L = self.L
         D = self.D
         r = self.r
@@ -295,7 +300,8 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
         C_batt = self.C_batt_bev
         C_fc = self.C_fc_bev
         #w_synth = self.w_synth
-        phev_vals = [FE, E_batt, E_battPHEV, P_batt, P_fc, C3, C5, Em_elFC, Em_elVC, cd, cd_phev, Em_elBatt, L, D, r, C_fuel, C_batt, C_fc]
+
+        phev_vals = [FE, E_batt, E_battPHEV, P_batt, P_fc, c_main_bev, c_main_fcev, c_main_phev, c_main_icev, C3, C5, Em_elFC, Em_elVC, cd, cd_phev, Em_elBatt, L, D, r, C_fuel, C_batt, C_fc]
         return phev_vals
 
 
@@ -448,11 +454,16 @@ def result_calc(var, class_sel, dimension):
                 c_phev_el = lhs_dict['C_fuel_bev']
                 c_phev_synth = lhs_dict['C_fuel_icev']
 
+
                 phev_vals = list(e_inst.new_phev_vals())                # updated PHEV vals
+                print('######## phev_vals: \n', phev_vals)
+                print('all_para_keys: \n', all_para_keys)
                 phev_vals.extend(x_vals)
                 phev_vals.append(s_ren)
                 lhs_dict = dict(zip(all_para_keys, phev_vals))
 
+
+                print('lhs_dict PRE VC: \n',lhs_dict)               ### TODO: HERE PROBLEM WITH E_VC
                 lce_inst = LCE(**lhs_dict)
                 e_vc = lce_inst.vehicle_cycle()                         # e_vc of PHEV
 
