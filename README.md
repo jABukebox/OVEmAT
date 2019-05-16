@@ -19,3 +19,11 @@ PlotClass                                           # 6. PLOT EVERYTHING
 
 # For saving result figure, change line 70 in pyqtgraphs "ImageExporter.py" to:
 ## bg = np.empty((int(self.params['width']), int(self.params['height']), 4), dtype=np.ubyte)
+
+
+# ------- ADD VALUES TO LHS-RANGE ------- # 
+1. Add value name to ether default_general or default_compact etc in save_defaults.py
+2. Add corresponding value min and value max
+3. Add value name to list in function lhs_dimension
+4. Add value name to every corresponding list in function get_variables
+5. 
