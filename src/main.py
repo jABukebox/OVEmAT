@@ -265,7 +265,7 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
     def fuel_cycle_phev(self, **kwargs):
         self.cd_phev = self.cd_phev/100
         self.cs = (1 - self.cd_phev)
-        FE_bev = self.FE_bev * gin.fe_cd_x()            # TODO:
+        FE_bev = self.FE_bev * gin.fe_cd_x()
 
 
         # Calc of ICEV FuelCycle
