@@ -249,7 +249,7 @@ class LCE:
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
-                       self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elFC)
+                       self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elVC)
         return e_vc
 
     def calc_lce(self, e_fc, e_vc):
@@ -868,7 +868,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 500
+    n = 1000
 
     # Call all function in run function
     execute = run(n)
