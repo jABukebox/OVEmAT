@@ -150,7 +150,7 @@ def get_variables(class_sel, vehicle):
             cc_fcev = gin.changed_compact().reindex(['FE_h2', 'E_battEmpty', 'E_battEmptyPHEV', 'P_batt', 'P_fc',
                                                      'c_main_bev', 'c_main_fcev', 'c_main_phev', 'c_main_icev'],
                                                     axis='rows')
-            cg_fcev = gin.changed_general().reindex(['C3_batt', 'C5_empty', 'Em_elFC', 'Em_elVC', 'cd_empty', 'cd_empty',
+            cg_fcev = gin.changed_general().reindex(['C3_h2', 'C5_empty', 'Em_elFC', 'Em_elVC', 'cd_empty', 'cd_empty',
                                                      'Em_elBatt', 'L', 'D', 'r', 'C_fuelH2', 'C_batt', 'C_fc'],
                                                     axis='rows')
             lhs_vals = pd.concat([cc_fcev, cg_fcev])
@@ -868,7 +868,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 200
+    n = 500
 
     # Call all function in run function
     execute = run(n)
