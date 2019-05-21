@@ -19,9 +19,10 @@ import pyqtgraph as pg
 import pyqtgraph.exporters
 from PyQt5 import QtCore, QtGui
 from src.functions import getinput as gin
+from src.functions import break_even_points as bep
 import os
 import sys
-import csv
+import csv, json
 #import mpld3
 from scipy.spatial import ConvexHull
 #import matplotlib.pyplot as plt
@@ -372,8 +373,9 @@ def result_calc(var, class_sel, dimension):
     vehicle_type = 0
 
     # Counter for No. of Calculations
-    input_counter = 1
-    input_number = []
+    #input_counter = 1
+    #input_number = []
+    vehicle_name_list = []
 
     # Array for PHEV FE's
     fe_phev_cd_array = []
@@ -436,7 +438,7 @@ def result_calc(var, class_sel, dimension):
                 # print('lhs_dict: ', lhs_dict)
 
                 lhs_dict['E_batt_bev'] = 0                              # ********** NEW
-
+                vehicle_name = 'PHEV'
 
 
                 e_inst = FuelCyclePHEV(**lhs_dict)
@@ -491,10 +493,13 @@ def result_calc(var, class_sel, dimension):
                 # --- c_maintenance allocation --- #
                 if vehicle_type == 0:
                     lhs_dict['C_main'] = lhs_dict['c_main_bev']
+                    vehicle_name = 'BEV'
                 elif vehicle_type == 1:
                     lhs_dict['C_main'] = lhs_dict['c_main_fcev']
+                    vehicle_name = 'FCEV'
                 elif vehicle_type == 3:
                     lhs_dict['C_main'] = lhs_dict['c_main_icev']
+                    vehicle_name = 'ICEV'
                 # print('all_para_keys:\n', all_para_keys)
                 # print('all_vals:\n', all_vals)
                 # print(lhs_dict)
@@ -528,8 +533,10 @@ def result_calc(var, class_sel, dimension):
             c_phev_el_list.append(c_phev_el)
             c_phev_synth_list.append(c_phev_synth)
 
-            input_number.append(input_counter)
-            input_counter += 1
+
+            vehicle_name_list.append(vehicle_name)
+            #input_number.append(input_counter)
+            #input_counter += 1
 
         result = np.append(result, single_res, axis=0)
         result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
@@ -552,7 +559,8 @@ def result_calc(var, class_sel, dimension):
 
     # Copy all_values to customly save as csv // Adding No. of Calculation, fe_phev_cd, fe_phev_cs,
     all_values_csv = all_values
-    all_values_csv['Number'] = input_number
+    #all_values_csv['Number'] = input_number
+    all_values_csv['Vehicle'] = vehicle_name_list
 
 
     all_values_csv['fe_phev_cd'] = fe_phev_cd_array
@@ -564,20 +572,21 @@ def result_calc(var, class_sel, dimension):
 
     #print('all_values C_main: ', all_values_csv['C_main'])
     all_values_csv.to_csv("results/input_values.csv", sep=";")
+    all_values_csv.to_json("results/json/input_values.json", orient='index')
 
     result = np.around(result, decimals=4)
 
     columns = ['TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
     result_extend = np.around(result_all, decimals=4)
     result_extend = pd.DataFrame(data=result_extend, columns=columns)
-    return result, result_extend, all_values, input_number
+    return result, result_extend, all_values, vehicle_name
 
 
 # =============================================================================
 # Save Results
 # =============================================================================
 class SaveResults:
-    def __init__(self, res, res_extend, all_values, input_number, parent=None):
+    def __init__(self, res, res_extend, all_values, vehicle_name, parent=None):
         self.res = res
         self.res_extend = res_extend
         self.all_values = all_values
@@ -601,24 +610,26 @@ class SaveResults:
 
         # REINDEX dataframe columns #
         all_data = all_data.reindex(
-            ['TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)",
+            ['Vehicle', 'TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)",
              'FE', 'L', 'D', 'r', 'Em_elFC', 'Em_elVC', 'Em_elBatt', 'C_fuel', 'cd_phev', 'fe_phev_cd', 'fe_phev_cs',
              'c_phev_el', 'c_phev_synth', 'E_battEmptyPHEV', 'E_batt', 'P_batt', 'P_fc', 'C3', 'C5',
              'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11',
              'X12', 'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_fcSet', 'CF',
-             'w_h2', 'w_synth', 's_ren', 'Number'],
+             'w_h2', 'w_synth', 's_ren'],
             axis='columns')
 
         # Changed E_battEmptyPHEV to E_battPHEV
-        all_data.columns = ['TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)",
+        all_data.columns = ['Vehicle', 'TCO (€/km)', "LCE", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc", "Em_vc",
              'FE', 'L (years)', 'D (km)', 'r (%)', 'Em_elFC (gGHG/kWh)', 'Em_elVC (gGHG/kWh)', 'Em_elBatt (gGHG/kWh)', 'C_fuel', 'cd_phev (%)', 'fe_phev_cd (%)', 'fe_phev_cs (%)',
              'c_phev_el', 'c_phev_synth', 'E_battPHEV', 'E_batt', 'P_batt', 'P_fc', 'C3', 'C5',
              'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11',
              'X12', 'X13', 'X14', 'C_main', 'm_curb', 'C_msrp', 'P_battSet', 'E_battSet', 'P_fcSet', 'C_fcSet', 'CF',
-             'w_h2', 'w_synth', 's_ren', 'Number']
+             'w_h2', 'w_synth', 's_ren']
 
 
         all_data.to_csv("results/result_all.csv", sep=';', header=True)
+        all_data.to_json("results/json/result_all.json", orient='index')
+
 
         # ------ SAVE propType Results to base-temp folder ----- #
         if not os.path.exists('temp/'):
@@ -858,8 +869,8 @@ def run(n):
     dimension = lhs_dimension()
     lhs = latin_hype(dimension, n)
     var = final_variables(lhs, dimension, class_sel)
-    res, res_extend, all_values, input_number = result_calc(var, class_sel, dimension)
-    SaveResults(res, res_extend, all_values, input_number)
+    res, res_extend, all_values, vehicle_name = result_calc(var, class_sel, dimension)
+    SaveResults(res, res_extend, all_values, vehicle_name)
 
     return res
 
@@ -868,7 +879,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 1000
+    n = 50
 
     # Call all function in run function
     execute = run(n)
@@ -879,4 +890,7 @@ if __name__ == '__main__':
     # Call PlotClass and show view
     print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
+
+    break_even = bep.break_calc()
+
     sys.exit(app.exec_())
