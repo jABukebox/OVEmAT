@@ -630,7 +630,6 @@ class SaveResults:
         all_data.to_csv("results/result_all.csv", sep=';', header=True)
         all_data.to_json("results/json/result_all.json", orient='index')
 
-        print('Type All-Data: ', type(all_data))
         # ------ SAVE propType Results to base-temp folder ----- #
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
@@ -757,7 +756,7 @@ class PlotClass(QtGui.QMainWindow):
             now = pg.ptime.time()
 
             # Create Scatter Plot
-            point_size = 4
+            point_size = 3
             # BEV
             plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None), tooltip='blabla',
                                           symbol='o', brush='5a9fcd', name='BEV', alpha=0.2)                 # red
@@ -881,7 +880,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 100
+    n = 500
 
     # Call all function in run function
     execute = run(n)
