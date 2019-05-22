@@ -5,22 +5,15 @@ import json
 import os
 import statistics
 import pandas as pd
+import matplotlib as mpl
+mpl.use("Qt5Agg")
 from matplotlib import pyplot as plt
+
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # ----------- JSON READ AND MID VALUES --------------- #
-# with open('../results/json/result_all.json') as f:
-#     data_all = json.load(f)
-#data_all = self.data_all
 
-
-#def __init__(self, data_all):
-
-    # # ----------- JSON READ AND MID VALUES --------------- #
-    # with open("results/json/result_all.json") as f:
-    #     data_all = json.load(f)
-    # data_all = self.data_all
 
 # - GET FUEL CYCLE EMISSION VALUES FROM JSON AND CALC THE MEDIAN - #
 def get_lce_fc():
@@ -76,8 +69,6 @@ def get_lce_vc():
 
 def break_calc():
     global data_all
-    with open('../results/json/result_all.json') as f:
-        data_all = json.load(f)
 
     # ----- SETTINGS FOR CALCULATION ----- #
     distance = 100000  # total distance
@@ -88,8 +79,8 @@ def break_calc():
     # -------------------- #
 
 
-    median_bev_vc, median_fcev_vc, median_phev_vc, median_icev_vc = get_lce_vc()
-    median_bev_fc, median_fcev_fc, median_phev_fc, median_icev_fc = get_lce_fc()
+    # median_bev_vc, median_fcev_vc, median_phev_vc, median_icev_vc = get_lce_vc()
+    # median_bev_fc, median_fcev_fc, median_phev_fc, median_icev_fc = get_lce_fc()
 
 
     range_emissions = {}
@@ -119,7 +110,10 @@ def break_calc():
 
 
     # ----- PLOT ----- #
-    df.plot(figsize=(12,7))
+
+    window = df.plot(figsize=(10,4))
+    man = plt.get_current_fig_manager()
+    man.canvas.set_window_title("OVEmAT - Break Even Points")
 
     # Axes
     plt.xlabel('Distance [km]')
@@ -135,9 +129,19 @@ def break_calc():
 
     plt.grid(True)
     plt.title('Break Even Points of Drive Technologies')
+
+
     plt.show()
     plt.savefig('filename.png', dpi=300)
 
-    #BreakPoints(data_all)
 
-break_calc()
+
+
+if __name__ == '__main__':
+    with open('../results/json/result_all.json') as f:
+        data_all = json.load(f)
+    break_calc()
+
+else:
+    with open('results/json/result_all.json') as f:
+        data_all = json.load(f)

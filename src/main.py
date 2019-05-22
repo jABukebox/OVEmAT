@@ -658,7 +658,8 @@ class PlotClass(QtGui.QMainWindow):
         self.mw = QtGui.QMainWindow()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.mw.resize(1000, 800)
+        #self.mw.resize(1000, 800)
+        self.mw.setGeometry(0, 0, 1000, 600)
         self.view = pg.GraphicsLayoutWidget()
         self.mw.setCentralWidget(self.view)
         self.mw.setWindowTitle('OVEmAT - Open Vehicle Emission Analysis Tool')
@@ -759,16 +760,16 @@ class PlotClass(QtGui.QMainWindow):
             point_size = 4
             # BEV
             plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None), tooltip='blabla',
-                                          symbol='o', brush='cd5959', name='BEV', alpha=0.2)                 # red
+                                          symbol='o', brush='5a9fcd', name='BEV', alpha=0.2)                 # red
             # FCEV
             plot_fcev = pg.ScatterPlotItem(x[n:n * 2], y[n:n * 2], size=point_size, pen=pg.mkPen(None),
-                                           symbol='o', brush='5a9fcd', name='FCEV', alpha=0.2)              # blue
+                                           symbol='o', brush='ea8f20', name='FCEV', alpha=0.2)              # blue
             # PHEV
             plot_phev = pg.ScatterPlotItem(x[n * 2:n * 3], y[n * 2:n * 3], size=point_size, pen=pg.mkPen(None),
                                            symbol='o', brush='b2cd5b', name='PHEV', alpha=0.2)               # green
             # ICEV
             plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
-                                           symbol='o', brush='ea8f20', name='ICEV', alpha=0.2)               # orange
+                                           symbol='o', brush='cd5959', name='ICEV', alpha=0.2)               # orange
 
 
 
@@ -780,20 +781,20 @@ class PlotClass(QtGui.QMainWindow):
 
             # Hull Color
             alpha = 0.6
-            color_bev = QtGui.QColor(249, 202, 202)     # f9caca
+            color_bev = QtGui.QColor(186, 227, 255)     # f9caca
             color_bev.setAlphaF(alpha)
-            color_fcev = QtGui.QColor(186, 227, 255)    # bae3ff
+            color_fcev = QtGui.QColor(249, 209, 159)    # bae3ff
             color_fcev.setAlphaF(alpha)
             color_phev = QtGui.QColor(239, 249, 207)    # eff9cf
             color_phev.setAlphaF(alpha)
-            color_icev = QtGui.QColor(249, 209, 159)    # f9d19f
+            color_icev = QtGui.QColor(249, 202, 202 )   # f9d19f
             color_icev.setAlphaF(alpha)
 
             # Hull Plot
-            self.plt.plot(hull_bev, pen=pg.mkPen('f9b8b8', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_bev, alpha=0.5))
-            self.plt.plot(hull_fcev, pen=pg.mkPen('a4d7f9', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_fcev, alpha=0.5))
+            self.plt.plot(hull_bev, pen=pg.mkPen('a4d7f9', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_bev, alpha=0.5))
+            self.plt.plot(hull_fcev, pen=pg.mkPen('f7c88f', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_fcev, alpha=0.5))
             self.plt.plot(hull_phev, pen=pg.mkPen('eefcbf', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_phev, alpha=0.5))
-            self.plt.plot(hull_icev, pen=pg.mkPen('f7c88f', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_icev, alpha=0.5))
+            self.plt.plot(hull_icev, pen=pg.mkPen('f9b8b8', width=3), fillLevel=0., fillBrush=pg.mkBrush(color_icev, alpha=0.5))
 
             # Adding Scatter to window plt
             self.plt.addItem(plot_bev, name='BEV')
@@ -879,7 +880,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 50
+    n = 100
 
     # Call all function in run function
     execute = run(n)
@@ -891,6 +892,7 @@ if __name__ == '__main__':
     print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
 
-    break_even = bep.break_calc()
+    break_even = bep.break_calc()   # Break Even Point Plot
+
 
     sys.exit(app.exec_())
