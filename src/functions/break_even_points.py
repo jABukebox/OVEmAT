@@ -14,24 +14,19 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # ----------- JSON READ AND MID VALUES --------------- #
 
+# - GET FUEL CYCLE EMISSION VALUES FROM Results AND CALC THE MEDIAN - #
+def get_lce_fc(data_all):
+    bev_data = data_all[data_all['Vehicle'] == 'BEV']
+    fc_list_bev = bev_data['Em_fc']
 
-# - GET FUEL CYCLE EMISSION VALUES FROM JSON AND CALC THE MEDIAN - #
-def get_lce_fc():
-    length = len(data_all)
-    fc_list_bev = []
-    fc_list_fcev = []
-    fc_list_phev = []
-    fc_list_icev = []
+    fcev_data = data_all[data_all['Vehicle'] == 'FCEV']
+    fc_list_fcev = fcev_data['Em_fc']
 
-    for index in range(length):
-        if data_all[str(index)]['Vehicle'] == 'BEV':
-            fc_list_bev.append(data_all[str(index)]['Em_fc'])
-        if data_all[str(index)]['Vehicle'] == 'FCEV':
-            fc_list_fcev.append(data_all[str(index)]['Em_fc'])
-        if data_all[str(index)]['Vehicle'] == 'PHEV':
-            fc_list_phev.append(data_all[str(index)]['Em_fc'])
-        if data_all[str(index)]['Vehicle'] == 'ICEV':
-            fc_list_icev.append(data_all[str(index)]['Em_fc'])
+    phev_data = data_all[data_all['Vehicle'] == 'PHEV']
+    fc_list_phev = phev_data['Em_fc']
+
+    icev_data = data_all[data_all['Vehicle'] == 'ICEV']
+    fc_list_icev = icev_data['Em_fc']
 
     median_bev = statistics.median(fc_list_bev)
     median_fcev = statistics.median(fc_list_fcev)
@@ -40,24 +35,19 @@ def get_lce_fc():
 
     return median_bev, median_fcev, median_phev, median_icev
 
+def get_lce_vc(data_all):
 
-# - GET VEHICLE CYCLE EMISSION VALUES FROM JSON AND CALC THE MEDIAN - #
-def get_lce_vc():
-    length = len(data_all)
-    vc_list_bev = []
-    vc_list_fcev = []
-    vc_list_phev = []
-    vc_list_icev = []
+    bev_data = data_all[data_all['Vehicle'] == 'BEV']
+    vc_list_bev = bev_data['Em_vc']
 
-    for index in range(length):
-        if data_all[str(index)]['Vehicle'] == 'BEV':
-            vc_list_bev.append(data_all[str(index)]['Em_vc'])
-        if data_all[str(index)]['Vehicle'] == 'FCEV':
-            vc_list_fcev.append(data_all[str(index)]['Em_vc'])
-        if data_all[str(index)]['Vehicle'] == 'PHEV':
-            vc_list_phev.append(data_all[str(index)]['Em_vc'])
-        if data_all[str(index)]['Vehicle'] == 'ICEV':
-            vc_list_icev.append(data_all[str(index)]['Em_vc'])
+    fcev_data = data_all[data_all['Vehicle'] == 'FCEV']
+    vc_list_fcev = fcev_data['Em_vc']
+
+    phev_data = data_all[data_all['Vehicle'] == 'PHEV']
+    vc_list_phev = phev_data['Em_vc']
+
+    icev_data = data_all[data_all['Vehicle'] == 'ICEV']
+    vc_list_icev = icev_data['Em_vc']
 
 
     median_bev = statistics.median(vc_list_bev)
@@ -67,8 +57,8 @@ def get_lce_vc():
 
     return median_bev, median_fcev, median_phev, median_icev
 
-def break_calc():
-    global data_all
+def break_calc(data_all):
+    #global data_all
 
     # ----- SETTINGS FOR CALCULATION ----- #
     distance = 100000  # total distance
@@ -78,11 +68,6 @@ def break_calc():
 
     # -------------------- #
 
-
-    # median_bev_vc, median_fcev_vc, median_phev_vc, median_icev_vc = get_lce_vc()
-    # median_bev_fc, median_fcev_fc, median_phev_fc, median_icev_fc = get_lce_fc()
-
-
     range_emissions = {}
 
     keys = ['bev', 'fcev', 'phev', 'icev']
@@ -90,8 +75,8 @@ def break_calc():
     for count in range(4):
         x_ranges = [0]
         range_gaps_iter = range_gaps
-        fc_emission_raw = get_lce_fc()[count]
-        vc_emission_raw = get_lce_vc()[count]
+        fc_emission_raw = get_lce_fc(data_all)[count]
+        vc_emission_raw = get_lce_vc(data_all)[count]
         fc_emission = fc_emission_raw / divisor
         vc_emission = vc_emission_raw / divisor
         emission_list = [vc_emission]
@@ -118,13 +103,13 @@ def break_calc():
     # Axes
     plt.xlabel('Distance [km]')
     if divisor == 1:
-        plt.ylabel('Emissions [g CO2]')
+        plt.ylabel('Total Emissions [g CO2]')
     elif divisor == 1000:
-        plt.ylabel('Emissions [kg CO2]')
+        plt.ylabel('Total Emissions [kg CO2]')
     elif divisor == 1000000:
-        plt.ylabel('Emissions [t CO2]')
+        plt.ylabel('Total Emissions [t CO2]')
     else:
-        plt.ylabel('Emissions [## UNIT UNCLEAR ##]')
+        plt.ylabel('Total Emissions [## UNIT UNCLEAR ##]')
     plt.xticks(x_ranges)
 
     plt.grid(True)
@@ -132,7 +117,7 @@ def break_calc():
 
 
     plt.show()
-    plt.savefig('filename.png', dpi=300)
+    #plt.savefig('filename.png', dpi=300)   #
 
 
 
@@ -140,7 +125,7 @@ def break_calc():
 if __name__ == '__main__':
     with open('../results/json/result_all.json') as f:
         data_all = json.load(f)
-    break_calc()
+    break_calc(data_all)
 
 else:
     with open('results/json/result_all.json') as f:

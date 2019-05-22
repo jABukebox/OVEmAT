@@ -630,7 +630,7 @@ class SaveResults:
         all_data.to_csv("results/result_all.csv", sep=';', header=True)
         all_data.to_json("results/json/result_all.json", orient='index')
 
-
+        print('Type All-Data: ', type(all_data))
         # ------ SAVE propType Results to base-temp folder ----- #
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
@@ -872,6 +872,7 @@ def run(n):
     var = final_variables(lhs, dimension, class_sel)
     res, res_extend, all_values, vehicle_name = result_calc(var, class_sel, dimension)
     SaveResults(res, res_extend, all_values, vehicle_name)
+    # bep.break_calc(all_data)  # Break Even Point Plot
 
     return res
 
@@ -892,7 +893,8 @@ if __name__ == '__main__':
     print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
 
-    break_even = bep.break_calc()   # Break Even Point Plot
+    #break_even = bep.break_calc()   # Break Even Point Plot
+    bep.break_calc(all_data)  # Break Even Point Plot
 
 
     sys.exit(app.exec_())
