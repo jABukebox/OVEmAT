@@ -19,7 +19,7 @@ import pyqtgraph as pg
 import pyqtgraph.exporters
 from PyQt5 import QtCore, QtGui
 from src.functions import getinput as gin
-from src.functions import break_even_points as bep
+from src.functions import break_even_points_test as bep
 import os
 import sys
 import csv, json
@@ -28,6 +28,12 @@ from scipy.spatial import ConvexHull
 #import matplotlib.pyplot as plt
 
 
+# TODO: Norman: Kosten Versicherung / LIS / Fahrzeug /
+# WELCHE kostenparameter sind abhängig von Anzahl der Fahrzeuge
+# Fuel Cell. welche Parameter hat Caro betrachtet und sind abhängig von Zahl von Fahrzeugen
+# Caro: welche kostenparameter gibt es noch
+# Pop-Up: Schnittpunkte (Break even Points) / Einzelne Ergebnisse Eingangvariablen (Markierung
+# Ökoinstitut: TCO-Rechner!!
 
 # Todo: boolean muss durch checkbox ersetzt werden
 # todo: FE_phev_cd, FE_phev_cs
@@ -38,6 +44,17 @@ from scipy.spatial import ConvexHull
 
 global booleanCheckbox
 booleanCheckbox = 1
+# TODO: GHG TAX
+
+# =============================================================================
+# Choose Vehicle Class
+# =============================================================================
+
+
+def veh_class_sel():                                                # saved as "class_sel"
+    veh_class = int(input("Select Vehicle Class:\n"
+                          "1: Compact Cars - 2: SUVs - 3: LDVs (Light Duty Vehicles) \n"))
+    return veh_class
 
 # =============================================================================
 # Latin Hypercube Calculation
@@ -64,16 +81,6 @@ def latin_hype(dimension, n):                   # n = number of samples
     points = pyDOE.lhs(dimension, samples=n*4)
     return points  # Actual creation of LHS-Samples
 
-
-# =============================================================================
-# Choose Vehicle Class
-# =============================================================================
-
-
-def veh_class_sel():                                                # saved as "class_sel"
-    veh_class = int(input("Select Vehicle Class:\n"
-                          "1: Compact Cars - 2: SUVs - 3: LDVs (Light Duty Vehicles) \n"))
-    return veh_class
 
 
 # =============================================================================
@@ -373,8 +380,6 @@ def result_calc(var, class_sel, dimension):
     vehicle_type = 0
 
     # Counter for No. of Calculations
-    #input_counter = 1
-    #input_number = []
     vehicle_name_list = []
 
     # Array for PHEV FE's
@@ -433,13 +438,9 @@ def result_calc(var, class_sel, dimension):
                 all_phev_lhs.extend(x_vals)
                 all_phev_lhs.append(s_ren)
                 lhs_dict = dict(zip(all_para_phev, all_phev_lhs))
-                # print('all_para_phev:\n', all_para_phev)
-                # print('all_phev_lhs:\n', all_phev_lhs)
-                # print('lhs_dict: ', lhs_dict)
 
                 lhs_dict['E_batt_bev'] = 0                              # ********** NEW
                 vehicle_name = 'PHEV'
-
 
                 e_inst = FuelCyclePHEV(**lhs_dict)
                 e_fc = e_inst.fuel_cycle_phev()                         # e_fc of PHEV
@@ -458,13 +459,11 @@ def result_calc(var, class_sel, dimension):
 
                 ### UPDATE PHEV VALS TO FIT LCE CALCULATION
                 phev_vals = list(e_inst.new_phev_vals())                # updated PHEV vals
-                # print('######## phev_vals: \n', phev_vals)
-                # print('all_para_keys: \n', all_para_keys)
                 phev_vals.extend(x_vals)
                 phev_vals.append(s_ren)
                 lhs_dict = dict(zip(all_para_keys, phev_vals))
                 lhs_dict['C_main'] = lhs_dict['c_main_phev']
-                # print('lhs_dict PRE VC: \n', lhs_dict)               ### TODO: HERE PROBLEM WITH E_VC
+
                 lce_inst = LCE(**lhs_dict)
                 e_vc = lce_inst.vehicle_cycle()                         # e_vc of PHEV
 
@@ -500,9 +499,6 @@ def result_calc(var, class_sel, dimension):
                 elif vehicle_type == 3:
                     lhs_dict['C_main'] = lhs_dict['c_main_icev']
                     vehicle_name = 'ICEV'
-                # print('all_para_keys:\n', all_para_keys)
-                # print('all_vals:\n', all_vals)
-                # print(lhs_dict)
 
                 tco_inst = TCO(**lhs_dict)
 
@@ -517,9 +513,6 @@ def result_calc(var, class_sel, dimension):
                 c_phev_synth = 0
 
             all_values.append(lhs_dict)
-            # print('------------------')
-            # print('all_values: ', all_values)
-            # print('length:', len(all_values))
 
 
             # all results of BEV or FCEV etc
@@ -535,8 +528,6 @@ def result_calc(var, class_sel, dimension):
 
 
             vehicle_name_list.append(vehicle_name)
-            #input_number.append(input_counter)
-            #input_counter += 1
 
         result = np.append(result, single_res, axis=0)
         result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
@@ -568,9 +559,6 @@ def result_calc(var, class_sel, dimension):
     all_values_csv['c_phev_el'] = c_phev_el_array
     all_values_csv['c_phev_synth'] = c_phev_synth_array
 
-    #print('c_main_bev: ', result_all['c_main_bev'])
-
-    #print('all_values C_main: ', all_values_csv['C_main'])
     all_values_csv.to_csv("results/input_values.csv", sep=";")
     all_values_csv.to_json("results/json/input_values.json", orient='index')
 
@@ -597,7 +585,7 @@ class SaveResults:
             os.makedirs('results/')
 
         # ----- SAVE results to results/result.csv (LCE / TCO) ----- #
-        headers = ['TCO (€/km)', "LCE (gGHG/km)"]
+        headers = ['TCO', "LCE"]
         with open("results/result.csv", 'w+') as fp:
             csv_writer = csv.writer(fp, delimiter=";")
             csv_writer.writerow([h for h in headers])
@@ -619,7 +607,7 @@ class SaveResults:
             axis='columns')
 
         # Changed E_battEmptyPHEV to E_battPHEV
-        all_data.columns = ['Vehicle', 'TCO (€/km)', "LCE", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc", "Em_vc",
+        all_data.columns = ['Vehicle', 'TCO (€/km)', "LCE", "TCO_Capex", "TCO_Opex", "Em_fc", "Em_vc",
              'FE', 'L (years)', 'D (km)', 'r (%)', 'Em_elFC (gGHG/kWh)', 'Em_elVC (gGHG/kWh)', 'Em_elBatt (gGHG/kWh)', 'C_fuel', 'cd_phev (%)', 'fe_phev_cd (%)', 'fe_phev_cs (%)',
              'c_phev_el', 'c_phev_synth', 'E_battPHEV', 'E_batt', 'P_batt', 'P_fc', 'C3', 'C5',
              'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11',
@@ -651,15 +639,33 @@ class SaveResults:
 # Plot Widget and Results
 # =============================================================================
 
+# class PlotClass(QtGui.QMainWindow):
+#     def __init__(self, execute):
+#         super(QtGui.QMainWindow, self).__init__()
+#         self.mw = QtGui.QMainWindow()
+#         pg.setConfigOption('background', 'w')
+#         pg.setConfigOption('foreground', 'k')
+#         #self.mw.resize(1000, 800)
+#         self.mw.setGeometry(0, 0, 1000, 600)
+#         self.view = pg.GraphicsLayoutWidget()
+#         #self.view = pg.GraphicsWindow()
+
 class PlotClass(QtGui.QMainWindow):
     def __init__(self, execute):
         super(QtGui.QMainWindow, self).__init__()
         self.mw = QtGui.QMainWindow()
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        #self.mw.resize(1000, 800)
+        # self.mw.resize(1000, 800)
         self.mw.setGeometry(0, 0, 1000, 600)
         self.view = pg.GraphicsLayoutWidget()
+        self.view2 = pg.GraphicsView()
+        # self.view = pg.GraphicsWindow()
+
+        #TEST
+        #self.view.scene().sigMouseClicked.connect(self.onClick())
+        self.view2.scene().sigMouseClicked.connect(self.clicked)
+
         self.mw.setCentralWidget(self.view)
         self.mw.setWindowTitle('OVEmAT - Open Vehicle Emission Analysis Tool')
         self.plt = self.view.addPlot()
@@ -719,32 +725,6 @@ class PlotClass(QtGui.QMainWindow):
 
         self.plotting()
 
-    def file_open(self):
-        name = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
-        file = open(name, 'r')
-        self.editor()
-        with file:
-            text = file.read()
-            self.textEdit.setText(text)
-
-    def file_save(self):
-        options = QtGui.QFileDialog.Options()
-        options |= QtGui.QFileDialog.DontUseNativeDialog
-        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, "Save File", "",
-                                                        "All Files (*);;Image Files (*.png);;Image Files (*.jpg);;Text Files (*.txt)",
-                                                        options=options)
-
-        if fileName:
-            exporter = pg.exporters.ImageExporter(self.plt)
-            exporter.export(fileName)
-            print(fileName)
-
-    def editor(self):
-        self.textEdit = QtGui.QTextEdit()
-        self.setCentralWidget(self.textEdit)
-
-    def close_application(self):
-        sys.exit()
 
     def plotting(self):
             # SPLIT RESULTS
@@ -756,7 +736,7 @@ class PlotClass(QtGui.QMainWindow):
             now = pg.ptime.time()
 
             # Create Scatter Plot
-            point_size = 3
+            point_size = 4
             # BEV
             plot_bev = pg.ScatterPlotItem(x[:n], y[:n], size=point_size, pen=pg.mkPen(None), tooltip='blabla',
                                           symbol='o', brush='5a9fcd', name='BEV', alpha=0.2)                 # red
@@ -769,7 +749,6 @@ class PlotClass(QtGui.QMainWindow):
             # ICEV
             plot_icev = pg.ScatterPlotItem(x[n * 3:n * 4], y[n * 3:n * 4], size=point_size, pen=pg.mkPen(None),
                                            symbol='o', brush='cd5959', name='ICEV', alpha=0.2)               # orange
-
 
 
             ### plot Hulls
@@ -814,6 +793,16 @@ class PlotClass(QtGui.QMainWindow):
 
             self.mw.show()
 
+    # def clicked(self, scatter, pts):
+    #     print(scatter)
+    #     print(pts[0])
+    #     print("clicked: %s" % pts)
+
+    def clicked(event):
+        #items = event.view2.scene().items(event.scenePos())
+        #print('ITEM: ', items)
+        print("clicked")
+
     # def mouseMoved(evt):
     #     pos = evt[0]
     #     if self.plt.sceneBoundingRect().contains(pos):
@@ -848,6 +837,39 @@ class PlotClass(QtGui.QMainWindow):
         # find convex hull on each side
         return [v] + self.extend(u, v, left) + [u] + self.extend(v, u, right) + [v]
 
+    # MENU - SAVE / OPEN
+    def file_open(self):
+        name = QtGui.QFileDialog.getOpenFileName(self, 'Open File')
+        file = open(name, 'r')
+        self.editor()
+        with file:
+            text = file.read()
+            self.textEdit.setText(text)
+
+    def file_save(self):
+        options = QtGui.QFileDialog.Options()
+        options |= QtGui.QFileDialog.DontUseNativeDialog
+        fileName, _ = QtGui.QFileDialog.getSaveFileName(self, "Save File", "",
+                                                        "All Files (*);;Image Files (*.png);;Image Files (*.jpg);;Text Files (*.txt)",
+                                                        options=options)
+
+        if fileName:
+            exporter = pg.exporters.ImageExporter(self.plt)
+            exporter.export(fileName)
+            print(fileName)
+
+    def editor(self):
+        self.textEdit = QtGui.QTextEdit()
+        self.setCentralWidget(self.textEdit)
+
+    def close_application(self):
+        sys.exit()
+
+    # def onClick(event):
+    #     items = event.view.scene().items(event.scenePos())
+    #     print("Plots:", [x for x in items if isinstance(x, pg.PlotItem)])
+
+
 
 # =============================================================================
 # Run functions and classes
@@ -871,7 +893,6 @@ def run(n):
     var = final_variables(lhs, dimension, class_sel)
     res, res_extend, all_values, vehicle_name = result_calc(var, class_sel, dimension)
     SaveResults(res, res_extend, all_values, vehicle_name)
-    # bep.break_calc(all_data)  # Break Even Point Plot
 
     return res
 
@@ -881,6 +902,7 @@ if __name__ == '__main__':
 
     # Number of repeats
     n = 500
+    ghg_tax = 180   # in [€ / t]
 
     # Call all function in run function
     execute = run(n)
@@ -892,8 +914,6 @@ if __name__ == '__main__':
     print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
 
-    #break_even = bep.break_calc()   # Break Even Point Plot
-    bep.break_calc(all_data)  # Break Even Point Plot
-
+    bep.break_calc(all_data, ghg_tax)  # Break Even Point Plot
 
     sys.exit(app.exec_())
