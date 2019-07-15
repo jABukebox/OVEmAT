@@ -906,7 +906,7 @@ if __name__ == '__main__':
 
     # Number of repeats
     n = 50
-    ghg_tax = 30000   # in [€ / t]
+    ghg_tax = 1000   # in [€ / t]
 
     # Call all function in run function
     execute = run(n)

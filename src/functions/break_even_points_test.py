@@ -105,25 +105,27 @@ def get_tco_opex(data_all):
 
     return median_bev, median_fcev, median_phev, median_icev
 
+
+# Calculate total and relative emissions and costs
 def break_calc(data_all, ghg_tax):
 
     # ----- SETTINGS FOR CALCULATION ----- #
     distance = 100000  # total distance
     range_gaps = 20000  # iter gaps
-    divisor = 1000000   # change emission dimension (original in gramms CO2 (division = 1) /
+    divisor = 1000000   # change emission dimension (original in grams CO2 (division = 1) /
                                                     # division = 1000 --> kg / division = 1000000 --> t )
     #ghg_tax = 60
     if divisor == 1:
         ghg_tax = ghg_tax/1000000
     elif divisor == 1000:
-        ghg_tax = ghg_tax/ 1000
+        ghg_tax = ghg_tax/1000
     elif divisor == 1000000:
         pass
 
     else:
         plt.ylabel('Total Emissions [## UNIT UNCLEAR ##]')
 
-    # -------------------- #
+    # ------------------------------------- #
 
     range_emissions_dict = {}
     range_tco_dict = {}
@@ -132,6 +134,7 @@ def break_calc(data_all, ghg_tax):
     keys = ['BEV', 'FCEV', 'PHEV', 'ICEV']
     fc_emission_raw_list = []
     opex_raw_list = []
+    opex_list_calculated = []
 
     for count in range(len(keys)):
         x_ranges = [0]
@@ -153,9 +156,13 @@ def break_calc(data_all, ghg_tax):
 
         opex_raw_list.append(opex_raw)
 
+        opex_calculated = fc_emission + fc_emission * ghg_tax
+        opex_list_calculated.append(opex_calculated)
+
         capex = capex_raw #+ (fc_emission * ghg_tax) #/ divisor_capex           ??
         opex = opex_raw #+ (vc_emission * ghg_tax) #/ divisor_capex             ??
         capex_start = capex + (ghg_tax * vc_emission)
+        print('Capex: ', capex, 'ghg_tax: ', ghg_tax, 'vc_emissions: ', vc_emission)
         tco_list = [capex_start]
 
 
@@ -167,6 +174,9 @@ def break_calc(data_all, ghg_tax):
 
             # -- TCO
             calculation_tco = (capex_start + (range_gaps_iter * opex) + (ghg_tax * range_gaps_iter * fc_emission))
+            #print('TCO', calculation_tco)
+            print('fc: ', fc_emission, 'ghg_tax: ', ghg_tax)
+            print(opex_calculated)
             tco_list.append(calculation_tco)
 
             x_ranges.append(range_gaps_iter)
@@ -223,10 +233,10 @@ def break_calc(data_all, ghg_tax):
     plt.subplot(212)
     plt.plot(tco_df)
 
-    legend_tco = plt.legend(['OPEX_BEV = ' + str(round(opex_raw_list[0], 3)) + ' € / km',
-                            'OPEX_FCEV = ' + str(round(opex_raw_list[1], 3)) + ' € / km',
-                            'OPEX_PHEV = ' + str(round(opex_raw_list[2], 3)) + ' € / km',
-                            'OPEX_ICEV = ' + str(round(opex_raw_list[3], 3)) + ' € / km'], loc='lower right')
+    legend_tco = plt.legend(['OPEX_BEV = ' + str(round(opex_list_calculated[0], 3)) + ' € / km', # + ghg_tax
+                            'OPEX_FCEV = ' + str(round(opex_list_calculated[1], 3)) + ' € / km',
+                            'OPEX_PHEV = ' + str(round(opex_list_calculated[2], 3)) + ' € / km',
+                            'OPEX_ICEV = ' + str(round(opex_list_calculated[3], 3)) + ' € / km'], loc='lower right')
     plt.title('Break Even Points Costs')
     plt.xlabel('Distance [km]')
     plt.ylabel('Total Costs [€]')
