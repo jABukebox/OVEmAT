@@ -13,7 +13,7 @@ P_fcEmpty;0.0;0.0
 s_ren_big;0.0;0.0
 s_ren_small;0.0;0.0
 s_ren_empty;0.0;0.0
-c_main_bev;648.5;648.5
-c_main_fcev;648.5;648.5
-c_main_phev;771.0;771.0
-c_main_icev;893.5;893.5
+c_main_bev;583.65;713.35
+c_main_fcev;583.65;713.35
+c_main_phev;693.9;848.1
+c_main_icev;804.15;982.85

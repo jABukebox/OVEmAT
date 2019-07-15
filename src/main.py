@@ -322,9 +322,13 @@ class TCO:
     def calc_tco(self):
         sum_tco = 0
         for years in range(1, int(round(self.L+1))):  # creating sum
-            equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
+            equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)      # WITH FIXED C_main costs per year
+            #equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main)) / (1 + self.r) ** (years - 1)     # with variable c_main costs TODO: CHECK!!!
             equation = np.around(equation, decimals=4)
             sum_tco += equation
+
+        #print(self.C_main, self.C_fuel, self.FE, self.D, self.r)
+        #print('\n c_capex: ', sum_tco, '\n')
 
         c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1/self.CF) + \
             ((self.C_batt * self.E_batt) - (self.C_battSet * self.E_battSet)) + \
@@ -680,8 +684,8 @@ class PlotClass(QtGui.QMainWindow):
         self.legend.setParentItem(self.plt.graphicsItem())  # Note we do NOT call plt.addItem in this case
 
         # Set Climate Goal lines
-        self.plt.addLine(x=None, y=200, z=None)  # Ziel 2020: 200 gGHG/km
-        self.plt.addLine(x=None, y=120, z=None)  # Aim 2030: 120 gGHG/km
+        self.plt.addLine(x=None, y=200, z=None)  # Ziel 2020: 200 gGHG/km       2020: 95 gGHG/km https://www.vcd.org/themen/auto-umwelt/co2-grenzwert/
+        self.plt.addLine(x=None, y=120, z=None)  # Aim 2030: 120 gGHG/km        2030: 59.4 gGHG/km
 
         self.plt.setMenuEnabled(enableMenu=True, enableViewBoxMenu='same')
 
@@ -901,8 +905,8 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 500
-    ghg_tax = 180   # in [€ / t]
+    n = 50
+    ghg_tax = 30000   # in [€ / t]
 
     # Call all function in run function
     execute = run(n)

@@ -60,6 +60,8 @@ def get_lce_vc(data_all):
 
     return median_bev, median_fcev, median_phev, median_icev
 
+
+# - GET TCO VALUES FROM Results AND CALC THE MEDIAN - #
 def get_tco_capex(data_all):
     bev_data = data_all[data_all['Vehicle'] == 'BEV']
     capex_list_bev = bev_data['TCO_Capex']
@@ -84,6 +86,7 @@ def get_tco_capex(data_all):
 def get_tco_opex(data_all):
     bev_data = data_all[data_all['Vehicle'] == 'BEV']
     opex_list_bev = bev_data['TCO_Opex']
+    print(opex_list_bev)
 
     fcev_data = data_all[data_all['Vehicle'] == 'FCEV']
     opex_list_fcev = fcev_data['TCO_Opex']
@@ -150,8 +153,8 @@ def break_calc(data_all, ghg_tax):
 
         opex_raw_list.append(opex_raw)
 
-        capex = capex_raw #+ (fc_emission * ghg_tax) #/ divisor_capex
-        opex = opex_raw #+ (vc_emission * ghg_tax) #/ divisor_capex
+        capex = capex_raw #+ (fc_emission * ghg_tax) #/ divisor_capex           ??
+        opex = opex_raw #+ (vc_emission * ghg_tax) #/ divisor_capex             ??
         capex_start = capex + (ghg_tax * vc_emission)
         tco_list = [capex_start]
 
