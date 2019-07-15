@@ -371,6 +371,7 @@ class TCO:
 # ============================================================================= #
 #################################################################################
 def result_calc(var, class_sel, dimension):
+
     all_para_keys = ['FE', 'E_batt', 'E_battEmptyPHEV', 'P_batt', 'P_fc', 'c_main_bev', 'c_main_fcev', 'c_main_phev', 'c_main_icev', 'C3', 'C5', 'Em_elFC', 'Em_elVC', 'cd',
                      'cd_phev', 'Em_elBatt', 'L', 'D', 'r', 'C_fuel', 'C_batt', 'C_fc', 'X1', 'X2', 'X3', 'X4',
                      'X5', 'X6', 'X7', 'X8', 'X9', 'X10', 'X11', 'X12', 'X13', 'X14', 'm_curb', 'C_msrp',
@@ -378,6 +379,7 @@ def result_calc(var, class_sel, dimension):
 
     result = np.zeros(shape=(0, 2))
     result_all = np.zeros(shape=(0, 6))
+    result_tax = np.zeros(shape=(0, 2))
 
     # Array of all Values
     all_values = []
@@ -418,6 +420,9 @@ def result_calc(var, class_sel, dimension):
         x_vals.extend(spec_vals)                        # all fix vals saved here
         single_res = np.zeros(shape=(n, 2))
         single_all_res = np.zeros(shape=(n, 6))
+
+        single_res_tax = np.zeros(shape=(n, 2))
+
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
             tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict, fe_phev_cd, fe_phev_cs = 0, 0, 0, 0, 0, 0, 0, 0, 0
 
@@ -455,6 +460,13 @@ def result_calc(var, class_sel, dimension):
                 tco_inst = TCO(**lhs_dict)
                 tco_res, tco_opex, tco_capex  = tco_inst.calc_tco_phev()                    ## tco result PHEV
 
+                #RESULT CSV: CHANGE OPEX AND CAPEX WITH GHG TAXES TODO! Muss hinzugefügt werden für csv, aber dann doppelt durch bep
+                if ghg_tax != 0:
+                    tco_opex_tax = tco_opex + e_fc * ghg_tax/1000000    # normalize to gram
+                    tco_capex_tax = tco_capex + e_vc * ghg_tax/1000000  # normalize to gram
+                else:
+                    pass
+
                 fe_phev_cd = lhs_dict['FE_bev']
                 fe_phev_cs = lhs_dict['FE_icev']
 
@@ -490,8 +502,10 @@ def result_calc(var, class_sel, dimension):
                 lhs_dict['E_battEmptyPHEV'] = 0
 
                 lce_inst = LCE(**lhs_dict)
-                e_fc = lce_inst.fuel_cycle()                           # e_fc of rest
-                e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest
+
+                e_fc = lce_inst.fuel_cycle()                           # e_fc of rest vehicles
+                e_vc = lce_inst.vehicle_cycle()                        # e_vc of rest vehicles
+
 
                 # --- c_maintenance allocation --- #
                 if vehicle_type == 0:
@@ -510,6 +524,15 @@ def result_calc(var, class_sel, dimension):
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)                ##### LCE
                 tco_res, tco_opex, tco_capex = tco_inst.calc_tco()                         # tco result rest
 
+                #RESULT CSV: CHANGE OPEX AND CAPEX WITH GHG TAXES TODO!
+
+                if ghg_tax != 0:
+                    tco_opex_tax = tco_opex + e_fc * ghg_tax/1000000    # normalize t to gram
+                    tco_capex_tax = tco_capex + e_vc * ghg_tax/1000000  # normalize t to gram
+                else:
+                    tco_opex_tax = 0
+                    tco_capex_tax = 0
+
                 # Filling Zeros to PHEV specific FE Columns
                 fe_phev_cd = 0
                 fe_phev_cs = 0
@@ -525,6 +548,8 @@ def result_calc(var, class_sel, dimension):
             single_all_res = np.around(single_all_res, decimals=4)
             #print('single_all_result: ', single_all_res['C_main'])
 
+            single_res_tax[list_num] = [np.around(tco_capex_tax, decimals=4), np.around(tco_opex_tax, decimals=4)]
+            #print(single_res_tax)
             fe_phev_cd_list.append(fe_phev_cd)
             fe_phev_cs_list.append(fe_phev_cs)
             c_phev_el_list.append(c_phev_el)
@@ -535,6 +560,8 @@ def result_calc(var, class_sel, dimension):
 
         result = np.append(result, single_res, axis=0)
         result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
+
+        result_tax = np.append(result_tax, single_res_tax, axis=0)
 
         # Additional Values for csv
         fe_phev_cd_array.extend(fe_phev_cd_list)
@@ -566,22 +593,29 @@ def result_calc(var, class_sel, dimension):
     all_values_csv.to_csv("results/input_values.csv", sep=";")
     all_values_csv.to_json("results/json/input_values.json", orient='index')
 
+
     result = np.around(result, decimals=4)
 
     columns = ['TCO (€/km)', "LCE (gGHG/km)", "TCO_Capex (€)", "TCO_Opex (€/km)", "Em_fc (gGHG/km)", "Em_vc (gGHG)"]
     result_extend = np.around(result_all, decimals=4)
     result_extend = pd.DataFrame(data=result_extend, columns=columns)
-    return result, result_extend, all_values, vehicle_name
+
+    # column_tax = ['tco_capex','tco_opex']
+    # re
+
+    print(result_tax[:,1], '\n -------------------')
+    return result, result_extend, all_values, vehicle_name, result_tax
 
 
 # =============================================================================
 # Save Results
 # =============================================================================
 class SaveResults:
-    def __init__(self, res, res_extend, all_values, vehicle_name, parent=None):
+    def __init__(self, res, res_extend, all_values, vehicle_name, result_tax, parent=None):
         self.res = res
         self.res_extend = res_extend
         self.all_values = all_values
+        self.result_tax = result_tax
         self.save_csv()
 
     def save_csv(self):
@@ -619,24 +653,57 @@ class SaveResults:
              'w_h2', 'w_synth', 's_ren']
 
 
-        all_data.to_csv("results/result_all.csv", sep=';', header=True)
-        all_data.to_json("results/json/result_all.json", orient='index')
+        # Replace with ghg_tax capex and opex, calculated in result_tax above
+        all_data_updated = all_data
+
+        # print('CAPEX: \n', self.result_tax[:,0])
+        # print('OPEX: \n', self.result_tax[:, 1])
+        # print('OPEX NORMAL: \n', all_data_updated['TCO_Opex'])
+        # print(len(self.result_tax[:,0]))
+        # print(len(all_data_updated['TCO_Capex']))
+
+        if ghg_tax != 0:
+            all_data_updated['TCO_Capex'] = self.result_tax[:, 0]
+            all_data_updated['TCO_Opex'] = self.result_tax[:, 1]
+        # ------------------------------------------------------------------- #
+
+        all_data_updated.to_csv("results/result_all.csv", sep=';', header=True)
+        all_data_updated.to_json("results/json/result_all.json", orient='index')
 
         # ------ SAVE propType Results to base-temp folder ----- #
         if not os.path.exists('temp/'):
             os.makedirs('temp/')
 
-        self.bev_points = all_data[:n]
+        self.bev_points = all_data_updated[:n]
         self.bev_points.to_csv("temp/bev_result_temp.csv", sep=';', header=True)
 
-        self.fcev_points = all_data[n:(n * 2)]
+        self.fcev_points = all_data_updated[n:(n * 2)]
         self.fcev_points.to_csv("temp/fcev_result_temp.csv", sep=';', header=True)
 
-        self.phev_points = all_data[(2 * n):(n * 3)]
+        self.phev_points = all_data_updated[(2 * n):(n * 3)]
         self.phev_points.to_csv("temp/phev_result_temp.csv", sep=';', header=True)
 
-        self.icev_points = all_data[(3 * n):(n * 4)]
+        self.icev_points = all_data_updated[(3 * n):(n * 4)]
         self.icev_points.to_csv("temp/icev_result_temp.csv", sep=';', header=True)
+
+        # all_data.to_csv("results/result_all.csv", sep=';', header=True)
+        # all_data.to_json("results/json/result_all.json", orient='index')
+        #
+        # # ------ SAVE propType Results to base-temp folder ----- #
+        # if not os.path.exists('temp/'):
+        #     os.makedirs('temp/')
+        #
+        # self.bev_points = all_data[:n]
+        # self.bev_points.to_csv("temp/bev_result_temp.csv", sep=';', header=True)
+        #
+        # self.fcev_points = all_data[n:(n * 2)]
+        # self.fcev_points.to_csv("temp/fcev_result_temp.csv", sep=';', header=True)
+        #
+        # self.phev_points = all_data[(2 * n):(n * 3)]
+        # self.phev_points.to_csv("temp/phev_result_temp.csv", sep=';', header=True)
+        #
+        # self.icev_points = all_data[(3 * n):(n * 4)]
+        # self.icev_points.to_csv("temp/icev_result_temp.csv", sep=';', header=True)
 
 
 # =============================================================================
@@ -895,8 +962,8 @@ def run(n):
     dimension = lhs_dimension()
     lhs = latin_hype(dimension, n)
     var = final_variables(lhs, dimension, class_sel)
-    res, res_extend, all_values, vehicle_name = result_calc(var, class_sel, dimension)
-    SaveResults(res, res_extend, all_values, vehicle_name)
+    res, res_extend, all_values, vehicle_name, result_tax = result_calc(var, class_sel, dimension)
+    SaveResults(res, res_extend, all_values, vehicle_name, result_tax)
 
     return res
 
@@ -906,7 +973,9 @@ if __name__ == '__main__':
 
     # Number of repeats
     n = 50
-    ghg_tax = 1000   # in [€ / t]
+    ghg_tax = 50   # in [€ / t]
+
+
 
     # Call all function in run function
     execute = run(n)
@@ -918,6 +987,7 @@ if __name__ == '__main__':
     print('ALL time: {} sec'.format(pg.ptime.time() - now2))
     w = PlotClass(execute)
 
+    #bep.break_calc(all_data, ghg_tax)  # Break Even Point Plot
     bep.break_calc(all_data, ghg_tax)  # Break Even Point Plot
 
     sys.exit(app.exec_())

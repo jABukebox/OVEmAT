@@ -86,7 +86,7 @@ def get_tco_capex(data_all):
 def get_tco_opex(data_all):
     bev_data = data_all[data_all['Vehicle'] == 'BEV']
     opex_list_bev = bev_data['TCO_Opex']
-    print(opex_list_bev)
+    #print(opex_list_bev)
 
     fcev_data = data_all[data_all['Vehicle'] == 'FCEV']
     opex_list_fcev = fcev_data['TCO_Opex']
@@ -156,13 +156,14 @@ def break_calc(data_all, ghg_tax):
 
         opex_raw_list.append(opex_raw)
 
-        opex_calculated = fc_emission + fc_emission * ghg_tax
+        opex_calculated = opex_raw + fc_emission * ghg_tax
+        print('OPEX_CALCULATED: ', opex_calculated)
         opex_list_calculated.append(opex_calculated)
 
         capex = capex_raw #+ (fc_emission * ghg_tax) #/ divisor_capex           ??
         opex = opex_raw #+ (vc_emission * ghg_tax) #/ divisor_capex             ??
         capex_start = capex + (ghg_tax * vc_emission)
-        print('Capex: ', capex, 'ghg_tax: ', ghg_tax, 'vc_emissions: ', vc_emission)
+        #print('Capex: ', capex, 'ghg_tax: ', ghg_tax, 'vc_emissions: ', vc_emission)
         tco_list = [capex_start]
 
 
@@ -175,8 +176,8 @@ def break_calc(data_all, ghg_tax):
             # -- TCO
             calculation_tco = (capex_start + (range_gaps_iter * opex) + (ghg_tax * range_gaps_iter * fc_emission))
             #print('TCO', calculation_tco)
-            print('fc: ', fc_emission, 'ghg_tax: ', ghg_tax)
-            print(opex_calculated)
+            #print('fc: ', fc_emission, 'ghg_tax: ', ghg_tax)
+            #print(opex_calculated)
             tco_list.append(calculation_tco)
 
             x_ranges.append(range_gaps_iter)
@@ -193,12 +194,10 @@ def break_calc(data_all, ghg_tax):
 
     tco_df = pd.DataFrame.from_dict(range_tco_dict)
     tco_df = tco_df.set_index('distance')
-    #print(tco_df.head())
-
 
 
     # ----- LCE PLOT ----- #
-    fig = plt.figure(1, figsize=(10,7))
+    fig = plt.figure(1, figsize=(10, 7))
 
     plt.subplot(211)
     plt.plot(lce_df)
