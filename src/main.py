@@ -322,8 +322,8 @@ class TCO:
     def calc_tco(self):
         sum_tco = 0
         for years in range(1, int(round(self.L+1))):  # creating sum
-            equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)      # WITH FIXED C_main costs per year
-            #equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main)) / (1 + self.r) ** (years - 1)     # with variable c_main costs TODO: CHECK!!!
+            #equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)      # WITH FIXED C_main costs per year
+            equation = ((self.C_fuel * (self.FE / 100)) + (self.C_main)) / (1 + self.r) ** (years - 1)     # with variable c_main costs TODO: CHECK!!!
             equation = np.around(equation, decimals=4)
             sum_tco += equation
 
@@ -345,14 +345,16 @@ class TCO:
         FE_cd = self.FE_bev * gin.fe_cd_x()
 
         for years in range(1, int(round(self.L + 1))):  # creating sum
-            equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
+            # equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1) # FOR ABSOLUTE C_main NUMBERS
+            equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main)) / (1 + self.r) ** (years - 1)
             sum_tco_cd += equation
 
         ## ICEV
         sum_tco_cs = 0
         FE_cs = self.FE_icev * gin.fe_cs_x()
         for years in range(1, int(round(self.L + 1))):  # creating sum
-            equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)
+            #equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1) # WITH FIXED C_main costs per year
+            equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main)) / (1 + self.r) ** (years - 1)
             sum_tco_cs += equation
         sum_tco = (sum_tco_cd * self.cd_phev / 100) + (sum_tco_cs * cs / 100)
 
@@ -361,8 +363,52 @@ class TCO:
             ((self.C_batt_bev * self.E_battPHEV) - (self.C_battSet * self.E_battSet)) + \
             ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
         c_tco = (c_veh / (self.L * self.D)) + sum_tco  # c_batt_set = 150 und E_batt_set = 10 ????
-
         return c_tco, sum_tco, c_veh
+
+
+
+    # # CALCULATIONS FOR TAXES / Actually not used!
+    # def calc_tco_tax(self):
+    #     global sum_tco_tax
+    #     sum_tco_tax = 0
+    #     for years in range(1, int(round(self.L+1))):  # creating sum
+    #         #equation = ((self.C_fuel * (self.FE/100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1)      # WITH FIXED C_main costs per year
+    #         equation = (self.tco_opex_tax) / ((1 + self.r) ** (years - 1))     # with variable c_main costs TODO: CHECK!!!
+    #         equation = np.around(equation, decimals=4)
+    #         sum_tco_tax += equation
+    #
+    #     return sum_tco_tax
+    #
+    # def calc_tco_tax_phev(self):
+    #     global sum_tco_tax_phev
+    #     cs = 100 - self.cd_phev
+    #     # --- OPEX --- #
+    #     ## BEV
+    #     sum_tco_cd = 0
+    #     FE_cd = self.FE_bev * gin.fe_cd_x()
+    #
+    #     for years in range(1, int(round(self.L + 1))):  # creating sum
+    #         # equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1) # FOR ABSOLUTE C_main NUMBERS
+    #         equation = (self.tco_opex_tax) / (1 + self.r) ** (years - 1)
+    #         sum_tco_cd += equation
+    #
+    #     ## ICEV
+    #     sum_tco_cs = 0
+    #     FE_cs = self.FE_icev * gin.fe_cs_x()
+    #     for years in range(1, int(round(self.L + 1))):  # creating sum
+    #         # equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1) # WITH FIXED C_main costs per year
+    #         equation = (self.tco_opex_tax) / (1 + self.r) ** (years - 1)
+    #         sum_tco_cs += equation
+    #
+    #     sum_tco_tax_phev = (sum_tco_cd * self.cd_phev / 100) + (sum_tco_cs * cs / 100)
+    #
+    #     # # --- CAPEX --- #
+    #     # c_veh = self.C_msrp + ((self.C_batt * self.P_batt) - (self.C_battSet * self.P_battSet)) * (1 / self.CF) + \
+    #     #         ((self.C_batt_bev * self.E_battPHEV) - (self.C_battSet * self.E_battSet)) + \
+    #     #         ((self.C_fc * self.P_fc) - (self.C_fcSet * self.P_fcSet)) - self.s_ren
+    #     # c_tco = (c_veh / (self.L * self.D)) + sum_tco_tax_phev  # c_batt_set = 150 und E_batt_set = 10 ????
+    #     return sum_tco_tax_phev
+
 
 
 #################################################################################
@@ -379,7 +425,9 @@ def result_calc(var, class_sel, dimension):
 
     result = np.zeros(shape=(0, 2))
     result_all = np.zeros(shape=(0, 6))
-    result_tax = np.zeros(shape=(0, 2))
+
+    result_tax = np.zeros(shape=(0, 2))  # Partial TCO: CAPEX, OPEX
+    result_tax_total = []  # Total TCO!
 
     # Array of all Values
     all_values = []
@@ -422,6 +470,7 @@ def result_calc(var, class_sel, dimension):
         single_all_res = np.zeros(shape=(n, 6))
 
         single_res_tax = np.zeros(shape=(n, 2))
+        single_res_tax_total = []
 
         for list_num in range(n):                       # changed from 'len(lhs_lists)' to 'n'
             tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc, lhs_dict, fe_phev_cd, fe_phev_cs = 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -461,11 +510,63 @@ def result_calc(var, class_sel, dimension):
                 tco_res, tco_opex, tco_capex  = tco_inst.calc_tco_phev()                    ## tco result PHEV
 
                 #RESULT CSV: CHANGE OPEX AND CAPEX WITH GHG TAXES TODO! Muss hinzugefügt werden für csv, aber dann doppelt durch bep
+                # if ghg_tax != 0:
+                #     tco_opex_tax = tco_opex + e_fc * ghg_tax/1000000    # normalize to gram
+                #     tco_capex_tax = tco_capex + e_vc * ghg_tax/1000000  # normalize to gram
+                # else:
+                #     tco_opex_tax = 0
+                #     tco_capex_tax = 0
+
+
+                #print('tco_res PRE: \n', tco_res)
+                # IF GHG TAX TURNED ON: ADDED TO TCO HERE
                 if ghg_tax != 0:
-                    tco_opex_tax = tco_opex + e_fc * ghg_tax/1000000    # normalize to gram
-                    tco_capex_tax = tco_capex + e_vc * ghg_tax/1000000  # normalize to gram
+                    tco_opex_tax = tco_opex + e_fc * ghg_tax / 1000000  # normalize t to gram
+                    tco_capex_tax = tco_capex + e_vc * ghg_tax / 1000000  # normalize t to gram
+
+                    L = lhs_lists[list_num][16]
+                    D = lhs_lists[list_num][17]
+                    r = lhs_lists[list_num][18]
+                    cd_phev = lhs_lists[list_num][13]
+
+
+
+                    # for years in range(1, int(round(L + 1))):  # creating sum
+                    #     equation = (tco_opex_tax) / ((1 + r) ** (years - 1))
+                    #     equation = np.around(equation, decimals=4)
+                    #     sum_tco_tax += equation
+
+                    cs = 100 - cd_phev
+                    # --- OPEX --- #
+                    ## BEV
+                    sum_tco_cd = 0
+
+                    for years in range(1, int(round(L + 1))):  # creating sum
+                        # equation = ((self.C_fuel_bev * (FE_cd / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1) # FOR ABSOLUTE C_main NUMBERS
+                        equation = (tco_opex_tax) / (1 + r) ** (years - 1)
+                        sum_tco_cd += equation
+
+                    ## ICEV
+                    sum_tco_cs = 0
+                    for years in range(1, int(round(L + 1))):  # creating sum
+                        # equation = ((self.C_fuel_icev * (FE_cs / 100)) + (self.C_main / self.D)) / (1 + self.r) ** (years - 1) # WITH FIXED C_main costs per year
+                        equation = (tco_opex_tax) / (1 + r) ** (years - 1)
+                        sum_tco_cs += equation
+
+                    sum_tco_tax_phev = (sum_tco_cd * cd_phev / 100) + (sum_tco_cs * cs / 100)
+
+                    # print(sum_tco_tax) #!!
+
+                    tco_res_tax = tco_res + (tco_capex_tax / (L * D)) + sum_tco_tax_phev
+
                 else:
-                    pass
+                    tco_opex_tax = 0
+                    tco_capex_tax = 0
+                    tco_res_tax = 0
+
+                #print('tco_res POST: \n', tco_res_tax)
+
+
 
                 fe_phev_cd = lhs_dict['FE_bev']
                 fe_phev_cs = lhs_dict['FE_icev']
@@ -524,14 +625,39 @@ def result_calc(var, class_sel, dimension):
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)                ##### LCE
                 tco_res, tco_opex, tco_capex = tco_inst.calc_tco()                         # tco result rest
 
-                #RESULT CSV: CHANGE OPEX AND CAPEX WITH GHG TAXES TODO!
+                #RESULT CSV: CHANGE OPEX AND CAPEX WITH GHG TAXES TODO! ALLES für PHEV!
 
+
+                # IF GHG TAX TURNED ON: ADDED TO TCO HERE
                 if ghg_tax != 0:
                     tco_opex_tax = tco_opex + e_fc * ghg_tax/1000000    # normalize t to gram
                     tco_capex_tax = tco_capex + e_vc * ghg_tax/1000000  # normalize t to gram
+
+                    L = lhs_lists[list_num][16]
+                    D = lhs_lists[list_num][17]
+                    r = lhs_lists[list_num][18]
+
+
+                    sum_tco_tax = 0
+                    for years in range(1, int(round(L + 1))):  # creating sum
+                        equation = (tco_opex_tax) / ((1 + r) ** (years - 1))
+                        equation = np.around(equation, decimals=4)
+                        sum_tco_tax += equation
+
+                    #print(sum_tco_tax) #!!
+
+
+                    tco_res_tax = tco_res + (tco_capex_tax / (L * D)) + sum_tco_tax
+
+                    #print(tco_res_tax)  #!!
+
+                    #tco_res_tax = tco_res + (tco_capex_tax/(L*D)) + sum_tax
+
+
                 else:
                     tco_opex_tax = 0
                     tco_capex_tax = 0
+                    tco_res_tax = 0
 
                 # Filling Zeros to PHEV specific FE Columns
                 fe_phev_cd = 0
@@ -539,16 +665,22 @@ def result_calc(var, class_sel, dimension):
                 c_phev_el = 0
                 c_phev_synth = 0
 
+            #print('TCO RES TAX!!!!: \n', tco_res_tax)
+
             all_values.append(lhs_dict)
 
 
-            # all results of BEV or FCEV etc
+            # all results of BEV, FCEV etc
             single_res[list_num] = [np.around(tco_res, decimals=4), np.around(lce_res, decimals=4)]
             single_all_res[list_num] = [tco_res, lce_res, tco_capex, tco_opex, e_fc, e_vc]
             single_all_res = np.around(single_all_res, decimals=4)
             #print('single_all_result: ', single_all_res['C_main'])
 
-            single_res_tax[list_num] = [np.around(tco_capex_tax, decimals=4), np.around(tco_opex_tax, decimals=4)]
+            # TAX
+            #single_res_tax_total[list_num] = [np.around(tco_res_tax, decimals=4)]  # Here total TCO for Taxes
+            single_res_tax_total.append(tco_res_tax)  # Here total TCO for Taxes
+            single_res_tax[list_num] = [np.around(tco_capex_tax, decimals=4), np.around(tco_opex_tax, decimals=4)]  # Partial TCO Results
+
             #print(single_res_tax)
             fe_phev_cd_list.append(fe_phev_cd)
             fe_phev_cs_list.append(fe_phev_cs)
@@ -558,10 +690,15 @@ def result_calc(var, class_sel, dimension):
 
             vehicle_name_list.append(vehicle_name)
 
+            #print(single_res_tax_total) #!
+
         result = np.append(result, single_res, axis=0)
         result_all = np.append(result_all, single_all_res, axis=0)      # --- TOTAL RESULT ---
 
-        result_tax = np.append(result_tax, single_res_tax, axis=0)
+        result_tax = np.append(result_tax, single_res_tax, axis=0)  # PARTIAL TCOs
+
+        result_tax_total.extend(single_res_tax_total)     # WHOLE TCO!
+        #print('TAX_TOTAL: \n', result_tax_total) #!
 
         # Additional Values for csv
         fe_phev_cd_array.extend(fe_phev_cd_list)
@@ -574,14 +711,15 @@ def result_calc(var, class_sel, dimension):
         vehicle_type += 1                                    # increasing -> lhs_lists bev -> fcev
 
 
-    #all_values = pd.DataFrame(all_values, columns=all_para_keys)
-    all_values = pd.DataFrame(all_values)
+
+    #result_tax_total = pd.DataFrame(result_tax_total)
+
+    all_values = pd.DataFrame(all_values) # create dataframe
     all_values = round(all_values, 4)
 
 
     # Copy all_values to customly save as csv // Adding No. of Calculation, fe_phev_cd, fe_phev_cs,
     all_values_csv = all_values
-    #all_values_csv['Number'] = input_number
     all_values_csv['Vehicle'] = vehicle_name_list
 
 
@@ -601,9 +739,17 @@ def result_calc(var, class_sel, dimension):
     result_extend = pd.DataFrame(data=result_extend, columns=columns)
 
     # column_tax = ['tco_capex','tco_opex']
-    # re
 
-    print(result_tax[:,1], '\n -------------------')
+    #print(result_tax_total[:, 0], '\n -------------------')
+
+    #print('TAX_TOTAL: \n',result_tax_total)
+
+    #print('\n RES TCO: ',result[:,0],'\n')
+    #print('Res_tax_tot: \n', result_tax_total)
+    if ghg_tax != 0:
+        result[:,0] = result_tax_total
+
+
     return result, result_extend, all_values, vehicle_name, result_tax
 
 
@@ -619,6 +765,9 @@ class SaveResults:
         self.save_csv()
 
     def save_csv(self):
+        global all_data_updated
+        global all_data
+
         if not os.path.exists('results/'):
             os.makedirs('results/')
 
@@ -630,7 +779,6 @@ class SaveResults:
             csv_writer.writerows(map(lambda t: ("%.4f" % t[0], "%.4f" % t[1]), self.res))
 
         # SAVE results + all values to results/result_all.csv
-        global all_data
         all_data = self.res_extend.join(self.all_values)
         #print(all_data['C_main'])
 
@@ -663,6 +811,7 @@ class SaveResults:
         # print(len(all_data_updated['TCO_Capex']))
 
         if ghg_tax != 0:
+
             all_data_updated['TCO_Capex'] = self.result_tax[:, 0]
             all_data_updated['TCO_Opex'] = self.result_tax[:, 1]
         # ------------------------------------------------------------------- #
@@ -972,8 +1121,8 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Number of repeats
-    n = 50
-    ghg_tax = 50   # in [€ / t]
+    n = 500
+    ghg_tax = 0   # in [€ / t]
 
 
 
