@@ -219,11 +219,12 @@ def break_calc(data_all, ghg_tax):
 
     plt.grid(True)
     plt.title('Break Even Points Emissions')
-    legend = plt.legend(['BEV', 'FCEV', 'PHEV', 'ICEV'], loc='upper left')
+    legend = plt.legend(['BEV', 'FCEV', 'PHEV', 'ICEV'], loc='lower right')
     legend1 = plt.legend(['EM_FC_BEV = ' + str(round(fc_emission_raw_list[0], 2)) + ' g CO2 / km',
                           'EM_FC_FCEV = ' + str(round(fc_emission_raw_list[1], 2)) + ' g CO2 / km',
                           'EM_FC_PHEV = ' + str(round(fc_emission_raw_list[2], 2)) + ' g CO2 / km',
-                          'EM_FC_ICEV = ' + str(round(fc_emission_raw_list[3], 2)) + ' g CO2 / km'], loc='lower right')
+                          #'EM_FC_ICEV = ' + str(round(fc_emission_raw_list[3], 2)) + ' g CO2 / km'], loc='lower right')
+                          'EM_FC_ICEV = ' + str(round(fc_emission_raw_list[3], 2)) + ' g CO2 / km'], loc='upper left')
 
     plt.gca().add_artist(legend)
 
@@ -235,7 +236,8 @@ def break_calc(data_all, ghg_tax):
     legend_tco = plt.legend(['OPEX_BEV = ' + str(round(opex_list_calculated[0], 3)) + ' € / km', # + ghg_tax
                             'OPEX_FCEV = ' + str(round(opex_list_calculated[1], 3)) + ' € / km',
                             'OPEX_PHEV = ' + str(round(opex_list_calculated[2], 3)) + ' € / km',
-                            'OPEX_ICEV = ' + str(round(opex_list_calculated[3], 3)) + ' € / km'], loc='lower right')
+                            #'OPEX_ICEV = ' + str(round(opex_list_calculated[3], 3)) + ' € / km'], loc='lower right')
+                            'OPEX_ICEV = ' + str(round(opex_list_calculated[3], 3)) + ' € / km'], loc = 'upper left')
     plt.title('Break Even Points Costs')
     plt.xlabel('Distance [km]')
     plt.ylabel('Total Costs [€]')
