@@ -21,8 +21,7 @@
 import pandas as pd
 import os
 
-# TODO: * Check welche default_vals immer gleich -> doppelung rausnehmen
-#       * boolean Checkbox und vehicle bei test! kommt von django
+
 
 vehicle = 'BEV'
 
@@ -40,13 +39,13 @@ def default_general():              # All values that stay the same in all class
 
 def changed_general():              # Calculation is getting Input from here ('changed')
     changed_vals = default_general()
-    # TODO: Hier update durch user Input
+
     # changed_vals = changed_vals.set_index('vars')          # switch on when changed
     return changed_vals
 
 
 # COMPACT
-def default_compact():                        # TODO: min - max werte festlegen,
+def default_compact():
     default_val = pd.read_csv('inputfiles/_default_compact.csv', index_col='vars', delimiter=';')
     return default_val
 
@@ -57,23 +56,23 @@ def changed_compact():
 
 
 # SUV
-def default_suv():  # TODO: Werte anpassen für suv
+def default_suv():
     default_val = pd.read_csv('inputfiles/_default_suv.csv', index_col='vars', delimiter=';')
     return default_val
 
 
-def changed_suv():                              # TODO: hier müssen auch value changes rein!!
+def changed_suv():
     changed_vals = default_suv()
     return changed_vals
 
 
 # LDV
-def default_ldv():  # TODO: Werte anpassen
+def default_ldv():
     default_val = pd.read_csv('inputfiles/_default_ldv.csv', index_col='vars', delimiter=';')
     return default_val
 
 
-def changed_ldv():                              # TODO: hier müssen auch value changes rein!!
+def changed_ldv():
     changed_vals = default_ldv()
     return changed_vals
 
@@ -86,7 +85,7 @@ def x_vals():           # vehicle cycle - all values are fix set
     return vehicle_cycle_default
 
 
-def spec_vals():           # specific vehicle vals - all values are fix set # TODO: WERTE ERSETZEN / fcev: cf = 1!?
+def spec_vals():           # specific vehicle vals - all values are fix set
     spec_vals_default = pd.read_csv('inputfiles/_spec_vals.csv', index_col='Class', delimiter=';')
     return spec_vals_default
 

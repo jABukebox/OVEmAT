@@ -24,20 +24,6 @@ import os
 import sys
 import csv, json
 import statistics
-#import mpld3
-from scipy.spatial import ConvexHull
-#import matplotlib.pyplot as plt
-
-
-# TODO: Norman: Kosten Versicherung / LIS / Fahrzeug /
-# WELCHE kostenparameter sind abhängig von Anzahl der Fahrzeuge
-# Fuel Cell. welche Parameter hat Caro betrachtet und sind abhängig von Zahl von Fahrzeugen
-# Caro: welche kostenparameter gibt es noch
-# Pop-Up: Schnittpunkte (Break even Points) / Einzelne Ergebnisse Eingangvariablen (Markierung
-# Ökoinstitut: TCO-Rechner!!
-
-# Todo: boolean muss durch checkbox ersetzt werden
-# todo: FE_phev_cd, FE_phev_cs
 
 
 global booleanCheckbox
@@ -469,8 +455,8 @@ def result_calc(var, class_sel, dimension):
                 print('TCO RES: ', tco_res)
                 # IF GHG TAX TURNED ON: ADDED TO TCO HERE
                 if ghg_tax != 0:
-                    tco_opex_tax = tco_opex + e_fc * ghg_tax / 1000000  # normalize t to gram
-                    tco_capex_tax = tco_capex + e_vc * ghg_tax / 1000000  # normalize t to gram
+                    tco_opex_tax = tco_opex + (e_fc * ghg_tax / 1000000)  # normalize t to gram
+                    tco_capex_tax = tco_capex + (e_vc * ghg_tax / 1000000)  # normalize t to gram
 
                     L = lhs_lists[list_num][16]
                     D = lhs_lists[list_num][17]
@@ -553,8 +539,8 @@ def result_calc(var, class_sel, dimension):
 
                 # IF GHG TAX TURNED ON: ADDED TO TCO HERE
                 if ghg_tax != 0:
-                    tco_opex_tax = tco_opex + e_fc * ghg_tax / 1000000  # normalize t to gram
-                    tco_capex_tax = tco_capex + e_vc * ghg_tax / 1000000  # normalize t to gram
+                    tco_opex_tax = tco_opex + (e_fc * ghg_tax / 1000000)  # normalize t to gram
+                    tco_capex_tax = tco_capex + (e_vc * ghg_tax / 1000000)  # normalize t to gram
 
                     L = lhs_lists[list_num][16]
                     D = lhs_lists[list_num][17]
@@ -912,15 +898,6 @@ class PlotClass(QtGui.QMainWindow):
             self.plt.plot(medians_icev, symbol='o', symbolBrush=pg.mkBrush('000000', alpha=0.8),
                           symbolPen=pg.mkPen('000000', alpha=1), symbolSize = 5, name='ICEV_mean')
 
-
-
-            # Adding Legend items to legendview
-            # CHANGE THE FONT SIZE AND COLOR OF ALL LEGENDS LABEL
-            # legendLabelStyle = {'color': '#FFF', 'size': '12pt', 'bold': True, 'italic': False}
-            # for item in self.plt.legend.items:
-            #     for single_item in item:
-            #         if isinstance(single_item, pg.graphicsItems.LabelItem.LabelItem):
-            #             single_item.setText(single_item.text, **legendLabelStyle)
 
 
             self.legend.addItem(plot_bev, name='BEV')
