@@ -2,7 +2,7 @@
 
 # About 
 
-This tool is the base of a Master Thesis written by Jaron Bucka in 2019.
+This tool is the base of the Master Thesis "Multidimensional uncertainty quantification of alternative drive technologies regarding Life Cycle Emissions and Total Cost of Ownership " written by Jaron Bucka in 2019.
 
 It calculates the emissions (LCE) and total costs (TCO) for four vehicle drives powered by renewable energy: 
 Battery Electric Vehicles (BEV), Fuel Cell Electric Vehicles (FCEV), Plug-In Hybrid Vehicles (PHEV) and Internal Combustion Engine Vehicle (ICEV).
