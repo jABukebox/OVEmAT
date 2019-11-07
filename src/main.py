@@ -55,7 +55,6 @@ def lhs_dimension():                     # Dynamic dimension of LHS - depending 
 
 
     dim = (len(range_length))                   # Length of Variable list
-    #print("dim: ", dim)
     return dim
 
 
@@ -242,6 +241,13 @@ class LCE:
         m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_batt - self.X12 * self.P_fc
         e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
                 self.X7 + self.X8 * self.Em_elBatt) + self.E_batt * (
+                       self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elVC)
+        return e_vc
+
+    def vehicle_cycle_phev(self):                                    # Vehicle Cycle Emissions
+        m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_battEmptyPHEV - self.X12 * self.P_fc
+        e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
+                self.X7 + self.X8 * self.Em_elBatt) + self.E_battEmptyPHEV * (
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elVC)
         return e_vc
 
@@ -452,7 +458,6 @@ def result_calc(var, class_sel, dimension):
                 tco_inst = TCO(**lhs_dict)
                 tco_res, tco_opex, tco_capex = tco_inst.calc_tco_phev()  ## tco result PHEV
 
-                print('TCO RES: ', tco_res)
                 # IF GHG TAX TURNED ON: ADDED TO TCO HERE
                 if ghg_tax != 0:
                     tco_opex_tax = tco_opex + (e_fc * ghg_tax / 1000000)  # normalize t to gram
@@ -473,14 +478,12 @@ def result_calc(var, class_sel, dimension):
 
                     tco_res_tax = (tco_capex_tax / (L * D)) + sum_tco_tax
 
-                    print('TCO RES AFTER: \n', tco_res_tax)
 
                 else:
                     tco_opex_tax = 0
                     tco_capex_tax = 0
                     tco_res_tax = 0
 
-                # print('tco_res POST: \n', tco_res_tax)
 
                 fe_phev_cd = lhs_dict['FE_bev']
                 fe_phev_cs = lhs_dict['FE_icev']
@@ -496,7 +499,7 @@ def result_calc(var, class_sel, dimension):
                 lhs_dict['C_main'] = lhs_dict['c_main_phev']
 
                 lce_inst = LCE(**lhs_dict)
-                e_vc = lce_inst.vehicle_cycle()  # e_vc of PHEV
+                e_vc = lce_inst.vehicle_cycle_phev()  # e_vc of PHEV
 
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)  ## LCE
 
@@ -548,7 +551,6 @@ def result_calc(var, class_sel, dimension):
 
                     sum_tco_tax = 0
 
-                    print('FIRST: ', tco_opex_tax)
                     for years in range(1, int(round(L + 1))):  # creating sum
                         equation = (tco_opex_tax) / ((1 + r) ** (years - 1))
                         equation = np.around(equation, decimals=4)
@@ -659,7 +661,6 @@ class SaveResults:
 
         # SAVE results + all values to results/result_all.csv
         all_data = self.res_extend.join(self.all_values)
-        #print(all_data['C_main'])
 
         # REINDEX dataframe columns #
         all_data = all_data.reindex(
@@ -683,11 +684,6 @@ class SaveResults:
         # Replace with ghg_tax capex and opex, calculated in result_tax above
         all_data_updated = all_data
 
-        # print('CAPEX: \n', self.result_tax[:,0])
-        # print('OPEX: \n', self.result_tax[:, 1])
-        # print('OPEX NORMAL: \n', all_data_updated['TCO_Opex'])
-        # print(len(self.result_tax[:,0]))
-        # print(len(all_data_updated['TCO_Capex']))
 
         if ghg_tax != 0:
 
@@ -806,7 +802,6 @@ class PlotClass(QtGui.QMainWindow):
     def plotting(self):
             # SPLIT RESULTS
             self.x = execute[:, 0]
-            #print('x Werte: \n',self.x)
             self.y = execute[:, 1]
 
             # Calculate mean values
@@ -1006,7 +1001,6 @@ def run(n):
     var = final_variables(lhs, dimension, class_sel)
 
     res, res_extend, all_values, vehicle_name, result_tax = result_calc(var, class_sel, dimension)
-    #print('TAAAX: \n',result_tax)
     SaveResults(res, res_extend, all_values, vehicle_name, result_tax)
 
     print(res)
