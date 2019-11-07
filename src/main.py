@@ -36,8 +36,9 @@ booleanCheckbox = 1
 
 
 def veh_class_sel():                                                # saved as "class_sel"
-    veh_class = int(input("Select Vehicle Class:\n"
-                          "1: Compact Cars - 2: SUVs - 3: LDVs (Light Duty Vehicles) \n"))
+    #veh_class = int(input("Select Vehicle Class:\n"
+    #                      "1: Compact Cars - 2: SUVs - 3: LDVs (Light Duty Vehicles) \n"))
+    veh_class=1
     return veh_class
 
 # =============================================================================
@@ -1011,7 +1012,7 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # -- Basic Settings -- #
-    n = 500                         # Number of calculation repeats of each drive
+    n = 200                         # Number of calculation repeats of each drive
 
     ghg_tax = 0   # in [€ / t]      # 35 € recommendation of economics
                                     # 100 € Pathway Costs
