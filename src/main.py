@@ -245,13 +245,6 @@ class LCE:
                        self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elVC)
         return e_vc
 
-    def vehicle_cycle_phev(self):                                    # Vehicle Cycle Emissions
-        m_scal = self.m_curb - self.X1 - self.X6 * self.P_batt - self.X9 * self.E_battEmptyPHEV - self.X12 * self.P_fc
-        e_vc = self.X2 + self.X3 * self.Em_elVC + m_scal * (self.X4 + self.X5 * self.Em_elVC) + self.P_batt * (
-                self.X7 + self.X8 * self.Em_elBatt) + self.E_battEmptyPHEV * (
-                       self.X10 + self.X11 * self.Em_elBatt) + self.P_fc * (self.X13 + self.X14 * self.Em_elVC)
-        return e_vc
-
     def calc_lce(self, e_fc, e_vc):
         e_lce = (e_vc / (self.L * self.D) + e_fc)
         return e_lce
@@ -280,7 +273,7 @@ class FuelCyclePHEV:                                          # EXTRA FuelCycle 
     def new_phev_vals(self):  # TODO: 1.26 ??? Faktor klären! - phev_fac  * self.phev_fac
         # Fuel Economy Conversion FE/2 (cd) ##### Here deleted 1.5 in (self.FE_bev * self.cd_phev * 1.5)
         FE = (self.FE_icev * self.cs) + (self.FE_bev * self.cd_phev)
-        E_batt = 0
+        E_batt = self.E_battPHEV
         E_battPHEV = self.E_battPHEV
         P_batt = self.P_batt_bev
         P_fc = self.P_fc_bev
@@ -500,7 +493,7 @@ def result_calc(var, class_sel, dimension):
                 lhs_dict['C_main'] = lhs_dict['c_main_phev']
 
                 lce_inst = LCE(**lhs_dict)
-                e_vc = lce_inst.vehicle_cycle_phev()  # e_vc of PHEV
+                e_vc = lce_inst.vehicle_cycle()  # e_vc of PHEV
 
                 lce_res = lce_inst.calc_lce(e_fc, e_vc)  ## LCE
 
